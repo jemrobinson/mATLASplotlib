@@ -2,8 +2,8 @@ import matplotlib.pyplot as pyplot
 
 class BaseCanvas(object) :
   '''Base class for canvas properties'''
-  def __init__( self, fig_x=6, fig_y=6 ) : #, log_type=None, x_ticks=None, ) :
-    self.figure = pyplot.figure( figsize=(fig_x, fig_y), dpi=100, facecolor='white' )
+  def __init__( self, n_pixels ) : #, log_type=None, x_ticks=None, ) :
+    self.figure = pyplot.figure( figsize=(n_pixels[0]/100.0, n_pixels[1]/100.0), dpi=100, facecolor='white' )
     # self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
     # self.log_type = '' if log_type == None else log_type
     # self.x_ticks = x_ticks

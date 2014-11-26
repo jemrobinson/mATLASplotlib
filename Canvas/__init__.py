@@ -1,2 +1,2 @@
 from base_canvas import BaseCanvas
-from simple import Simple
+from simple_canvas import SimpleCanvas
