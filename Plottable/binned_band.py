@@ -1,4 +1,5 @@
 from base_plottable import BasePlottable
+import matplotlib.pyplot as pyplot
 import numpy as np
 
 class BinnedBand(BasePlottable) :
@@ -16,7 +17,7 @@ class BinnedBand(BasePlottable) :
     assert( self.x_points.size == self.y_points_l.size == self.y_points_h.size )
 
 
-  def draw_on_plot( self, plot, **kwargs ) :
+  def draw_on_plot( self, axes, **kwargs ) :
     plot_style = kwargs.get( 'style', None )
     plot_label = kwargs.get( 'label', None )
     plot_colour_primary = kwargs.get( 'colour_primary', 'black' )
@@ -26,20 +27,26 @@ class BinnedBand(BasePlottable) :
 
     if plot_style == 'filled band' :
       if plot_label == None :
-        plot.fill_between( self.x_points, self.y_points_l, self.y_points_h, facecolor=plot_colour_primary, edgecolor=plot_colour_secondary, hatch=plot_hatch_style, alpha=plot_alpha, linewidth=0 )
+        axes.fill_between( self.x_points, self.y_points_l, self.y_points_h, facecolor=plot_colour_primary, edgecolor=plot_colour_secondary, hatch=plot_hatch_style, alpha=plot_alpha, linewidth=0 )
       else :
-        plot.fill_between( self.x_points, self.y_points_l, self.y_points_h, facecolor=plot_colour_primary, edgecolor=plot_colour_secondary, hatch=plot_hatch_style, alpha=plot_alpha, linewidth=0 )
-        self.fill_between_proxy( (0.0,0.0), (0.0,0.0), (0.0,0.0), axes=plot, label=text, facecolor=plot_colour_primary, edgecolor=plot_colour_secondary, hatch=plot_hatch_style, alpha=plot_alpha )
+        axes.fill_between( self.x_points, self.y_points_l, self.y_points_h, facecolor=plot_colour_primary, edgecolor=plot_colour_secondary, hatch=plot_hatch_style, alpha=plot_alpha, linewidth=0 )
+        proxy_artist = pyplot.Rectangle( (0,0), 0, 0, axes=axes, label=plot_label, facecolor=plot_colour_primary, edgecolor=plot_colour_secondary, hatch=plot_hatch_style, alpha=plot_alpha, linewidth=0 )
+        axes.add_patch( proxy_artist )
+
     else :
       raise NotImplementedError( 'Style {0} not recognised by {1}'.format( plot_style, type(self) ) )
 
-  def fill_between_proxy( self, x, y1, y2, axes=None, **kwargs):
-    axes = axes if axes is not None else plt.gca()
-    axes.fill_between(x, y1, y2, **kwargs)
-    proxy_artist = plt.Rectangle((0, 0), 0, 0, **kwargs)
-    axes.add_patch(proxy_artist)
-    return proxy_artist
 
-  def number_of_points( self ) :
-    return len(self.x_points)
+  # def fill_between_proxy( self, plot, **kwargs):
+    # axes = axes if axes is not None else plt.gca()
+    # axes.fill_between(x, y1, y2, **kwargs)
+    # proxy_artist = pyplot.Rectangle( (0,0), 0, 0, **kwargs)
+    # plot.add_patch(proxy_artist)
+    # return proxy_artist
+
+
+  # def number_of_points( self ) :
+  #   return len(self.x_points)
+
+
 

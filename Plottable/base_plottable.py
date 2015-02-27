@@ -9,7 +9,6 @@ class BasePlottable(object) :
   def number_of_points( self ) :
     raise NotImplementedError( 'number_of_points not defined by {0}'.format(type(self)) )
 
-
   def draw_on_plot( self, plot, **kwargs ) :
     raise NotImplementedError( 'draw_on_plot not defined by {0}'.format(type(self)) )
 
