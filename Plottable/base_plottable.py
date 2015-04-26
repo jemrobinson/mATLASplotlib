@@ -12,10 +12,6 @@ class BasePlottable(object) :
   def draw_on_plot( self, plot, **kwargs ) :
     raise NotImplementedError( 'draw_on_plot not defined by {0}'.format(type(self)) )
 
-  def number_of_points( self ) :
-    raise NotImplementedError( 'number_of_points not defined by {0}'.format(type(self)) )
-
-
   # Constructors
   @classmethod
   def from_x_edges_y_values( cls, x_bin_edges, y_values, y_error_pairs ) :
