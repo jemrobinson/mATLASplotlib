@@ -13,7 +13,7 @@ class SimpleCanvas(BaseCanvas) :
 
 
   def draw_legend( self, x, y, axes='main', anchor_to='lower left' ) :
-    super(SimpleCanvas, self).draw_legend( x, y, axes=plot, anchor_to=anchor_to )
+    super(SimpleCanvas, self).draw_legend( x, y, axes=axes, anchor_to=anchor_to )
 
 
   def set_range( self, axis_name, axis_range ) :
