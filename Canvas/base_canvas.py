@@ -1,17 +1,24 @@
 import matplotlib.pyplot as pyplot
+import matplotlib.ticker as tkr
 from matplotlib.patches import Polygon
+
+# Set fonts to Helvetica and stixsans (the only sans-serif maths font)
+from matplotlib import rcParams
+rcParams['font.family'] = 'sans-serif'
+rcParams['font.sans-serif'] = 'Helvetica'
+rcParams['mathtext.fontset'] = 'stixsans'
 
 class BaseCanvas(object) :
   '''Base class for canvas properties'''
-  def __init__( self, n_pixels ) :
+  def __init__( self, n_pixels, log_type=None, x_ticks=None ) :
     self.figure = pyplot.figure( figsize=(n_pixels[0]/100.0, n_pixels[1]/100.0), dpi=100, facecolor='white' )
     # self.xmin, self.xmax, self.ymin, self.ymax = xmin, xmax, ymin, ymax
-    # self.log_type = '' if log_type == None else log_type
-    # self.x_ticks = x_ticks
+    self.log_type = '' if log_type == None else log_type
+    self.x_ticks = x_ticks
     # self.minor_x_ticks = [ 60, 200, 300, 500 ]
     # self.n_y_ticks = 4
     # self.main_legend = None
-    # self.location_map = { 'upper right':['right','top'], 'upper left':['left','top'], 'lower right':['right','bottom'], 'lower left':['left','bottom'] }
+    self.location_map = { 'upper right':['right','top'], 'upper left':['left','top'], 'lower right':['right','bottom'], 'lower left':['left','bottom'] }
     self.legend_order = []
     self.axis_ranges = {}
     self.plots = {}
@@ -24,27 +31,61 @@ class BaseCanvas(object) :
 
 
   def apply_plot_formatting( self ) :
-    raise NotImplementedError( 'apply_plot_formatting not defined by {0}'.format(type(self)) )
+    # Draw x ticks
+    if self.x_ticks is not None :
+      x_interval = (self.xmax-self.xmin) / (len(self.x_ticks)-1)
+      ax.xaxis.set_major_locator( tkr.MultipleLocator(x_interval) )
+      # ax.set_xticklabels( [''] + self.x_ticks ) # for some reason the first label is getting lost
+    # Set useful axis properties
+    for axes in self.figure.axes :
+#       # Don't shift axis labels
+#       axis.yaxis.get_major_formatter().set_useOffset(False)
+
+#       # Set x and y limits
+#       if self.xmin != self.xmax :
+#         axes.set_xlim( [self.xmin, self.xmax] )
+#       if self.ymin != self.ymax :
+#         axes.set_ylim( [self.ymin, self.ymax] )
+
+      # Draw minor ticks
+      axes.xaxis.set_minor_locator( tkr.AutoMinorLocator() )
+      axes.yaxis.set_minor_locator( tkr.AutoMinorLocator() )
+
+      # Set x-axis log
+      if 'x' in self.log_type :
+        axes.set_xscale( 'log', subsx=[2, 3, 4, 5, 6, 7, 8, 9] )
+        axes.xaxis.set_major_formatter( tkr.ScalarFormatter() )
+        axes.xaxis.set_minor_formatter( tkr.FuncFormatter(self.format_minor_tick) ) # only show certain minor labels
+
+      # Set y-axis log
+      if 'y' in self.log_type :
+        axes.set_yscale('log', subsy=[2, 3, 4, 5, 6, 7, 8, 9] )
+
+  def draw_ATLAS_text( self, x, y, axes='main', anchor_to='lower left', plot_type=None ) :
+    [ha, va], offset = self.location_map[anchor_to], 0.145
+    if ha == 'right' : x, offset = x-0.225, 0.225 # shift leftwards if using a right-align
+    self.plots[axes].text( x, y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=self.figure.transFigure )
+    if plot_type is not None :
+      self.plots[axes].text( x+offset, y, plot_type, fontsize=17, fontweight='bold', ha=ha, va=va, transform=self.figure.transFigure )
 
 
-  def draw_legend( self, x, y, axes, anchor_to='lower left', fontsize='small' ) :
+  def draw_legend( self, x, y, axes, anchor_to='lower left', fontsize=None ) :
     handles, labels = self.get_legend_handles_labels( self.plots[axes] )
     self.main_legend = self.plots[axes].legend( handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y), bbox_transform=self.figure.transFigure )
     self.main_legend.get_frame().set_linewidth(0)
     self.main_legend.get_frame().set_alpha(0.0)
-    pyplot.setp( self.main_legend.get_texts(), fontsize=fontsize )
+    if fontsize is not None : pyplot.setp( self.main_legend.get_texts(), fontsize=fontsize )
     [ text.set_va('bottom') for text in self.main_legend.get_texts() ]
 
 
-  def save_to_file( self, output_name ) :
-    self.apply_plot_formatting()
-    pyplot.savefig( '{0}.pdf'.format( output_name ) )
-    print 'Saved figure to: {0}.pdf'.format( output_name )
-    # self.close()
+  def draw_luminosity_text( self, x, y, luminosity_value, axes='main', anchor_to='lower left' ) :
+    ha, va = self.location_map[anchor_to]
+    self.plots[axes].text( x, y, r'$\mathrm{\mathsf{\sqrt{s}}} = 7\,\mathrm{\mathsf{TeV}} \, \int \mathcal{L} \mathrm{dt} = $'+luminosity_value, ha=ha, va=va, transform=self.figure.transFigure, fontsize=14 )
 
 
-  def set_range( self, axis_name, axis_range ) :
-    raise NotImplementedError( 'set_range not defined by {0}'.format(type(self)) )
+  def draw_text( self, x, y, extra_value, axes='main', anchor_to='lower left' ) :
+    ha, va = self.location_map[anchor_to]
+    self.plots[axes].text( x, y, extra_value, ha=ha, va=va, transform=self.figure.transFigure, fontsize=16 )
 
 
   def get_legend_handles_labels( self, axes ) :
@@ -55,12 +96,11 @@ class BaseCanvas(object) :
       if label not in seen :
         seen.add( label )
         labels.append( label )
-        # if isinstance( handle, Polygon ) :
-        #   proxy_artist = pyplot.Line2D( [0], [0], color=handle.properties()['edgecolor'], linestyle=handle.properties()['linestyle'] )
-        #   handles.append( proxy_artist )
-        # else :
-        #   handles.append( handle )
-        handles.append( handle )
+        if isinstance( handle, Polygon ) :
+          proxy_artist = pyplot.Line2D( [0], [0], color=handle.properties()['edgecolor'], linestyle=handle.properties()['linestyle'] )
+          handles.append( proxy_artist )
+        else :
+          handles.append( handle )
     # Sort list of labels
     sorted_labels, sorted_handles = [], []
     for label in self.legend_order :
@@ -70,3 +110,18 @@ class BaseCanvas(object) :
         sorted_handles.append( handles.pop( idx_label[0] ) )
     assert len(labels) == 0; assert len(handles) == 0
     return sorted_handles, sorted_labels
+
+
+  def save_to_file( self, output_name ) :
+    self.apply_plot_formatting()
+    pyplot.savefig( '{0}.pdf'.format( output_name ) )
+    print 'Saved figure to: {0}.pdf'.format( output_name )
+    # self.close()
+
+
+  def set_label( self, axis_name, axis_label ) :
+    raise NotImplementedError( 'set_label not defined by {0}'.format(type(self)) )
+
+
+  def set_range( self, axis_name, axis_range ) :
+    raise NotImplementedError( 'set_range not defined by {0}'.format(type(self)) )

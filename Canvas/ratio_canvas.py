@@ -4,9 +4,9 @@ from matplotlib.ticker import FixedLocator, MaxNLocator
 from numpy import arange
 
 class RatioCanvas(BaseCanvas) :
-  '''Simple canvas with standard ATLAS setup'''
-  def __init__( self, n_pixels=(600,600) ) :
-    super(RatioCanvas, self).__init__( n_pixels )
+  '''Ratio canvas with standard ATLAS setup'''
+  def __init__( self, n_pixels=(600,600), **kwargs ) :
+    super(RatioCanvas, self).__init__( n_pixels, **kwargs )
     self.plots['top'] = self.figure.add_axes( [0.15, 0.35, 0.8, 0.6] )
     self.plots['bottom'] = self.figure.add_axes( [0.15, 0.1, 0.8, 0.25] )
 
@@ -32,6 +32,7 @@ class RatioCanvas(BaseCanvas) :
 
 
   def apply_plot_formatting( self ) :
+    super(RatioCanvas, self).apply_plot_formatting()
     if 'x' in self.axis_ranges :
       self.plots['top'].set_xlim( self.axis_ranges['x'] )
       self.plots['bottom'].set_xlim( self.axis_ranges['x'] )
@@ -67,3 +68,21 @@ class RatioCanvas(BaseCanvas) :
     # print interval_estimate, tick_idx, tick_sizes[tick_idx], 'vs.',
     tick_size = min( tick_sizes, key=lambda x:abs(x-interval_estimate) )
     return arange( 1.0-10*tick_size, 1.0+10*tick_size, tick_size )
+
+
+  def set_label( self, axis_name, axis_label ) :
+    if axis_name == 'x' :
+      self.plots['bottom'].set_xlabel( axis_label, size=16, position=(1.0, 0.0), va='top', ha='right' )
+    elif axis_name == 'y' :
+      self.plots['top'].set_ylabel( axis_label, size=16 )
+      self.plots['top'].yaxis.set_label_coords( -0.13, [0.6,0.8][len(axis_label) < 70] )
+    elif axis_name == 'y_ratio' :
+      self.plots['bottom'].set_ylabel( axis_label, size=16 )
+      self.plots['bottom'].yaxis.set_label_coords( -0.13, 0.5 )
+    else :
+      raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
+
+
+#     self.plots['bottom'].set_xlabel( xlabel, position=(1.0, 0.0), va='top', ha='right', size=16 )
+#     self.plots['bottom'].set_ylabel( yratiolabel, size=16 ) #position=(0.0, 0.5), va='center', ha='center', labelpad=18,
+#     self.plots['bottom'].yaxis.set_label_coords( -0.13, 0.5 )
