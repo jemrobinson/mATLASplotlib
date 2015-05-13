@@ -54,8 +54,8 @@ class BaseCanvas(object) :
         axes.xaxis.set_major_locator( tkr.MultipleLocator(x_interval) )
         axes.set_xticklabels( [''] + self.x_ticks ) # for some reason the first label is getting lost
 
-      # Don't shift axis labels
-      axes.yaxis.get_major_formatter().set_useOffset(False)
+      # # Don't shift axis labels
+      # axes.yaxis.get_major_formatter().set_useOffset(False)
 
       # Draw minor ticks
       axes.xaxis.set_minor_locator( tkr.AutoMinorLocator() )
