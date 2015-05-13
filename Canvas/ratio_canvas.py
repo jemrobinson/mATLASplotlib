@@ -13,22 +13,11 @@ class RatioCanvas(BaseCanvas) :
 
   def add_plottable( self, plottable, axes='top', **kwargs ) :
     super(RatioCanvas, self).add_plottable( plottable, axes, **kwargs )
-    if 'x' not in self.axis_ranges : self.set_range( 'x', self.plots[axes].get_xlim() )
+    if 'x' not in self.axis_ranges : self.set_axis_range( 'x', self.plots[axes].get_xlim() )
     if axes == 'top' :
-      if 'y' not in self.axis_ranges : self.set_range( 'y', self.plots[axes].get_ylim() )
+      if 'y' not in self.axis_ranges : self.set_axis_range( 'y', self.plots[axes].get_ylim() )
     elif axes == 'bottom' :
-      if 'y_ratio' not in self.axis_ranges : self.set_range( 'y_ratio', self.plots[axes].get_ylim() )
-
-
-  def set_range( self, axis_name, axis_range ) :
-    if axis_name == 'x' :
-      self.axis_ranges['x'] = axis_range
-    elif axis_name == 'y' :
-      self.axis_ranges['y'] = axis_range
-    elif axis_name == 'y_ratio' :
-      self.axis_ranges['y_ratio'] = axis_range
-    else :
-      raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
+      if 'y_ratio' not in self.axis_ranges : self.set_axis_range( 'y_ratio', self.plots[axes].get_ylim() )
 
 
   def apply_plot_formatting( self ) :
@@ -41,24 +30,45 @@ class RatioCanvas(BaseCanvas) :
     if 'y_ratio' in self.axis_ranges :
       self.plots['bottom'].set_ylim( self.axis_ranges['y_ratio'] )
 
-
     # Draw line at y = 1.0
     self.plots['bottom'].add_line( Line2D( self.axis_ranges['x'], [1, 1], transform=self.plots['bottom'].transData, linewidth=1, linestyle='--', color='black') )
 
     # Set ratio plot to linear scale
-    self.plots['bottom'].set_yscale('linear')
+    if self.log_type.find('y') != -1 :
+      self.plots['bottom'].set_yscale('linear')
 
     # Remove bottom-most tick from top-plot and top-and-bottom from bottom-plot
-    self.plots['top'].yaxis.set_major_locator( MaxNLocator(nbins=len(self.plots['top'].get_yticklabels()), prune='lower') )
+    if self.log_type.find('y') == -1 :
+      self.plots['top'].yaxis.set_major_locator( MaxNLocator(nbins=len(self.plots['top'].get_yticklabels()), prune='lower') )
     self.plots['bottom'].yaxis.set_major_locator( FixedLocator( self.get_ratio_ticks( self.axis_ranges['y_ratio'] ) ) )
 
     # Remove tick-labels from top-plot
     self.plots['top'].set_xticklabels( [], minor=True )
     self.plots['top'].set_xticklabels( [], major=True )
 
+#     # Remove bottom-most tick from top-plot and top-and-bottom from bottom-plot
+#     if self.log_type.find('y') == -1 :
+#       self.plots['top'].yaxis.set_major_locator( tkr.MaxNLocator(nbins=len(self.plots['top'].get_yticklabels()), prune='lower') )
+#     self.plots['bottom'].yaxis.set_major_locator( tkr.FixedLocator( self.get_ratio_ticks(self.ymin_ratio,self.ymax_ratio) ) )
 
-  def draw_legend( self, x, y, axes='top', anchor_to='lower left' ) :
-    super(RatioCanvas, self).draw_legend( x, y, axes=axes, anchor_to=anchor_to )
+#     # Remove tick-labels from top-plot
+#     self.plots['top'].set_xticklabels([],minor=True)
+#     self.plots['top'].set_xticklabels([],major=True)
+
+
+  ## Provide defaults for inherited methods
+  def draw_ATLAS_text( self, x, y, axes='top', **kwargs ) :
+    super(RatioCanvas, self).draw_ATLAS_text( x, y, axes=axes, **kwargs )
+
+  def draw_legend( self, x, y, axes='top', **kwargs ) :
+    super(RatioCanvas, self).draw_legend( x, y, axes=axes, **kwargs )
+
+  def draw_luminosity_text( self, x, y, luminosity_value, axes='top', **kwargs ) :
+    super(RatioCanvas, self).draw_luminosity_text( x, y, luminosity_value, axes=axes, **kwargs )
+
+  def draw_text( self, x, y, extra_value, axes='top', **kwargs ) :
+    super(RatioCanvas, self).draw_text( x, y, extra_value, axes=axes, **kwargs )
+
 
   def get_ratio_ticks( self, axis_range, n_approximate=4 ) :
     # Choose ratio ticks to be sensibly spaced and always include 1.0
@@ -70,7 +80,8 @@ class RatioCanvas(BaseCanvas) :
     return arange( 1.0-10*tick_size, 1.0+10*tick_size, tick_size )
 
 
-  def set_label( self, axis_name, axis_label ) :
+  ## Axis labels
+  def set_axis_label( self, axis_name, axis_label ) :
     if axis_name == 'x' :
       self.plots['bottom'].set_xlabel( axis_label, size=16, position=(1.0, 0.0), va='top', ha='right' )
     elif axis_name == 'y' :
@@ -82,7 +93,29 @@ class RatioCanvas(BaseCanvas) :
     else :
       raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
 
+  def set_axis_labels( self, x_axis_label, y_axis_label, ratio_y_axis_label ) :
+    self.set_axis_label( 'x', x_axis_label )
+    self.set_axis_label( 'y', y_axis_label )
+    self.set_axis_label( 'y_ratio', ratio_y_axis_label )
 
-#     self.plots['bottom'].set_xlabel( xlabel, position=(1.0, 0.0), va='top', ha='right', size=16 )
-#     self.plots['bottom'].set_ylabel( yratiolabel, size=16 ) #position=(0.0, 0.5), va='center', ha='center', labelpad=18,
-#     self.plots['bottom'].yaxis.set_label_coords( -0.13, 0.5 )
+
+  ## Axis ranges
+  def set_axis_range( self, axis_name, axis_range ) :
+    if axis_name == 'x' :
+      self.axis_ranges['x'] = axis_range
+    elif axis_name == 'y' :
+      self.axis_ranges['y'] = axis_range
+    elif axis_name == 'y_ratio' :
+      self.axis_ranges['y_ratio'] = axis_range
+    else :
+      raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
+
+  def set_axis_ranges( self, x_axis_range, y_axis_range, ratio_y_axis_range ) :
+    self.set_axis_range( 'x', x_axis_range )
+    self.set_axis_range( 'y', y_axis_range )
+    self.set_axis_range( 'y_ratio', ratio_y_axis_range )
+
+
+
+
+

@@ -32,21 +32,5 @@ class BinnedBand(BasePlottable) :
         axes.fill_between( self.x_points, self.y_points_l, self.y_points_h, facecolor=plot_colour_primary, edgecolor=plot_colour_secondary, hatch=plot_hatch_style, alpha=plot_alpha, linewidth=0 )
         proxy_artist = pyplot.Rectangle( (0,0), 0, 0, axes=axes, label=plot_label, facecolor=plot_colour_primary, edgecolor=plot_colour_secondary, hatch=plot_hatch_style, alpha=plot_alpha, linewidth=0 )
         axes.add_patch( proxy_artist )
-
     else :
-      raise NotImplementedError( 'Style {0} not recognised by {1}'.format( plot_style, type(self) ) )
-
-
-  # def fill_between_proxy( self, plot, **kwargs):
-    # axes = axes if axes is not None else plt.gca()
-    # axes.fill_between(x, y1, y2, **kwargs)
-    # proxy_artist = pyplot.Rectangle( (0,0), 0, 0, **kwargs)
-    # plot.add_patch(proxy_artist)
-    # return proxy_artist
-
-
-  # def number_of_points( self ) :
-  #   return len(self.x_points)
-
-
-
+      raise NotImplementedError( 'Style "{0}" not recognised by {1}'.format( plot_style, type(self) ) )

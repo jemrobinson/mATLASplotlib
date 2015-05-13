@@ -18,29 +18,40 @@ class Histogram1D(BasePlottable) :
     assert(self.x_points.size == len( self.x_error_pairs ) == self.y_points.size == len( self.y_error_pairs ) )
 
   def draw_on_plot( self, axes, **kwargs ) :
-    plot_style = kwargs.get( 'style', None )
-    plot_label = kwargs.get( 'label', None )
-    plot_colour_primary = kwargs.get( 'colour_primary', 'black' )
-    plot_marker = kwargs.get( 'marker', 'o' )
-    plotter_kwargs = { 'label':plot_label, 'color':plot_colour_primary, 'linewidth':kwargs.get('linewidth',2) }
+    plot_style = kwargs.pop( 'style', None )
+    kwargs['marker'] = kwargs.pop( 'marker', 'o' )
+    kwargs['label'] = kwargs.pop('label',None)
+    kwargs['color'] = kwargs.pop('colour_primary','black')
+    kwargs['linewidth'] = kwargs.pop('linewidth',2)
+    kwargs['linestyle'] = kwargs.pop('linestyle','solid')
+    # Remove unused parameters
+    kwargs.pop('colour_secondary',kwargs['color'])
+    kwargs.pop('hatch',None)
+    print [ (k,v) for k,v in kwargs.items() ]
     # Set linestyle
-    w = plotter_kwargs.get('linewidth',1)
-    if kwargs['linestyle'] is 'dashed'  : plotter_kwargs['dashes'] = ( 3*w,1*w )
-    if kwargs['linestyle'] is 'dotted'  : plotter_kwargs['dashes'] = ( 1*w,1*w )
-    if kwargs['linestyle'] is 'dashdot' : plotter_kwargs['dashes'] = ( 2*w,1*w,1*w,1*w )
+    width = kwargs.get('linewidth',1)
+    if kwargs['linestyle'] is 'dashed'  : kwargs['dashes'] = ( 3*width,1*width )
+    if kwargs['linestyle'] is 'dotted'  : kwargs['dashes'] = ( 1*width,1*width )
+    if kwargs['linestyle'] is 'dashdot' : kwargs['dashes'] = ( 2*width,1*width,1*width,1*width )
 
     if plot_style.startswith('point') :
-      if 'xerror' in plot_style : plotter_kwargs['xerr'] = np.transpose( self.x_error_pairs )
-      if 'yerror' in plot_style : plotter_kwargs['yerr'] = np.transpose( self.y_error_pairs )
-      axes.errorbar( self.x_points, self.y_points, fmt=plot_marker, capsize=0, **plotter_kwargs )
-      # rplt.errorbar( hist, axes=self.plots[plot], xerr=xerr, capsize=0, label=text, marker=markertype, markerfacecolor=markerface, markeredgecolor=maincolour, ecolor=maincolour, markersize=6, **kwargs )
+      if 'xerror' in plot_style : kwargs['xerr'] = np.transpose( self.x_error_pairs )
+      if 'yerror' in plot_style : kwargs['yerr'] = np.transpose( self.y_error_pairs )
+      # Get error cap sizes
+      # error_cap_width = [0,kwargs.get('linewidth')][kwargs.pop( 'with_error_bar_caps', False )]
+      kwargs['capthick'] = [0,kwargs.get('linewidth')][kwargs.pop( 'with_error_bar_caps', False )]
+      kwargs['capsize'] = [0,2*kwargs.get('linewidth')][kwargs.pop( 'with_error_bar_caps', False )]
+      # (_, caplines, _) = axes.errorbar( self.x_points, self.y_points, fmt=kwargs['marker'], **kwargs )
+      axes.errorbar( self.x_points, self.y_points, fmt=kwargs['marker'], **kwargs )
+      # # Set width of error bar caps
+      # if kwargs.get( 'with_error_bar_caps', False ) :
+      #   caplines[0].set_markeredgewidth(error_cap_width)
+      #   caplines[1].set_markeredgewidth(error_cap_width)
     elif plot_style == 'join centres' :
-      axes.plot( self.x_points, self.y_points, **plotter_kwargs )
+      axes.plot( self.x_points, self.y_points, **kwargs )
     elif plot_style == 'stepped line' :
-      # x_bin_edges = np.array( [ (x_centre - x_errors[0]) for x_centre, x_errors in zip(self.x_points, self.x_error_pairs) ] + [ self.x_points[-1]+self.x_error_pairs[-1][1] ] )
-      # axes.hist( self.x_points, bins=x_bin_edges, weights=self.y_points, histtype='step', **plotter_kwargs )
       x_bin_edges = np.array( sum([ [ x_centre - x_errors[0], x_centre + x_errors[1] ] for x_centre, x_errors in zip(self.x_points, self.x_error_pairs) ], [] ) )
       y_bin_edges = np.array( sum([ [ y_centre, y_centre ] for y_centre in self.y_points ], [] ) )
-      axes.plot( x_bin_edges, y_bin_edges, drawstyle='steps', **plotter_kwargs )
+      axes.plot( x_bin_edges, y_bin_edges, drawstyle='steps', **kwargs )
     else :
-      raise NotImplementedError( 'Style "{0}"" not recognised by {1}'.format( plot_style, type(self) ) )
+      raise NotImplementedError( 'Style "{0}" not recognised by {1}'.format( plot_style, type(self) ) )
