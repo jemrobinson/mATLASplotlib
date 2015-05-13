@@ -4,8 +4,12 @@ import numpy as np
 
 class BinnedBand(BasePlottable) :
   '''Plottable band, binned along the x-axis'''
-  def __init__( self, x_values=None, x_error_pairs=None, y_values=None, y_error_pairs=None ) :
-    super(BinnedBand, self).__init__( 'BinnedBand' )
+  def __init__( self, *args, **kwargs ) :
+    super(BinnedBand, self).__init__( *args, **kwargs )
+
+
+  # Constructor
+  def construct_from_values_errors( self, x_values=None, x_error_pairs=None, y_values=None, y_error_pairs=None ) :
     if x_values is None or x_error_pairs is None or y_values is None or y_error_pairs is None :
       self.x_points = np.array([])
       self.y_points_l = np.array([])
@@ -17,6 +21,7 @@ class BinnedBand(BasePlottable) :
     assert( self.x_points.size == self.y_points_l.size == self.y_points_h.size )
 
 
+  # Plotting behaviour
   def draw_on_plot( self, axes, **kwargs ) :
     plot_style = kwargs.get( 'style', None )
     plot_label = kwargs.get( 'label', None )
