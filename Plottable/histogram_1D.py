@@ -1,5 +1,6 @@
 from base_plottable import BasePlottable
 import numpy as np
+from matplotlib import __version__ as mpl_version
 
 class Histogram1D(BasePlottable) :
   '''Plottable 1-dimensional histogram, binned along the x-axis'''
@@ -43,9 +44,12 @@ class Histogram1D(BasePlottable) :
       if 'xerror' in plot_style : kwargs['xerr'] = np.transpose( self.x_error_pairs )
       if 'yerror' in plot_style : kwargs['yerr'] = np.transpose( self.y_error_pairs )
       # Get error cap sizes
-      with_error_bar_caps = kwargs.pop( 'with_error_bar_caps', False )
-      kwargs['capthick'] = [0,kwargs.get('linewidth')][with_error_bar_caps]
-      kwargs['capsize'] = [0,2*kwargs.get('linewidth')][with_error_bar_caps]
+      if mpl_version > '1.4.0' :
+        with_error_bar_caps = kwargs.pop( 'with_error_bar_caps', False )
+        kwargs['capthick'] = [0,kwargs.get('linewidth')][with_error_bar_caps]
+        kwargs['capsize'] = [0,2*kwargs.get('linewidth')][with_error_bar_caps]
+      # else :
+      #   print 'Matplotlib version {0} is too old to allow error bar caps'.format( mpl_version )
       # Disable linestyle
       kwargs['linestyle'] = 'None'
       axes.errorbar( self.x_points, self.y_points, fmt='', **kwargs )
