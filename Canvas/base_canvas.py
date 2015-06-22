@@ -1,3 +1,4 @@
+import matplotlib; matplotlib.use('PDF')
 import matplotlib.pyplot as pyplot
 import matplotlib.ticker as tkr
 from matplotlib.patches import Polygon
@@ -7,6 +8,10 @@ from matplotlib import rcParams
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = 'Helvetica'
 rcParams['mathtext.fontset'] = 'stixsans'
+
+# from matplotlib import rc
+# print rcParams
+# rc('text', usetex=True)
 
 class BaseCanvas(object) :
   ## Class-level variables
@@ -72,31 +77,57 @@ class BaseCanvas(object) :
         axes.set_yscale('log', subsy=[2, 3, 4, 5, 6, 7, 8, 9] )
 
 
-  def draw_ATLAS_text( self, x, y, axes, anchor_to='lower left', plot_type=None ) :
-    [ha, va], offset = self.location_map[anchor_to], 0.145
-    if ha == 'right' : x, offset = x-0.225, 0.225 # shift leftwards if using a right-align
-    self.plots[axes].text( x, y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=self.figure.transFigure )
-    if plot_type is not None :
-      self.plots[axes].text( x+offset, y, plot_type, fontsize=17, fontweight='bold', ha=ha, va=va, transform=self.figure.transFigure )
+  def draw_ATLAS_text( self, x, y, axes, anchor_to='lower left', plot_type=None, coordinates='figure' ) :
+    [ha, va] = self.location_map[anchor_to] #, offset = self.location_map[anchor_to], 0.145
+    transform = self.translate_coordinates(coordinates, axes)
+    # transform = self.figure.transFigure
+    # if coordinates == 'axes' : transform = self.plots[axes].transAxes
+    # if ha == 'right' : x, offset = x-0.225, 0.225 # shift leftwards if using a right-align
+    # self.plots[axes].text( x, y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=self.figure.transFigure )
+    # if plot_type is not None :
+    #   self.plots[axes].text( x+offset, y, plot_type, fontsize=17, fontweight='bold', ha=ha, va=va, transform=self.figure.transFigure )
+    if plot_type is None :
+      self.plots[axes].text( x, y, 'ATLAS', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
+    else :
+      # Plot invisible text to get bounding box
+      invisible_text = self.plots[axes].text( x, y, 'ATLAS {0}'.format(plot_type), alpha=0, fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
+      bounding_box = invisible_text.get_window_extent(renderer=self.get_renderer()).transformed( transform.inverted() )
+      x_left, x_right = bounding_box.min[0], bounding_box.max[0]
+      # Use bounding box to plot visible text
+      self.plots[axes].text( x_left, y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha='left', va=va, transform=transform )
+      self.plots[axes].text( x_right, y, plot_type, fontsize=17, fontweight='bold', ha='right', va=va, transform=transform )
 
 
-  def draw_legend( self, x, y, axes, anchor_to='lower left', fontsize=None, **kwargs ) :
+  def draw_legend( self, x, y, axes, anchor_to='lower left', fontsize=None, coordinates='figure', **kwargs ) :
+    transform = self.translate_coordinates(coordinates, axes)
     handles, labels = self.get_legend_handles_labels( self.plots[axes] )
-    self.main_legend = self.plots[axes].legend( handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y), bbox_transform=self.figure.transFigure, **kwargs )
+    self.main_legend = self.plots[axes].legend( handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y), bbox_transform=transform, borderpad=0, borderaxespad=0, handletextpad=0, columnspacing=0, **kwargs )
     self.main_legend.get_frame().set_linewidth(0)
     self.main_legend.get_frame().set_alpha(0.0)
     if fontsize is not None : pyplot.setp( self.main_legend.get_texts(), fontsize=fontsize )
     [ text.set_va('bottom') for text in self.main_legend.get_texts() ]
 
 
-  def draw_luminosity_text( self, x, y, luminosity_value, axes, anchor_to='lower left' ) :
+  def draw_luminosity_text( self, x, y, luminosity_value, axes, anchor_to='lower left', coordinates='figure' ) :
     ha, va = self.location_map[anchor_to]
-    self.plots[axes].text( x, y, r'$\mathrm{\mathsf{\sqrt{s}}} = 7\,\mathrm{\mathsf{TeV}} \, \int \mathcal{L} \mathrm{dt} = $'+luminosity_value, ha=ha, va=va, transform=self.figure.transFigure, fontsize=14 )
+    transform = self.translate_coordinates(coordinates, axes)
+    self.plots[axes].text( x, y, r'$\mathrm{\mathsf{\sqrt{s}}} = 7\,\mathrm{\mathsf{TeV}} \, \int \mathcal{L} \mathrm{dt} = $'+luminosity_value, ha=ha, va=va, transform=transform, fontsize=14 )
 
 
-  def draw_text( self, x, y, extra_value, axes, anchor_to='lower left' ) :
+  def draw_text( self, x, y, extra_value, axes, anchor_to='lower left', coordinates='figure' ) :
     ha, va = self.location_map[anchor_to]
-    self.plots[axes].text( x, y, extra_value, ha=ha, va=va, transform=self.figure.transFigure, fontsize=16 )
+    transform = self.translate_coordinates(coordinates, axes)
+    self.plots[axes].text( x, y, extra_value, ha=ha, va=va, transform=transform, fontsize=16 )
+
+
+  def get_axis_label( self, axis_name ) :
+    raise NotImplementedError( 'get_label not defined by {0}'.format(type(self)) )
+
+  def get_axis_range( self, axis_name ) :
+    if axis_name in self.axis_ranges.keys() :
+      return self.axis_ranges[axis_name]
+    else :
+      raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
 
 
   def get_legend_handles_labels( self, axes ) :
@@ -124,6 +155,20 @@ class BaseCanvas(object) :
     return sorted_handles, sorted_labels
 
 
+  def get_renderer(self) :
+    if hasattr(self.figure.canvas, 'get_renderer'):
+      # Some backends, such as TkAgg, have the get_renderer method, which makes this easy.
+      renderer = self.figure.canvas.get_renderer()
+    else:
+      # Other backends do not have the get_renderer method, so we have a work
+      # around to find the renderer.  Print the figure to a temporary file
+      # object, and then grab the renderer that was used.
+      import io
+      self.figure.canvas.print_pdf(io.BytesIO())
+      renderer = self.figure._cachedRenderer
+    return renderer
+
+
   def minor_tick_format_function( self, x, pos ) :
     if any( int(x) == elem for elem in self.minor_x_ticks ) :
       return '{0:.0f}'.format( x )
@@ -143,3 +188,7 @@ class BaseCanvas(object) :
 
   def set_axis_range( self, axis_name, axis_range ) :
     raise NotImplementedError( 'set_axis_range not defined by {0}'.format(type(self)) )
+
+  def translate_coordinates( self, coordinates, axes ) :
+    if coordinates == 'axes' : return self.plots[axes].transAxes
+    return self.figure.transFigure

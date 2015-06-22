@@ -81,6 +81,17 @@ class RatioCanvas(BaseCanvas) :
 
 
   ## Axis labels
+  def get_axis_label( self, axis_name ) :
+    if axis_name == 'x' :
+      return self.plots['bottom'].get_xlabel()
+    elif axis_name == 'y' :
+      return self.plots['top'].get_ylabel()
+    elif axis_name == 'y_ratio' :
+      self.plots['bottom'].get_ylabel()
+    else :
+      raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
+
+
   def set_axis_label( self, axis_name, axis_label ) :
     if axis_name == 'x' :
       self.plots['bottom'].set_xlabel( axis_label, size=16, position=(1.0, 0.0), va='top', ha='right' )

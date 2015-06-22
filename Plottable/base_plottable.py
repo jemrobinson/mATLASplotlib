@@ -1,4 +1,5 @@
-from ROOT import TH1, TGraph, TGraphErrors, TGraphAsymmErrors
+from ROOT import TH1, TH2, TGraph, TGraphErrors, TGraphAsymmErrors
+import numpy as np
 
 class BasePlottable(object) :
   '''Base class for plottable objects'''
@@ -11,8 +12,11 @@ class BasePlottable(object) :
       self.construct_from_x_edges_y_values( *args )
     # Check whether a ROOT object is passed
     elif len(args) == 1 :
+      # Initialise TH2 constructor
+      if isinstance( args[0], TH2 ) :
+        self.construct_from_TH2( args[0] )
       # Initialise TH1 constructor
-      if isinstance( args[0], TH1 ) :
+      elif isinstance( args[0], TH1 ) :
         self.construct_from_TH1( args[0] )
       # Initialise TGraphAsymmErrors constructor
       elif isinstance( args[0], TGraphAsymmErrors ) :
@@ -56,6 +60,10 @@ class BasePlottable(object) :
     self.construct_from_x_edges_y_values( x_bin_edges, y_values, y_error_pairs )
 
 
+  def construct_from_TH2( self, input_TH2 ) :
+    raise NotImplementedError( 'ROOT.TH2 constructor not defined by {0}'.format( type(self) ) )
+
+
   def construct_from_TGraph( self, input_TGraph ) :
     x, x_errors = input_TGraphAsymmErrors.GetX(), input_TGraphAsymmErrors.GetEX()
     y, y_errors = input_TGraphAsymmErrors.GetY(), input_TGraphAsymmErrors.GetEY()
@@ -92,6 +100,3 @@ class BasePlottable(object) :
       ey = ( y_errors_high[ii] + y_errors_low[ii] ) / 2.0
       y_errors.append( (ey,ey) )
     self.construct_from_values_errors( x_values, x_errors, y_values, y_errors )
-
-
-
