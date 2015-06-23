@@ -31,8 +31,8 @@ class Histogram1D(BasePlottable) :
     kwargs['linewidth'] = kwargs.pop('linewidth',2)
     kwargs['linestyle'] = kwargs.pop('linestyle','solid')
     # Remove unused parameters
-    kwargs.pop('colour_secondary',kwargs['color'])
-    kwargs.pop('hatch',None)
+    colour_secondary = kwargs.pop('colour_secondary',kwargs['color'])
+    hatch = kwargs.pop('hatch',None)
     # Set custom dash styling
     width = kwargs.get('linewidth',1)
     if kwargs['linestyle'] is 'dashed'  : kwargs['dashes'] = ( 3*width,1*width )
@@ -48,11 +48,16 @@ class Histogram1D(BasePlottable) :
         with_error_bar_caps = kwargs.pop( 'with_error_bar_caps', False )
         kwargs['capthick'] = [0,kwargs.get('linewidth')][with_error_bar_caps]
         kwargs['capsize'] = [0,2*kwargs.get('linewidth')][with_error_bar_caps]
-      # else :
-      #   print 'Matplotlib version {0} is too old to allow error bar caps'.format( mpl_version )
+      else :
+        print 'Matplotlib version {0} is too old to allow error bar caps'.format( mpl_version )
       # Disable linestyle
       kwargs['linestyle'] = 'None'
-      axes.errorbar( self.x_points, self.y_points, fmt='', **kwargs )
+      axes.errorbar( self.x_points, self.y_points, fmt='', markeredgewidth=0, **kwargs )
+    elif plot_style == 'filled bar' :
+      x_bin_low_edges = np.array( [ (x_centre - x_errors[0]) for x_centre, x_errors in zip(self.x_points, self.x_error_pairs) ] )
+      x_bin_widths = np.array( [ (x_error[0] + x_error[1]) for x_error in self.x_error_pairs ]  )
+      if hatch != None : kwargs['hatch'] = hatch
+      axes.bar( x_bin_low_edges, height=self.y_points, width=x_bin_widths, edgecolor=colour_secondary, **kwargs)
     elif plot_style == 'join centres' :
       axes.plot( self.x_points, self.y_points, **kwargs )
     elif plot_style == 'stepped line' :

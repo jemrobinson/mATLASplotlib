@@ -69,3 +69,8 @@ class SimpleCanvas(BaseCanvas) :
   def set_axis_ranges( self, x_axis_range, y_axis_range ) :
     self.set_axis_range( 'x', x_axis_range )
     self.set_axis_range( 'y', y_axis_range )
+
+
+  ## Plot title
+  def set_title( self, title ) :
+    self.plots['main'].set_title( title )

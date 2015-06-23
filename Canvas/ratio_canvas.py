@@ -127,6 +127,6 @@ class RatioCanvas(BaseCanvas) :
     self.set_axis_range( 'y_ratio', ratio_y_axis_range )
 
 
-
-
-
+  ## Plot title
+  def set_title( self, title ) :
+    self.plots['top'].set_title( title )

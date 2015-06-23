@@ -101,7 +101,7 @@ class BaseCanvas(object) :
   def draw_legend( self, x, y, axes, anchor_to='lower left', fontsize=None, coordinates='figure', **kwargs ) :
     transform = self.translate_coordinates(coordinates, axes)
     handles, labels = self.get_legend_handles_labels( self.plots[axes] )
-    self.main_legend = self.plots[axes].legend( handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y), bbox_transform=transform, borderpad=0, borderaxespad=0, handletextpad=0, columnspacing=0, **kwargs )
+    self.main_legend = self.plots[axes].legend( handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y), bbox_transform=transform, borderpad=0, borderaxespad=0, columnspacing=0, **kwargs )
     self.main_legend.get_frame().set_linewidth(0)
     self.main_legend.get_frame().set_alpha(0.0)
     if fontsize is not None : pyplot.setp( self.main_legend.get_texts(), fontsize=fontsize )
@@ -188,6 +188,11 @@ class BaseCanvas(object) :
 
   def set_axis_range( self, axis_name, axis_range ) :
     raise NotImplementedError( 'set_axis_range not defined by {0}'.format(type(self)) )
+
+
+  def set_title( self, title ) :
+    raise NotImplementedError( 'set_title not defined by {0}'.format(type(self)) )
+
 
   def translate_coordinates( self, coordinates, axes ) :
     if coordinates == 'axes' : return self.plots[axes].transAxes

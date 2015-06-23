@@ -41,6 +41,15 @@ class BasePlottable(object) :
     raise NotImplementedError( 'draw_on_plot not defined by {0}'.format( type(self) ) )
 
 
+  ## Utility functions
+  def edges_to_centres( self, bin_edges ) :
+    return [ 0.5*(low_edge+high_edge) for low_edge, high_edge in zip( bin_edges[:-1], bin_edges[1:] ) ]
+
+  def centres_to_edges( self, bin_centres ) :
+    bin_edges = [ 0.5*(low_centre+high_centre) for low_centre, high_centre in zip( bin_centres[:-1], bin_centres[1:] ) ]
+    return [ 2*bin_edges[0] - bin_edges[1] ] + bin_edges + [ 2*bin_edges[-1] - bin_edges[-2] ]
+
+
   # Constructors
   @classmethod
   def construct_from_values_errors( cls, x_values=None, x_error_pairs=None, y_values=None, y_error_pairs=None ) :
