@@ -46,11 +46,13 @@ class Histogram2D(BasePlottable) :
     plot_style = kwargs.pop( 'style', None )
     if 'colour_map' in kwargs :
       kwargs['cmap'] = getattr( pyplot.cm, kwargs.pop('colour_map') )
-    boundaries = kwargs.pop('bar_ticks',None)
+    colourbar_kwargs = {}
+    for key in kwargs.keys() :
+      if 'colourbar' in key : colourbar_kwargs[key.replace('colourbar_','')] = kwargs.pop(key)
 
     if plot_style == 'colourbar' :
       data_array, xedges, yedges, image = axes.hist2d( self.x_values, self.y_values, weights=self.z_values, bins=(self.x_bin_edges,self.y_bin_edges), **kwargs )
       axes_image = axes.imshow( data_array, extent=(yedges[0], yedges[-1], xedges[0], xedges[-1]), aspect='auto', **kwargs )
-      colourbar =  axes.get_figure().colorbar( axes_image, ax=axes, boundaries=boundaries )
+      colourbar = axes.get_figure().colorbar( axes_image, ax=axes, **colourbar_kwargs )
     else :
       raise NotImplementedError( 'Style "{0}" not recognised by {1}'.format( plot_style, type(self) ) )

@@ -1,5 +1,5 @@
-from ROOT import TH1, TH2, TGraph, TGraphErrors, TGraphAsymmErrors
 import numpy as np
+import ROOT
 
 class BasePlottable(object) :
   '''Base class for plottable objects'''
@@ -13,19 +13,19 @@ class BasePlottable(object) :
     # Check whether a ROOT object is passed
     elif len(args) == 1 :
       # Initialise TH2 constructor
-      if isinstance( args[0], TH2 ) :
+      if isinstance( args[0], ROOT.TH2 ) :
         self.construct_from_TH2( args[0] )
       # Initialise TH1 constructor
-      elif isinstance( args[0], TH1 ) :
+      elif isinstance( args[0], ROOT.TH1 ) :
         self.construct_from_TH1( args[0] )
       # Initialise TGraphAsymmErrors constructor
-      elif isinstance( args[0], TGraphAsymmErrors ) :
+      elif isinstance( args[0], ROOT.TGraphAsymmErrors ) :
         self.construct_from_TGraphAsymmErrors( args[0] )
       # Initialise TGraphErrors constructor
-      elif isinstance( args[0], TGraphErrors ) :
+      elif isinstance( args[0], ROOT.TGraphErrors ) :
         self.construct_from_TGraphErrors( args[0] )
       # Initialise TGraph constructor
-      elif isinstance( args[0], TGraph ) :
+      elif isinstance( args[0], ROOT.TGraph ) :
         self.construct_from_TGraph( args[0] )
     else :
       raise NotImplementedError( 'Constructor signature {0}, {1} not known'.format( *args, **kwargs ) )
