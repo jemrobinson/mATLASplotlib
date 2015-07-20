@@ -9,9 +9,6 @@ rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = 'Helvetica'
 rcParams['mathtext.fontset'] = 'stixsans'
 
-# from matplotlib import rc
-# print rcParams
-# rc('text', usetex=True)
 
 class BaseCanvas(object) :
   ## Class-level variables
@@ -26,8 +23,6 @@ class BaseCanvas(object) :
     self.log_type = kwargs.get( 'log_type', '' )
     self.x_ticks = kwargs.get( 'x_ticks', None )
     self.minor_x_ticks = kwargs.get( 'minor_x_ticks', [] )
-    # self.n_y_ticks = 4
-    # self.main_legend = None
 
     ## Set up value holders
     self.legend_order = []
@@ -36,18 +31,11 @@ class BaseCanvas(object) :
 
 
   def add_plottable( self, plottable, axes, **kwargs ) :
-#     if visible_label != None : text = text+'@'+visible_label
     legend_text = kwargs.pop('visible_label','')+'@'
     if legend_text is '@' : legend_text = kwargs.get('label','')
     if legend_text is not None and legend_text is not '' and legend_text not in self.legend_order :
       self.legend_order.append( legend_text )
     plottable.draw_on_plot( self.plots[axes], **kwargs )
-
-#     # Fill list of labels - kept in same order as that in which plots were added
-#     if plot != 'bottom' :
-#       legend_text = text if visible_label == None else visible_label
-#       if legend_text != None and legend_text != '' and legend_text not in self.legend_order :
-#         self.legend_order.append( legend_text )
 
 
   def apply_plot_formatting( self ) :
@@ -58,9 +46,6 @@ class BaseCanvas(object) :
         x_interval = ( self.axis_ranges['x'][1] - self.axis_ranges['x'][0] ) / (len(self.x_ticks)-1)
         axes.xaxis.set_major_locator( tkr.MultipleLocator(x_interval) )
         axes.set_xticklabels( [''] + self.x_ticks ) # for some reason the first label is getting lost
-
-      # # Don't shift axis labels
-      # axes.yaxis.get_major_formatter().set_useOffset(False)
 
       # Draw minor ticks
       axes.xaxis.set_minor_locator( tkr.AutoMinorLocator() )
@@ -80,12 +65,6 @@ class BaseCanvas(object) :
   def draw_ATLAS_text( self, x, y, axes, anchor_to='lower left', plot_type=None, coordinates='figure' ) :
     [ha, va] = self.location_map[anchor_to] #, offset = self.location_map[anchor_to], 0.145
     transform = self.translate_coordinates(coordinates, axes)
-    # transform = self.figure.transFigure
-    # if coordinates == 'axes' : transform = self.plots[axes].transAxes
-    # if ha == 'right' : x, offset = x-0.225, 0.225 # shift leftwards if using a right-align
-    # self.plots[axes].text( x, y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=self.figure.transFigure )
-    # if plot_type is not None :
-    #   self.plots[axes].text( x+offset, y, plot_type, fontsize=17, fontweight='bold', ha=ha, va=va, transform=self.figure.transFigure )
     if plot_type is None :
       self.plots[axes].text( x, y, 'ATLAS', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
     else :
@@ -151,7 +130,11 @@ class BaseCanvas(object) :
       if len( idx_label ) > 0 :
         sorted_labels.append( labels.pop( idx_label[0] ) )
         sorted_handles.append( handles.pop( idx_label[0] ) )
-    assert len(labels) == 0; assert len(handles) == 0
+    # Append non-mATLASplotlib labels
+    for label, handle in zip( labels, handles ) :
+      sorted_labels.append( label )
+      sorted_handles.append( handle )
+    # assert len(labels) == 0; assert len(handles) == 0
     return sorted_handles, sorted_labels
 
 
@@ -189,6 +172,9 @@ class BaseCanvas(object) :
   def set_axis_range( self, axis_name, axis_range ) :
     raise NotImplementedError( 'set_axis_range not defined by {0}'.format(type(self)) )
 
+
+  def set_axis_log( self, log_type ) :
+    self.log_type = log_type
 
   def set_title( self, title ) :
     raise NotImplementedError( 'set_title not defined by {0}'.format(type(self)) )
