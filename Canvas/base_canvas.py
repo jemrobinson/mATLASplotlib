@@ -33,6 +33,7 @@ class BaseCanvas(object) :
   def add_plottable( self, plottable, axes, **kwargs ) :
     legend_text = kwargs.pop('visible_label','')+'@'
     if legend_text is '@' : legend_text = kwargs.get('label','')
+    if 'stack' in kwargs.get('style','') : legend_text = 'stack:'+legend_text
     if legend_text is not None and legend_text is not '' and legend_text not in self.legend_order :
       self.legend_order.append( legend_text )
     plottable.draw_on_plot( self.plots[axes], **kwargs )
@@ -123,6 +124,10 @@ class BaseCanvas(object) :
           handles.append( proxy_artist )
         else :
           handles.append( handle )
+    # Pre-sort legend order for stacks, which need reversing
+    stack_labels = list( reversed( [ label.replace('stack:','') for label in self.legend_order if 'stack:' in label ] ) )
+    stack_indices = [ idx for idx, label in enumerate(self.legend_order) if 'stack:' in label ]
+    for idx, label in zip(stack_indices,stack_labels) : self.legend_order[idx] = label
     # Sort list of labels
     sorted_labels, sorted_handles = [], []
     for label in self.legend_order :

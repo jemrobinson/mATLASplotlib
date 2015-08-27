@@ -53,16 +53,27 @@ class Histogram1D(BasePlottable) :
       # Disable linestyle
       kwargs['linestyle'] = 'None'
       axes.errorbar( self.x_points, self.y_points, fmt='', markeredgewidth=0, **kwargs )
-    elif plot_style == 'filled bar' :
-      x_bin_low_edges = np.array( [ (x_centre - x_errors[0]) for x_centre, x_errors in zip(self.x_points, self.x_error_pairs) ] )
-      x_bin_widths = np.array( [ (x_error[0] + x_error[1]) for x_error in self.x_error_pairs ]  )
-      if hatch != None : kwargs['hatch'] = hatch
-      axes.bar( x_bin_low_edges, height=self.y_points, width=x_bin_widths, edgecolor=colour_secondary, **kwargs)
+
+    elif 'bar' in plot_style :
+      if 'filled' in plot_style :
+        x_bin_low_edges = np.array( [ (x_centre - x_errors[0]) for x_centre, x_errors in zip(self.x_points, self.x_error_pairs) ] )
+        x_bin_widths = np.array( [ (x_error[0] + x_error[1]) for x_error in self.x_error_pairs ]  )
+        if hatch != None : kwargs['hatch'] = hatch
+
+        if 'stack' in plot_style :
+          if not hasattr( axes, 'stack_bottom' ) : axes.stack_bottom = [0]*len( self.y_points )
+          axes.bar( x_bin_low_edges, height=self.y_points, width=x_bin_widths, edgecolor=colour_secondary, bottom=axes.stack_bottom, **kwargs)
+          axes.stack_bottom = [ additional+old for additional,old in zip(self.y_points,axes.stack_bottom) ]
+        else :
+          axes.bar( x_bin_low_edges, height=self.y_points, width=x_bin_widths, edgecolor=colour_secondary, **kwargs)
+
     elif plot_style == 'join centres' :
       axes.plot( self.x_points, self.y_points, **kwargs )
+
     elif plot_style == 'stepped line' :
       x_bin_edges = np.array( sum([ [ x_centre - x_errors[0], x_centre + x_errors[1] ] for x_centre, x_errors in zip(self.x_points, self.x_error_pairs) ], [] ) )
       y_bin_edges = np.array( sum([ [ y_centre, y_centre ] for y_centre in self.y_points ], [] ) )
       axes.plot( x_bin_edges, y_bin_edges, drawstyle='steps', **kwargs )
+
     else :
       raise NotImplementedError( 'Style "{0}" not recognised by {1}'.format( plot_style, type(self) ) )
