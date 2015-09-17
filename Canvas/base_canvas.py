@@ -45,10 +45,7 @@ class BaseCanvas(object) :
       # Draw x ticks
       if self.x_ticks is not None :
         x_interval = ( self.axis_ranges['x'][1] - self.axis_ranges['x'][0] ) / len(self.x_ticks)
-        print 'x_interval is',x_interval
-        print 'from',self.axis_ranges['x'][0],'->',self.axis_ranges['x'][1]
         axes.xaxis.set_major_locator( tkr.MultipleLocator(x_interval) )
-        print 'setting major_locator to',tkr.MultipleLocator(x_interval)
         axes.set_xticklabels( [''] + self.x_ticks ) # for some reason the first label is getting lost
 
       # Draw minor ticks
