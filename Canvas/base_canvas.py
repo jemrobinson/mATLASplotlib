@@ -44,8 +44,11 @@ class BaseCanvas(object) :
     for axes in self.figure.axes :
       # Draw x ticks
       if self.x_ticks is not None :
-        x_interval = ( self.axis_ranges['x'][1] - self.axis_ranges['x'][0] ) / (len(self.x_ticks)-1)
+        x_interval = ( self.axis_ranges['x'][1] - self.axis_ranges['x'][0] ) / len(self.x_ticks)
+        print 'x_interval is',x_interval
+        print 'from',self.axis_ranges['x'][0],'->',self.axis_ranges['x'][1]
         axes.xaxis.set_major_locator( tkr.MultipleLocator(x_interval) )
+        print 'setting major_locator to',tkr.MultipleLocator(x_interval)
         axes.set_xticklabels( [''] + self.x_ticks ) # for some reason the first label is getting lost
 
       # Draw minor ticks
@@ -88,10 +91,10 @@ class BaseCanvas(object) :
     [ text.set_va('bottom') for text in self.main_legend.get_texts() ]
 
 
-  def draw_luminosity_text( self, x, y, luminosity_value, axes, anchor_to='lower left', coordinates='figure' ) :
+  def draw_luminosity_text( self, x, y, luminosity_value, axes, sqrts=7, anchor_to='lower left', coordinates='figure' ) :
     ha, va = self.location_map[anchor_to]
     transform = self.translate_coordinates(coordinates, axes)
-    self.plots[axes].text( x, y, r'$\mathrm{\mathsf{\sqrt{s}}} = 7\,\mathrm{\mathsf{TeV}} \, \int \mathcal{L} \mathrm{dt} = $'+luminosity_value, ha=ha, va=va, transform=transform, fontsize=14 )
+    self.plots[axes].text( x, y, r'$\mathrm{\mathsf{\sqrt{s}}} = '+str(sqrts)+'\,\mathrm{\mathsf{TeV}} \, \int \mathcal{L} \mathrm{dt} = $'+luminosity_value, ha=ha, va=va, transform=transform, fontsize=14 )
 
 
   def draw_text( self, x, y, extra_value, axes, anchor_to='lower left', coordinates='figure' ) :
