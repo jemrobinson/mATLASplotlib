@@ -36,8 +36,11 @@ class Histogram1D(BasePlottable) :
       else :
         print 'Matplotlib version {0} is too old to allow error bar caps'.format( mpl_version )
       # Disable linestyle
-      kwargs['linestyle'] = 'None'
-      axes.errorbar( self.x_points, self.y_points, fmt='', markeredgewidth=0, **kwargs )
+      dashes = kwargs.pop('linestyle','solid'); kwargs['linestyle'] = 'None';
+      if 'dashes' in kwargs : kwargs.pop('dashes')
+      (joining_line,caplines,error_line) = axes.errorbar( self.x_points, self.y_points, fmt='', markeredgewidth=0, **kwargs )
+      error_line[0].set_linestyle(dashes)
+      if 'capsize' in kwargs : [ capline.set_markeredgewidth(kwargs['capsize']) for capline in caplines ]
 
     elif 'bar' in plot_style :
       if 'filled' in plot_style :
