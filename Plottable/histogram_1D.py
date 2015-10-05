@@ -1,6 +1,6 @@
 from base_plottable import BasePlottable
-import numpy as np
 from matplotlib import __version__ as mpl_version
+import numpy as np
 
 class Histogram1D(BasePlottable) :
   '''Plottable 1-dimensional histogram, binned along the x-axis'''

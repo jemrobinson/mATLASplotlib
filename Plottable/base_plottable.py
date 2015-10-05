@@ -37,12 +37,7 @@ class BasePlottable(object) :
       if 'z_values' in kwargs : self.add_dimension( 'z', kwargs['z_values'], kwargs.get('z_error_pairs',None) )
       for dimension in self.get_dimensions() : assert( len(self._data[dimension]) == self.number_of_points() )
     if 'x' in self.get_dimensions() and 'y' in self.get_dimensions() :
-      setattr( self, 'x_at_y_bin_edges',  self.__get_x_at_y_bin_edges() )
-      setattr( self, 'y_at_x_bin_edges',  self.__get_y_at_x_bin_edges() )
-      setattr( self, 'band_edges_x',      self.__get_band_edges_x() )
-      setattr( self, 'band_edges_y_low',  self.__get_band_edges_y_low() )
-      setattr( self, 'band_edges_y_high', self.__get_band_edges_y_high() )
-
+      self.add_xy_dimensions()
 
 
   def number_of_points( self ) :
@@ -53,18 +48,29 @@ class BasePlottable(object) :
     return sorted( self._data.keys() )
 
 
+  ## Add a new dimension with appropriate methods
   def add_dimension( self, dimension, values, error_pairs ) :
     if error_pairs is None : error_pairs = [ (0,0) ] * len(values)
     assert( len(values) == len(error_pairs) )
     self._data[dimension] = np.array( [ [ value, error_pair[0], error_pair[1] ] for value, error_pair in zip( values, error_pairs ) ] )
-    # Add methods
     setattr( self, '{0}_points'.format(dimension), self.__get_points(dimension) )
     setattr( self, '{0}_error_pairs'.format(dimension), self.__get_error_pairs(dimension) )
+    setattr( self, '{0}_points_error_symmetrised'.format(dimension), self.__get_points_error_symmetrised(dimension) )
+    setattr( self, '{0}_errors_symmetrised'.format(dimension), self.__get_errors_symmetrised(dimension) )
     setattr( self, '{0}_bin_edges'.format(dimension), self.__get_bin_edges(dimension) )
     setattr( self, '{0}_unique_bin_edges'.format(dimension), self.__get_unique_bin_edges(dimension) )
     setattr( self, '{0}_bin_widths'.format(dimension), self.__get_bin_widths(dimension) )
     setattr( self, '{0}_bin_low_edges'.format(dimension), self.__get_bin_low_edges(dimension) )
     setattr( self, '{0}_bin_high_edges'.format(dimension), self.__get_bin_high_edges(dimension) )
+
+
+  ## Add xy-appropriate methods
+  def add_xy_dimensions(self) :
+    setattr( self, 'x_at_y_bin_edges',  self.__get_x_at_y_bin_edges() )
+    setattr( self, 'y_at_x_bin_edges',  self.__get_y_at_x_bin_edges() )
+    setattr( self, 'band_edges_x',      self.__get_band_edges_x() )
+    setattr( self, 'band_edges_y_low',  self.__get_band_edges_y_low() )
+    setattr( self, 'band_edges_y_high', self.__get_band_edges_y_high() )
 
 
   ## Return array of x/y/z points, constructing if necessary
@@ -84,6 +90,23 @@ class BasePlottable(object) :
       setattr( self, attr_name, value )
     return getattr( self, attr_name )
 
+
+  ## Return array of x/y/z points, constructing if necessary
+  def __get_points_error_symmetrised( self, dimension ) :
+    attr_name = '_{0}_points_error_symmetrised'.format(dimension)
+    if not hasattr( self, attr_name ) :
+      value = np.array( [ point[0]+(point[2]-point[1])/2.0 for point in self._data[dimension] ] )
+      setattr( self, attr_name, value )
+    return getattr( self, attr_name )
+
+
+  ## Return array of x/y/z points, constructing if necessary
+  def __get_errors_symmetrised( self, dimension ) :
+    attr_name = '_{0}_errors_symmetrised'.format(dimension)
+    if not hasattr( self, attr_name ) :
+      value = np.array( [ (point[1]+point[2])/2.0 for point in self._data[dimension] ] )
+      setattr( self, attr_name, value )
+    return getattr( self, attr_name )
 
   ## Return array of x/y/z bin edges, constructing if necessary
   def __get_bin_edges( self, dimension ) :

@@ -1,6 +1,5 @@
 from base_plottable import BasePlottable
 import matplotlib.pyplot as pyplot
-# import numpy as np
 
 class BinnedBand(BasePlottable) :
   '''Plottable band, binned along the x-axis'''
