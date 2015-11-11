@@ -1,7 +1,6 @@
 from base_plottable import BasePlottable
-# import numpy as np
-# from matplotlib import __version__ as mpl_version
 import matplotlib.pyplot as pyplot
+import numpy as np
 
 class Histogram2D(BasePlottable) :
   '''Plottable 2-dimensional histogram, binned along the x and y axes'''
@@ -19,8 +18,13 @@ class Histogram2D(BasePlottable) :
       if 'colourbar' in key : colourbar_kwargs[key.replace('colourbar_','')] = kwargs.pop(key)
 
     if plot_style == 'colourbar' :
-      data_array, xedges, yedges, image = axes.hist2d( self.x_points, self.y_points, weights=self.z_points, bins=(self.x_bin_edges,self.y_bin_edges), **kwargs )
-      axes_image = axes.imshow( data_array, extent=(yedges[0], yedges[-1], xedges[0], xedges[-1]), aspect='auto', **kwargs )
+      x_values, y_values = self.unroll_bins( self.x_points, self.y_points )
+      assert( len(x_values) == len(y_values) == len(self.z_points) )
+      # Draw with imshow to get the colourbar
+      # z_values_array, _xedges, _yedges = np.histogram2d( x_values, y_values, bins=[self.x_bin_edges,self.y_bin_edges], weights=self.z_points )
+      # axes_image = axes.imshow( z_values_array, extent=(_yedges[0], _yedges[-1], _xedges[0], _xedges[-1]), aspect='auto', interpolation='nearest', **kwargs )
+      z_values_array, _xedges, _yedges, axes_image = axes.hist2d( x_values, y_values, bins=[self.x_bin_edges,self.y_bin_edges], weights=self.z_points, **kwargs )
       colourbar = axes.get_figure().colorbar( axes_image, ax=axes, **colourbar_kwargs )
+      colourbar.solids.set_rasterized(True) 
     else :
       raise NotImplementedError( 'Style "{0}" not recognised by {1}'.format( plot_style, type(self) ) )

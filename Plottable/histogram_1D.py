@@ -10,7 +10,7 @@ class Histogram1D(BasePlottable) :
 
   ## Add to canvas
   def draw_on_plot( self, axes, **kwargs ) :
-    plot_style = kwargs.pop( 'style', None )
+    plot_style = kwargs.pop( 'style', '' )
     kwargs['label'] = kwargs.pop('label',None)
     kwargs['color'] = kwargs.pop('colour_primary','black')
     kwargs['linewidth'] = kwargs.pop('linewidth',2)
@@ -57,7 +57,7 @@ class Histogram1D(BasePlottable) :
       axes.plot( self.x_points, self.y_points, **kwargs )
 
     elif plot_style == 'stepped line' :
-      axes.plot( self.x_bin_edges, self.y_at_x_bin_edges, drawstyle='steps', **kwargs )
+      axes.plot( self.x_all_bin_edges, self.y_at_x_bin_edges, drawstyle='steps', **kwargs )
 
     else :
       raise NotImplementedError( 'Style "{0}" not recognised by {1}'.format( plot_style, type(self) ) )

@@ -38,6 +38,8 @@ class BasePlottable(object) :
       for dimension in self.get_dimensions() : assert( len(self._data[dimension]) == self.number_of_points() )
     if 'x' in self.get_dimensions() and 'y' in self.get_dimensions() :
       self.add_xy_dimensions()
+    if len(self.get_dimensions()) == 0 :
+      raise RuntimeError( 'Attempt to initialise plottable {0} without providing data!'.format( type(self) ) )
 
 
   def number_of_points( self ) :
@@ -57,8 +59,8 @@ class BasePlottable(object) :
     setattr( self, '{0}_error_pairs'.format(dimension), self.__get_error_pairs(dimension) )
     setattr( self, '{0}_points_error_symmetrised'.format(dimension), self.__get_points_error_symmetrised(dimension) )
     setattr( self, '{0}_errors_symmetrised'.format(dimension), self.__get_errors_symmetrised(dimension) )
+    setattr( self, '{0}_all_bin_edges'.format(dimension), self.__get_all_bin_edges(dimension) )
     setattr( self, '{0}_bin_edges'.format(dimension), self.__get_bin_edges(dimension) )
-    setattr( self, '{0}_unique_bin_edges'.format(dimension), self.__get_unique_bin_edges(dimension) )
     setattr( self, '{0}_bin_widths'.format(dimension), self.__get_bin_widths(dimension) )
     setattr( self, '{0}_bin_low_edges'.format(dimension), self.__get_bin_low_edges(dimension) )
     setattr( self, '{0}_bin_high_edges'.format(dimension), self.__get_bin_high_edges(dimension) )
@@ -71,6 +73,12 @@ class BasePlottable(object) :
     setattr( self, 'band_edges_x',      self.__get_band_edges_x() )
     setattr( self, 'band_edges_y_low',  self.__get_band_edges_y_low() )
     setattr( self, 'band_edges_y_high', self.__get_band_edges_y_high() )
+
+
+  ## Construct expanded bin lists in x and y
+  def unroll_bins( self, *args ) :
+    bin_centres = np.meshgrid( *args, indexing='xy' )
+    return [ bin_centre.ravel() for bin_centre in bin_centres ]
 
 
   ## Return array of x/y/z points, constructing if necessary
@@ -108,9 +116,9 @@ class BasePlottable(object) :
       setattr( self, attr_name, value )
     return getattr( self, attr_name )
 
-  ## Return array of x/y/z bin edges, constructing if necessary
-  def __get_bin_edges( self, dimension ) :
-    attr_name = '_{0}_bin_edges'.format(dimension)
+  ## Return array of all x/y/z bin edges, constructing if necessary
+  def __get_all_bin_edges( self, dimension ) :
+    attr_name = '_{0}_all_bin_edges'.format(dimension)
     if not hasattr( self, attr_name ) :
       value = np.array( sum( [ [low_edge,high_edge] for low_edge, high_edge in zip(self.__get_bin_low_edges(dimension), self.__get_bin_high_edges(dimension)) ], [] ) )
       setattr( self, attr_name, value )
@@ -118,10 +126,10 @@ class BasePlottable(object) :
 
 
   ## Return array of x/y/z bin edges without duplicates, constructing if necessary
-  def __get_unique_bin_edges( self, dimension ) :
-    attr_name = '_{0}_unique_bin_edges'.format(dimension)
+  def __get_bin_edges( self, dimension ) :
+    attr_name = '_{0}_bin_edges'.format(dimension)
     if not hasattr( self, attr_name ) :
-      value = np.unique( getattr( self, '_{0}_bin_edges'.format(dimension) ) )
+      value = np.unique( getattr( self, '_{0}_all_bin_edges'.format(dimension) ) )
       setattr( self, attr_name, value )
     return getattr( self, attr_name )
 
@@ -172,7 +180,6 @@ class BasePlottable(object) :
     if not hasattr( self, '_band_edges_x' ) :
       self._band_edges_x = np.array( sum( [ [ point[0]-point[1], point[0]+point[2] ] for point in self._data['x'] ], [] ) )
     return self._band_edges_x
-  #     self.x_points = np.array( sum([ [value-errors[0],value+errors[1]] for value,errors in zip( x_values, x_error_pairs ) ], [] ) )
 
 
   ## Return array of y minima for fillable band, constructing if necessary
@@ -180,7 +187,6 @@ class BasePlottable(object) :
     if not hasattr( self, '_band_edges_y_low' ) :
       self._band_edges_y_low = np.array( sum( [ [ point[0]-point[1], point[0]-point[1] ] for point in self._data['y'] ], [] ) )
     return self._band_edges_y_low
-  #     self.y_points_l = np.array( sum([ [value-errors[0],value-errors[0]] for value,errors in zip( y_values, y_error_pairs ) ], [] ) )
 
 
   ## Return array of y maxima for fillable band, constructing if necessary
@@ -188,111 +194,3 @@ class BasePlottable(object) :
     if not hasattr( self, '_band_edges_y_high' ) :
       self._band_edges_y_high = np.array( sum( [ [ point[0]+point[2], point[0]+point[2] ] for point in self._data['y'] ], [] ) )
     return self._band_edges_y_high
-  #     self.y_points_h = np.array( sum([ [value+errors[1],value+errors[1]] for value,errors in zip( y_values, y_error_pairs ) ], [] ) )
-
-
-# #   def centres_to_edges( self, bin_centres ) :
-# #     return [ 2*bin_edges[0] - bin_edges[1] ] + bin_edges + [ 2*bin_edges[-1] - bin_edges[-2] ]
-#
-# #     # Check whether default constructor is applicable
-# #     if len(args) == 4 and len(kwargs) == 0 :
-# #       self.construct_from_values_errors( *args )
-# #     # Check whether histogram edges/values are provided
-# #     elif len(args) == 3 and len(kwargs) == 0 :
-# #       self.construct_from_x_edges_y_values( *args )
-# #     # Check whether a ROOT object is passed
-# #     elif len(args) == 1 :
-# #       # Initialise TH2 constructor
-# #       if isinstance( args[0], ROOT.TH2 ) :
-# #         self.construct_from_TH2( args[0] )
-# #       # Initialise TH1 constructor
-# #       elif isinstance( args[0], ROOT.TH1 ) :
-# #         self.construct_from_TH1( args[0] )
-# #       # Initialise TGraphAsymmErrors constructor
-# #       elif isinstance( args[0], ROOT.TGraphAsymmErrors ) :
-# #         self.construct_from_TGraphAsymmErrors( args[0] )
-# #       # Initialise TGraphErrors constructor
-# #       elif isinstance( args[0], ROOT.TGraphErrors ) :
-# #         self.construct_from_TGraphErrors( args[0] )
-# #       # Initialise TGraph constructor
-# #       elif isinstance( args[0], ROOT.TGraph ) :
-# #         self.construct_from_TGraph( args[0] )
-# #     else :
-# #       raise NotImplementedError( 'Constructor signature {0}, {1} not known'.format( *args, **kwargs ) )
-# #
-# #
-# #
-# #
-# #   # Require children to implement this
-# #   def draw_on_plot( self, plot, **kwargs ) :
-# #     raise NotImplementedError( 'draw_on_plot not defined by {0}'.format( type(self) ) )
-# #
-# #
-# #   ## Utility functions
-# #   def edges_to_centres( self, bin_edges ) :
-# #     return [ 0.5*(low_edge+high_edge) for low_edge, high_edge in zip( bin_edges[:-1], bin_edges[1:] ) ]
-# #
-# #   def centres_to_edges( self, bin_centres ) :
-# #     bin_edges = [ 0.5*(low_centre+high_centre) for low_centre, high_centre in zip( bin_centres[:-1], bin_centres[1:] ) ]
-# #     return [ 2*bin_edges[0] - bin_edges[1] ] + bin_edges + [ 2*bin_edges[-1] - bin_edges[-2] ]
-# #
-# #
-# #   # Constructors
-# #   @classmethod
-# #   def construct_from_values_errors( cls, x_values=None, x_error_pairs=None, y_values=None, y_error_pairs=None ) :
-# #     raise NotImplementedError( 'construct_from_values_errors not defined by {0}'.format( type(self) ) )
-# #
-# #
-# #   def construct_from_x_edges_y_values( self, x_bin_edges, y_values, y_error_pairs ) :
-# #     x_values = [ 0.5*(low_edge+high_edge) for low_edge, high_edge in zip( x_bin_edges[:-1], x_bin_edges[1:] ) ]
-# #     x_error_pairs = [ (centre-low_edge,centre-low_edge) for centre, low_edge in zip(x_values,x_bin_edges[:-1]) ]
-# #     self.construct_from_values_errors( x_values, x_error_pairs, y_values, y_error_pairs )
-# #
-# #
-# #   def construct_from_TH1( self, input_TH1 ) :
-# #     x_bin_edges = [ input_TH1.GetBinLowEdge(bin) for bin in range(1,input_TH1.GetNbinsX()+2) ]
-# #     y_values = [ input_TH1.GetBinContent(bin) for bin in range(1,input_TH1.GetNbinsX()+1) ]
-# #     y_error_pairs = [ (input_TH1.GetBinError(bin),input_TH1.GetBinError(bin)) for bin in range(1,input_TH1.GetNbinsX()+1) ]
-# #     self.construct_from_x_edges_y_values( x_bin_edges, y_values, y_error_pairs )
-# #
-# #
-# #   def construct_from_TH2( self, input_TH2 ) :
-# #     raise NotImplementedError( 'ROOT.TH2 constructor not defined by {0}'.format( type(self) ) )
-# #
-# #
-# #   def construct_from_TGraph( self, input_TGraph ) :
-# #     x, x_errors = input_TGraphAsymmErrors.GetX(), input_TGraphAsymmErrors.GetEX()
-# #     y, y_errors = input_TGraphAsymmErrors.GetY(), input_TGraphAsymmErrors.GetEY()
-# #     x_values, x_errors, y_values, y_errors = [], [], [], []
-# #     for ii in range( input_TGraphAsymmErrors.GetN() ) :
-# #       x_values.append( x[ii] )
-# #       x_errors.append( (x_errors[ii],x_errors[ii]) )
-# #       y_values.append( y[ii] )
-# #       y_errors.append( (y_errors[ii],y_errors[ii]) )
-# #     self.construct_from_values_errors( x_values, x_errors, y_values, y_errors )
-# #
-# #
-# #   def construct_from_TGraphErrors( self, input_TGraphErrors ) :
-# #     x, x_errors = input_TGraphAsymmErrors.GetX(), input_TGraphAsymmErrors.GetEX()
-# #     y, y_errors = input_TGraphAsymmErrors.GetY(), input_TGraphAsymmErrors.GetEY()
-# #     x_values, x_errors, y_values, y_errors = [], [], [], []
-# #     for ii in range( input_TGraphAsymmErrors.GetN() ) :
-# #       x_values.append( x[ii] )
-# #       x_errors.append( (x_errors[ii],x_errors[ii]) )
-# #       y_values.append( y[ii] )
-# #       y_errors.append( (y_errors[ii],y_errors[ii]) )
-# #     self.construct_from_values_errors( x_values, x_errors, y_values, y_errors )
-# #
-# #
-# #   def construct_from_TGraphAsymmErrors( self, input_TGraphAsymmErrors ) :
-# #     x, x_errors_low, x_errors_high = input_TGraphAsymmErrors.GetX(), input_TGraphAsymmErrors.GetEXlow(), input_TGraphAsymmErrors.GetEXhigh()
-# #     y, y_errors_low, y_errors_high = input_TGraphAsymmErrors.GetY(), input_TGraphAsymmErrors.GetEYlow(), input_TGraphAsymmErrors.GetEYhigh()
-# #     x_values, x_errors, y_values, y_errors = [], [], [], []
-# #     for ii in range( input_TGraphAsymmErrors.GetN() ) :
-# #       x_values.append( x[ii] + ( x_errors_high[ii] - x_errors_low[ii] ) / 2.0 )
-# #       ex = ( x_errors_high[ii] + x_errors_low[ii] ) / 2.0
-# #       x_errors.append( (ex,ex) )
-# #       y_values.append( y[ii] + ( y_errors_high[ii] - y_errors_low[ii] ) / 2.0 )
-# #       ey = ( y_errors_high[ii] + y_errors_low[ii] ) / 2.0
-# #       y_errors.append( (ey,ey) )
-# #     self.construct_from_values_errors( x_values, x_errors, y_values, y_errors )

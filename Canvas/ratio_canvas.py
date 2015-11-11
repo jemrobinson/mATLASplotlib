@@ -46,15 +46,6 @@ class RatioCanvas(BaseCanvas) :
     self.plots['top'].set_xticklabels( [], minor=True )
     self.plots['top'].set_xticklabels( [], major=True )
 
-#     # Remove bottom-most tick from top-plot and top-and-bottom from bottom-plot
-#     if self.log_type.find('y') == -1 :
-#       self.plots['top'].yaxis.set_major_locator( tkr.MaxNLocator(nbins=len(self.plots['top'].get_yticklabels()), prune='lower') )
-#     self.plots['bottom'].yaxis.set_major_locator( tkr.FixedLocator( self.get_ratio_ticks(self.ymin_ratio,self.ymax_ratio) ) )
-
-#     # Remove tick-labels from top-plot
-#     self.plots['top'].set_xticklabels([],minor=True)
-#     self.plots['top'].set_xticklabels([],major=True)
-
 
   ## Provide defaults for inherited methods
   def draw_ATLAS_text( self, x, y, axes='top', **kwargs ) :
@@ -74,8 +65,6 @@ class RatioCanvas(BaseCanvas) :
     # Choose ratio ticks to be sensibly spaced and always include 1.0
     interval_estimate = abs(axis_range[1] - axis_range[0]) / float(n_approximate)
     tick_sizes = [ 0.001, 0.002, 0.005, 0.01, 0.02, 0.04, 0.05, 0.1, 0.2, 0.4, 0.5, 1.0, 2.0 ]
-    # tick_idx = ( np.abs( np.array(tick_sizes)-interval_estimate ) ).argmin()
-    # print interval_estimate, tick_idx, tick_sizes[tick_idx], 'vs.',
     tick_size = min( tick_sizes, key=lambda x:abs(x-interval_estimate) )
     return arange( 1.0-10*tick_size, 1.0+10*tick_size, tick_size )
 
@@ -97,10 +86,12 @@ class RatioCanvas(BaseCanvas) :
       self.plots['bottom'].set_xlabel( axis_label, size=16, position=(1.0, 0.0), va='top', ha='right' )
     elif axis_name == 'y' :
       self.plots['top'].set_ylabel( axis_label, size=16 )
-      self.plots['top'].yaxis.set_label_coords( -0.13, [0.6,0.8][len(axis_label) < 70] )
+      self.plots['top'].yaxis.get_label().set_ha('right')
+      self.plots['top'].yaxis.set_label_coords( -0.13, 1.0 )
     elif axis_name == 'y_ratio' :
       self.plots['bottom'].set_ylabel( axis_label, size=16 )
-      self.plots['bottom'].yaxis.set_label_coords( -0.13, 0.5 )
+      self.plots['top'].yaxis.get_label().set_ha('center')
+      self.plots['top'].yaxis.set_label_coords( -0.13, 0.5 )
     else :
       raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
 

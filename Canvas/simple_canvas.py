@@ -6,6 +6,7 @@ class SimpleCanvas(BaseCanvas) :
     super(SimpleCanvas, self).__init__( n_pixels, **kwargs )
     self.plots['main'] = self.figure.add_axes( axis_dimensions )
 
+
   def add_plottable( self, plottable, axes='main', **kwargs ) :
     super(SimpleCanvas, self).add_plottable( plottable, axes, **kwargs )
     if 'x' not in self.axis_ranges : self.set_axis_range( 'x', self.plots[axes].get_xlim() )
@@ -48,7 +49,8 @@ class SimpleCanvas(BaseCanvas) :
       self.plots['main'].set_xlabel( axis_label, size=16, position=(1.0, 0.0), va='top', ha='right' )
     elif axis_name == 'y' :
       self.plots['main'].set_ylabel( axis_label, size=16 )
-      self.plots['main'].yaxis.set_label_coords( -0.13, [0.6,0.8][len(axis_label) < 70] )
+      self.plots['main'].yaxis.get_label().set_ha('right')
+      self.plots['main'].yaxis.set_label_coords( -0.13, 1.0 )
     else :
       raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
 

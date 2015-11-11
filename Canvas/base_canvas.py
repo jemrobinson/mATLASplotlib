@@ -103,6 +103,7 @@ class BaseCanvas(object) :
   def get_axis_label( self, axis_name ) :
     raise NotImplementedError( 'get_label not defined by {0}'.format(type(self)) )
 
+
   def get_axis_range( self, axis_name ) :
     if axis_name in self.axis_ranges.keys() :
       return self.axis_ranges[axis_name]

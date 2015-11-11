@@ -1,7 +1,8 @@
+import numpy as np
 import ROOT
 
+## Interpreter for ROOT objects
 class ROOTReader(object) :
-  '''Interpreter for ROOT objects'''
   def __init__( self, root_object ) :
     self.x_values, self.x_error_pairs = None, None
     self.y_values, self.y_error_pairs = None, None
@@ -27,25 +28,25 @@ class ROOTReader(object) :
 
   ## Read TH1 into x, y dimensions
   def construct_from_TH1( self, input_TH1 ) :
-    self.x_values = [ input_TH1.GetXaxis().GetBinCenter(bin) for bin in range(1,input_TH1.GetNbinsX()+2) ]
-    self.x_error_pairs = [ [ 0.5*input_TH1.GetXaxis().GetBinWidth(bin) ]*2 for bin in range(1,input_TH1.GetNbinsX()+2) ]
+    self.x_values = [ input_TH1.GetXaxis().GetBinCenter(bin) for bin in range(1,input_TH1.GetNbinsX()+1) ]
+    self.x_error_pairs = [ [ 0.5*input_TH1.GetXaxis().GetBinWidth(bin) ]*2 for bin in range(1,input_TH1.GetNbinsX()+1) ]
     self.y_values = [ input_TH1.GetBinContent(bin) for bin in range(1,input_TH1.GetNbinsX()+1) ]
-    self.y_error_pairs = [ (input_TH1.GetBinErrorLow(bin),input_TH1.GetBinErrorHigh(bin)) for bin in range(1,input_TH1.GetNbinsX()+1) ]
+    self.y_error_pairs = [ (input_TH1.GetBinErrorLow(bin),input_TH1.GetBinErrorUp(bin)) for bin in range(1,input_TH1.GetNbinsX()+1) ]
 
 
   ## Read TH2 into x, y, z dimensions
   def construct_from_TH2( self, input_TH2 ) :
-    self.x_values = [ input_TH2.GetXaxis().GetBinCenter(bin) for bin in range(1,input_TH2.GetNbinsX()+2) ]
-    self.x_error_pairs = [ [ 0.5*input_TH2.GetXaxis().GetBinWidth(bin) ]*2 for bin in range(1,input_TH2.GetNbinsX()+2) ]
-    self.y_values = [ input_TH2.GetBinContent(bin) for bin in range(1,input_TH2.GetNbinsX()+1) ]
-    self.y_error_pairs = [ (input_TH2.GetBinErrorLow(bin),input_TH2.GetBinErrorHigh(bin)) for bin in range(1,input_TH2.GetNbinsX()+1) ]
+    self.x_values = [ input_TH2.GetXaxis().GetBinCenter(bin) for bin in range(1,input_TH2.GetNbinsX()+1) ]
+    self.x_error_pairs = [ [ 0.5*input_TH2.GetXaxis().GetBinWidth(bin) ]*2 for bin in range(1,input_TH2.GetNbinsX()+1) ]
+    self.y_values = [ input_TH2.GetYaxis().GetBinCenter(bin) for bin in range(1,input_TH2.GetNbinsY()+1) ]
+    self.y_error_pairs = [ [ 0.5*input_TH2.GetYaxis().GetBinWidth(bin) ]*2 for bin in range(1,input_TH2.GetNbinsY()+1) ]
     self.z_values, self.z_error_pairs = [], []
     x_bin_edges = [ input_TH2.GetXaxis().GetBinLowEdge(bin) for bin in range(1,input_TH2.GetNbinsX()+2) ]
     y_bin_edges = [ input_TH2.GetYaxis().GetBinLowEdge(bin) for bin in range(1,input_TH2.GetNbinsY()+2) ]
     ix_array, iy_array = np.meshgrid( range(1,len(x_bin_edges)), range(1,len(y_bin_edges)), indexing='xy' )
     for ix, iy in zip( ix_array.ravel(), iy_array.ravel() ) :
       self.z_values.append( input_TH2.GetBinContent(ix,iy) )
-      self.z_error_pairs.append( (input_TH2.GetBinErrorLow(bin),input_TH2.GetBinErrorHigh(bin)) )
+      self.z_error_pairs.append( (input_TH2.GetBinErrorLow(ix,iy),input_TH2.GetBinErrorUp(ix,iy)) )
 
 
   ## Read TGraph into x, y dimensions
