@@ -90,8 +90,8 @@ class RatioCanvas(BaseCanvas) :
       self.plots['top'].yaxis.set_label_coords( -0.13, 1.0 )
     elif axis_name == 'y_ratio' :
       self.plots['bottom'].set_ylabel( axis_label, size=16 )
-      self.plots['top'].yaxis.get_label().set_ha('center')
-      self.plots['top'].yaxis.set_label_coords( -0.13, 0.5 )
+      self.plots['bottom'].yaxis.get_label().set_ha('center')
+      self.plots['bottom'].yaxis.set_label_coords( -0.13, 0.5 )
     else :
       raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
 

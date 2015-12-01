@@ -39,19 +39,19 @@ class Histogram1D(BasePlottable) :
       dashes = kwargs.pop('linestyle','solid'); kwargs['linestyle'] = 'None';
       if 'dashes' in kwargs : kwargs.pop('dashes')
       (joining_line,caplines,error_line) = axes.errorbar( self.x_points, self.y_points, fmt='', markeredgewidth=0, **kwargs )
-      error_line[0].set_linestyle(dashes)
+      try : error_line[0].set_linestyle(dashes)
+      except IndexError : pass
       if 'capsize' in kwargs : [ capline.set_markeredgewidth(kwargs['capsize']) for capline in caplines ]
 
     elif 'bar' in plot_style :
       if 'filled' in plot_style :
         if hatch != None : kwargs['hatch'] = hatch
-
-        if 'stack' in plot_style :
-          if not hasattr( axes, 'stack_bottom' ) : axes.stack_bottom = [0]*len( self.y_points() )
-          axes.bar( self.x_bin_low_edges, height=self.y_points, width=self.x_bin_widths, edgecolor=colour_secondary, bottom=axes.stack_bottom, **kwargs)
-          axes.stack_bottom = [ additional+old for additional,old in zip(self.y_points,axes.stack_bottom) ]
-        else :
-          axes.bar( self.x_bin_low_edges, height=self.y_points, width=self.x_bin_widths, edgecolor=colour_secondary, **kwargs)
+      if 'stack' in plot_style :
+        if not hasattr( axes, 'stack_bottom' ) : axes.stack_bottom = [0]*len( self.y_points )
+        axes.bar( self.x_bin_low_edges, height=self.y_points, width=self.x_bin_widths, edgecolor=colour_secondary, bottom=axes.stack_bottom, **kwargs)
+        axes.stack_bottom = [ additional+old for additional,old in zip(self.y_points,axes.stack_bottom) ]
+      else :
+        axes.bar( self.x_bin_low_edges, height=self.y_points, width=self.x_bin_widths, edgecolor=colour_secondary, **kwargs)
 
     elif plot_style == 'join centres' :
       axes.plot( self.x_points, self.y_points, **kwargs )

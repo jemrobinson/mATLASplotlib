@@ -4,37 +4,38 @@ class BasePlottable(object) :
   '''Base class for plottable objects'''
 
   ## Constructor - specify values and error pair separately for each dimension
-  # Example : x vs y : __init__( x_values = [1,2,3], y_values = [1,4,9] )
+  # Example : x vs y : __init__( [1,2,3], [4,9,16] )
+  # Example : x vs y with y_errors : __init__( [1,2,3], None, [4,9,16], [2,3,4] )
   def __init__( self, *args, **kwargs ) :
     self._data = {}
     # Use a configurator object to construct
     if len(args) == 1 :
-      if hasattr( args[0], 'x_values' ) and getattr( args[0], 'x_values' ) is not None : self.add_dimension( 'x', args[0].x_values, args[0].x_error_pairs )
-      if hasattr( args[0], 'y_values' ) and getattr( args[0], 'y_values' ) is not None : self.add_dimension( 'y', args[0].y_values, args[0].y_error_pairs )
-      if hasattr( args[0], 'z_values' ) and getattr( args[0], 'z_values' ) is not None : self.add_dimension( 'z', args[0].z_values, args[0].z_error_pairs )
+      if hasattr( args[0], 'x_values' ) and getattr( args[0], 'x_values' ) is not None : self.add_dimension( 'x', args[0].x_values, args[0].x_error_pairs, **kwargs )
+      if hasattr( args[0], 'y_values' ) and getattr( args[0], 'y_values' ) is not None : self.add_dimension( 'y', args[0].y_values, args[0].y_error_pairs, **kwargs )
+      if hasattr( args[0], 'z_values' ) and getattr( args[0], 'z_values' ) is not None : self.add_dimension( 'z', args[0].z_values, args[0].z_error_pairs, **kwargs )
     # Assume that x,y values have been passed
     elif len(args) == 2 :
-      self.add_dimension( 'x', args[0], None )
-      self.add_dimension( 'y', args[1], None )
+      self.add_dimension( 'x', args[0], None, **kwargs )
+      self.add_dimension( 'y', args[1], None, **kwargs )
     # Assume that x,y,z values have been passed
     elif len(args) == 3 :
-      self.add_dimension( 'x', args[0], None )
-      self.add_dimension( 'y', args[1], None )
-      self.add_dimension( 'z', args[2], None )
+      self.add_dimension( 'x', args[0], None, **kwargs )
+      self.add_dimension( 'y', args[1], None, **kwargs )
+      self.add_dimension( 'z', args[2], None, **kwargs )
     # Assume that x,y values with errors have been passed
     elif len(args) == 4 :
-      self.add_dimension( 'x', args[0], args[1] )
-      self.add_dimension( 'y', args[2], args[3] )
+      self.add_dimension( 'x', args[0], args[1], **kwargs )
+      self.add_dimension( 'y', args[2], args[3], **kwargs )
     # Assume that x,y,z values with errors have been passed
     elif len(args) == 6 :
-      self.add_dimension( 'x', args[0], args[1] )
-      self.add_dimension( 'y', args[2], args[3] )
-      self.add_dimension( 'z', args[4], args[5] )
+      self.add_dimension( 'x', args[0], args[1], **kwargs )
+      self.add_dimension( 'y', args[2], args[3], **kwargs )
+      self.add_dimension( 'z', args[4], args[5], **kwargs )
     # Construct an array of points in N-dimensional space, with an error pair in each direction
     else :
-      if 'x_values' in kwargs : self.add_dimension( 'x', kwargs['x_values'], kwargs.get('x_error_pairs',None) )
-      if 'y_values' in kwargs : self.add_dimension( 'y', kwargs['y_values'], kwargs.get('y_error_pairs',None) )
-      if 'z_values' in kwargs : self.add_dimension( 'z', kwargs['z_values'], kwargs.get('z_error_pairs',None) )
+      if 'x_values' in kwargs : self.add_dimension( 'x', kwargs['x_values'], kwargs.get('x_error_pairs',None), **kwargs )
+      if 'y_values' in kwargs : self.add_dimension( 'y', kwargs['y_values'], kwargs.get('y_error_pairs',None), **kwargs )
+      if 'z_values' in kwargs : self.add_dimension( 'z', kwargs['z_values'], kwargs.get('z_error_pairs',None), **kwargs )
       for dimension in self.get_dimensions() : assert( len(self._data[dimension]) == self.number_of_points() )
     if 'x' in self.get_dimensions() and 'y' in self.get_dimensions() :
       self.add_xy_dimensions()
@@ -51,10 +52,19 @@ class BasePlottable(object) :
 
 
   ## Add a new dimension with appropriate methods
-  def add_dimension( self, dimension, values, error_pairs ) :
+  def add_dimension( self, dimension, values, error_pairs, **kwargs ) :
+    # Use zeros if no errors provided
     if error_pairs is None : error_pairs = [ (0,0) ] * len(values)
+    # Pair-up errors if only single errors are provided
+    try :
+      for error_pair in error_pairs : assert( len(error_pair) == 2 )
+    except TypeError :
+      error_pairs = [ (e,e) for e in error_pairs ]
     assert( len(values) == len(error_pairs) )
-    self._data[dimension] = np.array( [ [ value, error_pair[0], error_pair[1] ] for value, error_pair in zip( values, error_pairs ) ] )
+    try :
+      self._data[dimension] = np.array( [ [ value, error_pair[0], error_pair[1] ] for value, error_pair in zip( values, error_pairs ) ] )
+    except IndexError :
+      self._data[dimension] = np.array( [ [ value, error, error ] for value, error in zip( values, error_pairs ) ] )
     setattr( self, '{0}_points'.format(dimension), self.__get_points(dimension) )
     setattr( self, '{0}_error_pairs'.format(dimension), self.__get_error_pairs(dimension) )
     setattr( self, '{0}_points_error_symmetrised'.format(dimension), self.__get_points_error_symmetrised(dimension) )

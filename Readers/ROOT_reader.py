@@ -1,5 +1,6 @@
 import numpy as np
 import ROOT
+import uuid
 
 ## Interpreter for ROOT objects
 class ROOTReader(object) :
@@ -24,6 +25,16 @@ class ROOTReader(object) :
       self.construct_from_TGraph( root_object )
     else :
       raise NotImplementedError( 'Constructor signature {0}, {1} not known'.format( *args, **kwargs ) )
+
+  @staticmethod
+  def from_file( root_file, root_object_name, **kwargs ) :
+    try :
+      output = root_file.Get( root_object_name ).Clone( str(uuid.uuid4()) )
+    except ReferenceError :
+      raise ReferenceError( '{0} not found in file {1}'.format(root_object_name, root_file.GetName()) )
+    if 'rebin' in kwargs :
+      output.Rebin( kwargs['rebin'] )
+    return ROOTReader(output)
 
 
   ## Read TH1 into x, y dimensions
