@@ -7,7 +7,6 @@ class Histogram1D(BasePlottable) :
   def __init__( self, *args, **kwargs ) :
     super(Histogram1D, self).__init__( *args, **kwargs )
 
-
   ## Add to canvas
   def draw_on_plot( self, axes, **kwargs ) :
     plot_style = kwargs.pop( 'style', '' )
@@ -43,6 +42,7 @@ class Histogram1D(BasePlottable) :
       except IndexError : pass
       if 'capsize' in kwargs : [ capline.set_markeredgewidth(kwargs['capsize']) for capline in caplines ]
 
+
     elif 'bar' in plot_style :
       if 'filled' in plot_style :
         if hatch != None : kwargs['hatch'] = hatch
@@ -60,4 +60,4 @@ class Histogram1D(BasePlottable) :
       axes.plot( self.x_all_bin_edges, self.y_at_x_bin_edges, drawstyle='steps', **kwargs )
 
     else :
-      raise NotImplementedError( 'Style "{0}" not recognised by {1}'.format( plot_style, type(self) ) )
+      raise NotImplementedError( 'Style "{0}" not recognised by {1}.'.format( plot_style, type(self) ) )
