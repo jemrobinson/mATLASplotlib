@@ -3,11 +3,20 @@ import matplotlib.pyplot as pyplot
 import matplotlib.ticker as tkr
 from matplotlib.patches import Polygon
 
-# Set fonts to Helvetica and stixsans (the only sans-serif maths font)
+# # Set fonts to Helvetica and stixsans (the only sans-serif maths font)
 from matplotlib import rcParams
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = 'Helvetica'
-rcParams['mathtext.fontset'] = 'stixsans'
+# rcParams['mathtext.fontset'] = 'stixsans'
+rcParams['mathtext.fontset'] = 'custom'
+rcParams['mathtext.default'] = 'regular'
+rcParams['mathtext.cal'] = 'cursive'
+rcParams['mathtext.rm'] = 'serif'
+rcParams['mathtext.tt'] = 'sans'
+rcParams['mathtext.it'] = 'sans:italic'
+rcParams['mathtext.bf'] = 'sans:bold'
+rcParams['mathtext.sf'] = 'sans'
+rcParams['mathtext.fallback_to_cm'] = True
 
 
 class BaseCanvas(object) :
