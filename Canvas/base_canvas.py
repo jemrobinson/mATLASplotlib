@@ -64,19 +64,22 @@ class BaseCanvas(object) :
 
 
   def draw_ATLAS_text( self, x, y, axes, anchor_to='lower left', plot_type=None, coordinates='figure' ) :
-    [ha, va] = self.location_map[anchor_to] #, offset = self.location_map[anchor_to], 0.145
+    [ha, va] = self.location_map[anchor_to]
     transform = self.translate_coordinates(coordinates, axes)
     if plot_type is None :
-      self.plots[axes].text( x, y, 'ATLAS', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
+      self.plots[axes].text( x, y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
     else :
       # Plot invisible text to get bounding box
-      invisible_text = self.plots[axes].text( x, y, 'ATLAS {0}'.format(plot_type), alpha=0, fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
-      bounding_box = invisible_text.get_window_extent(renderer=self.get_renderer()).transformed( transform.inverted() )
-      x_left, x_right = bounding_box.min[0], bounding_box.max[0]
-      # Use bounding box to plot visible text
-      self.plots[axes].text( x_left, y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha='left', va=va, transform=transform )
-      self.plots[axes].text( x_right, y, plot_type, fontsize=17, fontweight='bold', ha='right', va=va, transform=transform )
-
+      if ha == 'left' : # draw ATLAS first and then align other text to it
+        visible_ATLAS_text = self.plots[axes].text( x, y, 'ATLAS ', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
+        bounding_box = visible_ATLAS_text.get_window_extent(renderer=self.get_renderer()).transformed( transform.inverted() )
+        self.plots[axes].text( bounding_box_normal.max[0], y, plot_type, fontsize=17, ha=ha, va=va, transform=transform )
+      elif ha == 'right' : # draw other text first and then align ATLAS to it
+        visible_normal_text = self.plots[axes].text( x, y, ' {}'.format(plot_type), fontsize=17, ha=ha, va=va, transform=transform )
+        bounding_box = visible_normal_text.get_window_extent(renderer=self.get_renderer()).transformed( transform.inverted() )
+        self.plots[axes].text( bounding_box.min[0], y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
+      else :
+        raise NotImplementedError( 'Alignment {} not recognised!'.format(ha) )
 
   def draw_legend( self, x, y, axes, anchor_to='lower left', fontsize=None, coordinates='figure', **kwargs ) :
     transform = self.translate_coordinates(coordinates, axes)
