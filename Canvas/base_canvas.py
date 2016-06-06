@@ -45,7 +45,6 @@ class BaseCanvas(object) :
     if 'stack' in kwargs.get('style','') : legend_text = 'stack:'+legend_text
     if legend_text is not None and legend_text is not '' and legend_text not in self.legend_order :
       self.legend_order.append( legend_text )
-    print 'kwargs',kwargs
     plottable.draw_on_plot( self.plots[axes], **kwargs )
 
 
