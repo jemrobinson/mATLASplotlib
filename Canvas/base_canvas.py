@@ -80,15 +80,17 @@ class BaseCanvas(object) :
     else :
       # Plot invisible text to get bounding box
       if ha == 'left' : # draw ATLAS first and then align other text to it
-        visible_ATLAS_text = self.plots[axes].text( x, y, 'ATLAS ', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
-        bounding_box = visible_ATLAS_text.get_window_extent(renderer=self.get_renderer()).transformed( transform.inverted() )
-        self.plots[axes].text( bounding_box_normal.max[0], y, plot_type, fontsize=17, ha=ha, va=va, transform=transform )
+        invisible_ATLAS_text = self.plots[axes].text( x, y, 'ATLASI', alpha=0, style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
+        bounding_box = invisible_ATLAS_text.get_window_extent(renderer=self.get_renderer()).transformed( transform.inverted() )
+        visible_ATLAS_text = self.plots[axes].text( x, y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
+        self.plots[axes].text( bounding_box.max[0], y, plot_type, fontsize=17, ha=ha, va=va, transform=transform )
       elif ha == 'right' : # draw other text first and then align ATLAS to it
         visible_normal_text = self.plots[axes].text( x, y, ' {}'.format(plot_type), fontsize=17, ha=ha, va=va, transform=transform )
         bounding_box = visible_normal_text.get_window_extent(renderer=self.get_renderer()).transformed( transform.inverted() )
-        self.plots[axes].text( bounding_box.min[0], y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
+        self.plots[axes].text( bounding_box.min[0], y-0.001, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
       else :
         raise NotImplementedError( 'Alignment {} not recognised!'.format(ha) )
+
 
   def draw_legend( self, x, y, axes, anchor_to='lower left', fontsize=None, coordinates='figure', **kwargs ) :
     transform = self.translate_coordinates(coordinates, axes)
