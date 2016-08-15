@@ -7,7 +7,6 @@ from matplotlib.patches import Polygon
 from matplotlib import rcParams
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = 'Helvetica'
-# rcParams['mathtext.fontset'] = 'stixsans'
 rcParams['mathtext.fontset'] = 'custom'
 rcParams['mathtext.default'] = 'regular'
 rcParams['mathtext.cal'] = 'cursive'
@@ -83,6 +82,7 @@ class BaseCanvas(object) :
         invisible_ATLAS_text = self.plots[axes].text( x, y, 'ATLASI', alpha=0, style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
         bounding_box = invisible_ATLAS_text.get_window_extent(renderer=self.get_renderer()).transformed( transform.inverted() )
         visible_ATLAS_text = self.plots[axes].text( x, y, 'ATLAS', style='italic', fontsize=17, fontweight='bold', ha=ha, va=va, transform=transform )
+        bounding_box = visible_ATLAS_text.get_window_extent(renderer=self.get_renderer()).transformed( transform.inverted() )
         self.plots[axes].text( bounding_box.max[0], y, plot_type, fontsize=17, ha=ha, va=va, transform=transform )
       elif ha == 'right' : # draw other text first and then align ATLAS to it
         visible_normal_text = self.plots[axes].text( x, y, ' {}'.format(plot_type), fontsize=17, ha=ha, va=va, transform=transform )

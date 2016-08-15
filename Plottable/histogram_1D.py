@@ -33,7 +33,7 @@ class Histogram1D(BasePlottable) :
         kwargs['capthick'] = [0,kwargs.get('linewidth')][with_error_bar_caps]
         kwargs['capsize'] = [0,2*kwargs.get('linewidth')][with_error_bar_caps]
       else :
-        print 'Matplotlib version {0} is too old to allow error bar caps'.format( mpl_version )
+        print 'Matplotlib version {} is too old to allow error bar caps'.format( mpl_version )
       # Disable linestyle
       dashes = kwargs.pop('linestyle','solid'); kwargs['linestyle'] = 'None';
       if 'dashes' in kwargs : kwargs.pop('dashes')
@@ -60,4 +60,4 @@ class Histogram1D(BasePlottable) :
       axes.plot( self.x_all_bin_edges, self.y_at_x_bin_edges, drawstyle='steps', **kwargs )
 
     else :
-      raise NotImplementedError( 'Style "{0}" not recognised by {1}.'.format( plot_style, type(self) ) )
+      raise NotImplementedError( 'Style "{}" not recognised by {}.'.format( plot_style, type(self) ) )
