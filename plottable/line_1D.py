@@ -11,7 +11,7 @@ class Line1D(BasePlottable) :
     kwargs['label'] = kwargs.pop('label',None)
     kwargs['linewidth'] = kwargs.pop('linewidth',2)
     kwargs['color'] = kwargs.pop('colour_primary','black')
-    kwargs['linestyle'] = kwargs.pop('linestyle','solid')
+    kwargs['linestyle'] = kwargs.pop('style','solid')
 
     # Plot simple line with arguments
     axes.plot( self.x_points, self.y_points, **kwargs )

@@ -1,3 +1,3 @@
-from Canvas import *
-from Plottable import *
-from Readers import *
+from canvas import *
+from plottable import *
+from readers import *
