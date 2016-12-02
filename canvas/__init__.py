@@ -1,3 +1,3 @@
-from composite_canvas import CompositeCanvas
-from ratio_canvas import RatioCanvas
-from simple_canvas import SimpleCanvas
+from composite import Composite
+from ratio import Ratio
+from simple import Simple

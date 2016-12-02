@@ -3,19 +3,21 @@ from base_canvas import BaseCanvas
 # from matplotlib.ticker import FixedLocator, MaxNLocator
 # from numpy import arange
 
-class CompositeCanvas(BaseCanvas) :
-  '''Composite canvas with standard ATLAS setup'''
-  def __init__( self, n_pixels=(600,900), **kwargs ) :
-    super(CompositeCanvas, self).__init__( n_pixels, **kwargs )
-    # self.plots['top'] = self.figure.add_axes( [0.15, 0.35, 0.8, 0.6] )
-    # self.plots['bottom'] = self.figure.add_axes( [0.15, 0.1, 0.8, 0.25] )
+
+class Composite(BaseCanvas):
+    '''Composite canvas with standard ATLAS setup'''
+
+    def __init__(self, n_pixels=(600, 900), **kwargs):
+        super(Composite, self).__init__(n_pixels, **kwargs)
+        # self.plots['top'] = self.figure.add_axes( [0.15, 0.35, 0.8, 0.6] )
+        # self.plots['bottom'] = self.figure.add_axes( [0.15, 0.1, 0.8, 0.25] )
 # class StackedPlot(BasePlot) :
 #   """A basic stacked-plot class to plot data"""
 #   def __init__( self, xmin, xmax, ymin, ymax, log_type=None, x_ticks=None ) :
 #     # Initialise base class
-    # BasePlot.__init__( self, xmin, xmax, ymin, ymax, log_type=log_type, x_ticks=x_ticks, fig_x = 6, fig_y = 9 )
+        # BasePlot.__init__( self, xmin, xmax, ymin, ymax, log_type=log_type, x_ticks=x_ticks, fig_x = 6, fig_y = 9 )
 
-    # self.plots = { 'top':self.fig.add_axes( [0.15, 0.06, 0.8, 0.92] ) }
+        # self.plots = { 'top':self.fig.add_axes( [0.15, 0.06, 0.8, 0.92] ) }
 
 #   def set_labels( self, xlabel, ylabel ) :
 #     self.plots['top'].set_xlabel( xlabel, position=(1.0, 0.0), va='top', ha='right', size=16 )
@@ -23,11 +25,8 @@ class CompositeCanvas(BaseCanvas) :
 #     self.plots['top'].yaxis.set_label_coords( -0.12, 0.85 )
 
 
-
-
-
 #   def add_plottable( self, plottable, axes='top', **kwargs ) :
-#     super(CompositeCanvas, self).add_plottable( plottable, axes, **kwargs )
+#     super(Composite, self).add_plottable( plottable, axes, **kwargs )
 #     if 'x' not in self.axis_ranges : self.set_axis_range( 'x', self.plots[axes].get_xlim() )
 #     if axes == 'top' :
 #       if 'y' not in self.axis_ranges : self.set_axis_range( 'y', self.plots[axes].get_ylim() )
@@ -36,7 +35,7 @@ class CompositeCanvas(BaseCanvas) :
 
 
 #   def apply_plot_formatting( self ) :
-#     super(CompositeCanvas, self).apply_plot_formatting()
+#     super(Composite, self).apply_plot_formatting()
 #     if 'x' in self.axis_ranges :
 #       self.plots['top'].set_xlim( self.axis_ranges['x'] )
 #       self.plots['bottom'].set_xlim( self.axis_ranges['x'] )
@@ -73,16 +72,16 @@ class CompositeCanvas(BaseCanvas) :
 
 #   ## Provide defaults for inherited methods
 #   def draw_ATLAS_text( self, x, y, axes='top', **kwargs ) :
-#     super(CompositeCanvas, self).draw_ATLAS_text( x, y, axes=axes, **kwargs )
+#     super(Composite, self).draw_ATLAS_text( x, y, axes=axes, **kwargs )
 
 #   def draw_legend( self, x, y, axes='top', **kwargs ) :
-#     super(CompositeCanvas, self).draw_legend( x, y, axes=axes, **kwargs )
+#     super(Composite, self).draw_legend( x, y, axes=axes, **kwargs )
 
 #   def draw_luminosity_text( self, x, y, luminosity_value, axes='top', **kwargs ) :
-#     super(CompositeCanvas, self).draw_luminosity_text( x, y, luminosity_value, axes=axes, **kwargs )
+#     super(Composite, self).draw_luminosity_text( x, y, luminosity_value, axes=axes, **kwargs )
 
 #   def draw_text( self, x, y, extra_value, axes='top', **kwargs ) :
-#     super(CompositeCanvas, self).draw_text( x, y, extra_value, axes=axes, **kwargs )
+#     super(Composite, self).draw_text( x, y, extra_value, axes=axes, **kwargs )
 
 
 #   def get_ratio_ticks( self, axis_range, n_approximate=4 ) :
@@ -130,6 +129,6 @@ class CompositeCanvas(BaseCanvas) :
 #     self.set_axis_range( 'y', y_axis_range )
 #     self.set_axis_range( 'y_ratio', ratio_y_axis_range )
 
-  # ## Plot title
-  # def set_title( self, title ) :
-  #   self.plots['top'].set_title( title )
+    # ## Plot title
+    # def set_title( self, title ) :
+    #   self.plots['top'].set_title( title )
