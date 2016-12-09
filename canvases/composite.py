@@ -9,65 +9,64 @@ class Composite(BaseCanvas):
 
     def __init__(self, n_pixels=(600, 900), **kwargs):
         super(Composite, self).__init__(n_pixels, **kwargs)
-        # self.plots['top'] = self.figure.add_axes( [0.15, 0.35, 0.8, 0.6] )
-        # self.plots['bottom'] = self.figure.add_axes( [0.15, 0.1, 0.8, 0.25] )
+        # self.subplots['top'] = self.figure.add_axes( [0.15, 0.35, 0.8, 0.6] )
+        # self.subplots['bottom'] = self.figure.add_axes( [0.15, 0.1, 0.8, 0.25] )
 # class StackedPlot(BasePlot) :
 #   """A basic stacked-plot class to plot data"""
 #   def __init__( self, xmin, xmax, ymin, ymax, log_type=None, x_ticks=None ) :
 #     # Initialise base class
         # BasePlot.__init__( self, xmin, xmax, ymin, ymax, log_type=log_type, x_ticks=x_ticks, fig_x = 6, fig_y = 9 )
 
-        # self.plots = { 'top':self.fig.add_axes( [0.15, 0.06, 0.8, 0.92] ) }
+        # self.subplots = { 'top':self.fig.add_axes( [0.15, 0.06, 0.8, 0.92] ) }
 
 #   def set_labels( self, xlabel, ylabel ) :
-#     self.plots['top'].set_xlabel( xlabel, position=(1.0, 0.0), va='top', ha='right', size=16 )
-#     self.plots['top'].set_ylabel( ylabel, size=16 )
-#     self.plots['top'].yaxis.set_label_coords( -0.12, 0.85 )
+#     self.subplots['top'].set_xlabel( xlabel, position=(1.0, 0.0), va='top', ha='right', size=16 )
+#     self.subplots['top'].set_ylabel( ylabel, size=16 )
+#     self.subplots['top'].yaxis.set_label_coords( -0.12, 0.85 )
 
 
 #   def add_plottable( self, plottable, axes='top', **kwargs ) :
 #     super(Composite, self).add_plottable( plottable, axes, **kwargs )
-#     if 'x' not in self.axis_ranges : self.set_axis_range( 'x', self.plots[axes].get_xlim() )
+#     if 'x' not in self.axis_ranges : self.set_axis_range( 'x', self.subplots[axes].get_xlim() )
 #     if axes == 'top' :
-#       if 'y' not in self.axis_ranges : self.set_axis_range( 'y', self.plots[axes].get_ylim() )
+#       if 'y' not in self.axis_ranges : self.set_axis_range( 'y', self.subplots[axes].get_ylim() )
 #     elif axes == 'bottom' :
-#       if 'y_ratio' not in self.axis_ranges : self.set_axis_range( 'y_ratio', self.plots[axes].get_ylim() )
+#       if 'y_ratio' not in self.axis_ranges : self.set_axis_range( 'y_ratio', self.subplots[axes].get_ylim() )
 
 
-#   def apply_plot_formatting( self ) :
-#     super(Composite, self).apply_plot_formatting()
+#   def _finalise( self ) :
 #     if 'x' in self.axis_ranges :
-#       self.plots['top'].set_xlim( self.axis_ranges['x'] )
-#       self.plots['bottom'].set_xlim( self.axis_ranges['x'] )
+#       self.subplots['top'].set_xlim( self.axis_ranges['x'] )
+#       self.subplots['bottom'].set_xlim( self.axis_ranges['x'] )
 #     if 'y' in self.axis_ranges :
-#       self.plots['top'].set_ylim( self.axis_ranges['y'] )
+#       self.subplots['top'].set_ylim( self.axis_ranges['y'] )
 #     if 'y_ratio' in self.axis_ranges :
-#       self.plots['bottom'].set_ylim( self.axis_ranges['y_ratio'] )
+#       self.subplots['bottom'].set_ylim( self.axis_ranges['y_ratio'] )
 
 #     # Draw line at y = 1.0
-#     self.plots['bottom'].add_line( Line2D( self.axis_ranges['x'], [1, 1], transform=self.plots['bottom'].transData, linewidth=1, linestyle='--', color='black') )
+#     self.subplots['bottom'].add_line( Line2D( self.axis_ranges['x'], [1, 1], transform=self.subplots['bottom'].transData, linewidth=1, linestyle='--', color='black') )
 
 #     # Set ratio plot to linear scale
 #     if self.log_type.find('y') != -1 :
-#       self.plots['bottom'].set_yscale('linear')
+#       self.subplots['bottom'].set_yscale('linear')
 
 #     # Remove bottom-most tick from top-plot and top-and-bottom from bottom-plot
 #     if self.log_type.find('y') == -1 :
-#       self.plots['top'].yaxis.set_major_locator( MaxNLocator(nbins=len(self.plots['top'].get_yticklabels()), prune='lower') )
-#     self.plots['bottom'].yaxis.set_major_locator( FixedLocator( self.get_ratio_ticks( self.axis_ranges['y_ratio'] ) ) )
+#       self.subplots['top'].yaxis.set_major_locator( MaxNLocator(nbins=len(self.subplots['top'].get_yticklabels()), prune='lower') )
+#     self.subplots['bottom'].yaxis.set_major_locator( FixedLocator( self.get_ratio_ticks( self.axis_ranges['y_ratio'] ) ) )
 
 #     # Remove tick-labels from top-plot
-#     self.plots['top'].set_xticklabels( [], minor=True )
-#     self.plots['top'].set_xticklabels( [], major=True )
+#     self.subplots['top'].set_xticklabels( [], minor=True )
+#     self.subplots['top'].set_xticklabels( [], major=True )
 
 # #     # Remove bottom-most tick from top-plot and top-and-bottom from bottom-plot
 # #     if self.log_type.find('y') == -1 :
-# #       self.plots['top'].yaxis.set_major_locator( tkr.MaxNLocator(nbins=len(self.plots['top'].get_yticklabels()), prune='lower') )
-# #     self.plots['bottom'].yaxis.set_major_locator( tkr.FixedLocator( self.get_ratio_ticks(self.ymin_ratio,self.ymax_ratio) ) )
+# #       self.subplots['top'].yaxis.set_major_locator( tkr.MaxNLocator(nbins=len(self.subplots['top'].get_yticklabels()), prune='lower') )
+# #     self.subplots['bottom'].yaxis.set_major_locator( tkr.FixedLocator( self.get_ratio_ticks(self.ymin_ratio,self.ymax_ratio) ) )
 
 # #     # Remove tick-labels from top-plot
-# #     self.plots['top'].set_xticklabels([],minor=True)
-# #     self.plots['top'].set_xticklabels([],major=True)
+# #     self.subplots['top'].set_xticklabels([],minor=True)
+# #     self.subplots['top'].set_xticklabels([],major=True)
 
 
 #   ## Provide defaults for inherited methods
@@ -97,13 +96,13 @@ class Composite(BaseCanvas):
 #   ## Axis labels
 #   def set_axis_label( self, axis_name, axis_label ) :
 #     if axis_name == 'x' :
-#       self.plots['bottom'].set_xlabel( axis_label, size=16, position=(1.0, 0.0), va='top', ha='right' )
+#       self.subplots['bottom'].set_xlabel( axis_label, size=16, position=(1.0, 0.0), va='top', ha='right' )
 #     elif axis_name == 'y' :
-#       self.plots['top'].set_ylabel( axis_label, size=16 )
-#       self.plots['top'].yaxis.set_label_coords( -0.13, [0.6,0.8][len(axis_label) < 70] )
+#       self.subplots['top'].set_ylabel( axis_label, size=16 )
+#       self.subplots['top'].yaxis.set_label_coords( -0.13, [0.6,0.8][len(axis_label) < 70] )
 #     elif axis_name == 'y_ratio' :
-#       self.plots['bottom'].set_ylabel( axis_label, size=16 )
-#       self.plots['bottom'].yaxis.set_label_coords( -0.13, 0.5 )
+#       self.subplots['bottom'].set_ylabel( axis_label, size=16 )
+#       self.subplots['bottom'].yaxis.set_label_coords( -0.13, 0.5 )
 #     else :
 #       raise ValueError( 'axis {0} not recognised by {1}'.format(axis_name,type(self)) )
 
@@ -131,4 +130,4 @@ class Composite(BaseCanvas):
 
     # ## Plot title
     # def set_title( self, title ) :
-    #   self.plots['top'].set_title( title )
+    #   self.subplots['top'].set_title( title )

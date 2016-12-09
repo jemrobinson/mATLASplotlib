@@ -3,9 +3,7 @@ import ROOT
 import uuid
 
 # Interpreter for ROOT objects
-
-
-class ROOTReader(object):
+class root2data(object):
 
     def __init__(self, root_object):
         self.x_values, self.x_error_pairs = None, None
@@ -30,6 +28,10 @@ class ROOTReader(object):
             raise NotImplementedError('Constructor signature {0}, {1} not known'.format(*args, **kwargs))
 
     @staticmethod
+    def valid_input(test_object):
+        return isinstance(test_object, ROOT.TObject)
+
+    @staticmethod
     def from_file(root_file, root_object_name, **kwargs):
         try:
             output = root_file.Get(root_object_name).Clone(str(uuid.uuid4()))
@@ -37,7 +39,7 @@ class ROOTReader(object):
             raise ReferenceError('{0} not found in file {1}'.format(root_object_name, root_file.GetName()))
         if 'rebin' in kwargs:
             output.Rebin(kwargs['rebin'])
-        return ROOTReader(output)
+        return root2data(output)
 
     # Read TH1 into x, y dimensions
     def construct_from_TH1(self, input_TH1):
