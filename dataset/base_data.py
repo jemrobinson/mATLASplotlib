@@ -47,10 +47,10 @@ class BaseData(object):
         #         self.add_dimension("z", kwargs["z_values"], kwargs.get("z_error_pairs", None), **kwargs)
         #     for dimension in self.get_dimensions():
         #         assert(len(self._data[dimension]) == self.number_of_points())
-        # if "x" in self.get_dimensions() and "y" in self.get_dimensions():
-        #     self.add_xy_dimensions()
-        # if len(self.get_dimensions()) == 0:
-        #     raise RuntimeError("Attempt to initialise plottable {0} without providing data!".format(type(self)))
+        if "x" in self.get_dimensions() and "y" in self.get_dimensions():
+            self.add_xy_dimensions()
+        if len(self.get_dimensions()) == 0:
+            raise RuntimeError("Attempt to initialise plottable {0} without providing data!".format(type(self)))
 
 
 
@@ -130,25 +130,23 @@ class BaseData(object):
     #
     # def number_of_points(self):
     #     return len(self._data[self.get_dimensions()[0]])
-    #
-    # def get_dimensions(self):
-    #     return sorted(self._data.keys())
-    #
 
-    #
-    # # Add xy-appropriate methods
-    # def add_xy_dimensions(self):
-    #     setattr(self, "x_at_y_bin_edges", self.__get_x_at_y_bin_edges())
-    #     setattr(self, "y_at_x_bin_edges", self.__get_y_at_x_bin_edges())
-    #     setattr(self, "band_edges_x", self.__get_band_edges_x())
-    #     setattr(self, "band_edges_y_low", self.__get_band_edges_y_low())
-    #     setattr(self, "band_edges_y_high", self.__get_band_edges_y_high())
-    #
-    # # Construct expanded bin lists in x and y
-    # def unroll_bins(self, *args):
-    #     bin_centres = np.meshgrid(*args, indexing="xy")
-    #     return [bin_centre.ravel() for bin_centre in bin_centres]
-    #
+    def get_dimensions(self):
+        return sorted(self._data.keys())
+
+    # Add xy-appropriate methods
+    def add_xy_dimensions(self):
+        setattr(self, "x_at_y_bin_edges", self.__get_x_at_y_bin_edges())
+        setattr(self, "y_at_x_bin_edges", self.__get_y_at_x_bin_edges())
+        setattr(self, "band_edges_x", self.__get_band_edges_x())
+        setattr(self, "band_edges_y_low", self.__get_band_edges_y_low())
+        setattr(self, "band_edges_y_high", self.__get_band_edges_y_high())
+
+    # Construct expanded bin lists in x and y
+    def unroll_bins(self, *args):
+        bin_centres = np.meshgrid(*args, indexing="xy")
+        return [bin_centre.ravel() for bin_centre in bin_centres]
+
     # Return array of x/y/z points, constructing if necessary
     def __get_points(self, dimension):
         attr_name = "_{0}_points".format(dimension)
@@ -221,32 +219,32 @@ class BaseData(object):
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # # Return array of x at the bin edges of y bins, constructing if necessary
-    # def __get_x_at_y_bin_edges(self):
-    #     if not hasattr(self, "_x_at_y_bin_edges"):
-    #         self._x_at_y_bin_edges = np.array(sum([[x_point, x_point] for x_point in self.x_points], []))
-    #     return self._x_at_y_bin_edges
-    #
-    # # Return array of y at the bin edges of x bins, constructing if necessary
-    # def __get_y_at_x_bin_edges(self):
-    #     if not hasattr(self, "_y_at_x_bin_edges"):
-    #         self._y_at_x_bin_edges = np.array(sum([[y_point, y_point] for y_point in self.y_points], []))
-    #     return self._y_at_x_bin_edges
-    #
-    # # Return array of x edges for fillable band, constructing if necessary
-    # def __get_band_edges_x(self):
-    #     if not hasattr(self, "_band_edges_x"):
-    #         self._band_edges_x = np.array(sum([[point[0] - point[1], point[0] + point[2]] for point in self._data["x"]], []))
-    #     return self._band_edges_x
-    #
-    # # Return array of y minima for fillable band, constructing if necessary
-    # def __get_band_edges_y_low(self):
-    #     if not hasattr(self, "_band_edges_y_low"):
-    #         self._band_edges_y_low = np.array(sum([[point[0] - point[1], point[0] - point[1]] for point in self._data["y"]], []))
-    #     return self._band_edges_y_low
-    #
-    # # Return array of y maxima for fillable band, constructing if necessary
-    # def __get_band_edges_y_high(self):
-    #     if not hasattr(self, "_band_edges_y_high"):
-    #         self._band_edges_y_high = np.array(sum([[point[0] + point[2], point[0] + point[2]] for point in self._data["y"]], []))
-    #     return self._band_edges_y_high
+    # Return array of x at the bin edges of y bins, constructing if necessary
+    def __get_x_at_y_bin_edges(self):
+        if not hasattr(self, "_x_at_y_bin_edges"):
+            self._x_at_y_bin_edges = np.array(sum([[x_point, x_point] for x_point in self.x_points], []))
+        return self._x_at_y_bin_edges
+
+    # Return array of y at the bin edges of x bins, constructing if necessary
+    def __get_y_at_x_bin_edges(self):
+        if not hasattr(self, "_y_at_x_bin_edges"):
+            self._y_at_x_bin_edges = np.array(sum([[y_point, y_point] for y_point in self.y_points], []))
+        return self._y_at_x_bin_edges
+
+    # Return array of x edges for fillable band, constructing if necessary
+    def __get_band_edges_x(self):
+        if not hasattr(self, "_band_edges_x"):
+            self._band_edges_x = np.array(sum([[point[0] - point[1], point[0] + point[2]] for point in self._data["x"]], []))
+        return self._band_edges_x
+
+    # Return array of y minima for fillable band, constructing if necessary
+    def __get_band_edges_y_low(self):
+        if not hasattr(self, "_band_edges_y_low"):
+            self._band_edges_y_low = np.array(sum([[point[0] - point[1], point[0] - point[1]] for point in self._data["y"]], []))
+        return self._band_edges_y_low
+
+    # Return array of y maxima for fillable band, constructing if necessary
+    def __get_band_edges_y_high(self):
+        if not hasattr(self, "_band_edges_y_high"):
+            self._band_edges_y_high = np.array(sum([[point[0] + point[2], point[0] + point[2]] for point in self._data["y"]], []))
+        return self._band_edges_y_high
