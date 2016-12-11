@@ -2,7 +2,7 @@ import logging
 from matplotlib import __version__ as mpl_version
 import numpy as np
 
-logger = logging.getLogger("mATLASplotlib.plotting")
+logger = logging.getLogger("mATLASplotlib.plotters")
 
 class Scatter(object):
     """Plot as points in the x-y plane"""

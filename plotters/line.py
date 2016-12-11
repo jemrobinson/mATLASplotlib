@@ -2,7 +2,7 @@ import logging
 import numpy as np
 from scipy import interpolate
 
-logger = logging.getLogger("mATLASplotlib.plotting")
+logger = logging.getLogger("mATLASplotlib.plotters")
 
 class Line(object):
     """Plot as points in the x-y plane"""

@@ -2,7 +2,7 @@ import matplotlib; matplotlib.use("PDF")
 import matplotlib.pyplot as pyplot
 import logging
 from .. import style
-from ..plotting import get_plotter
+from ..plotters import get_plotter
 from ..decorations import ATLAS_text, Legend, Text
 
 logger = logging.getLogger("mATLASplotlib.canvases")
