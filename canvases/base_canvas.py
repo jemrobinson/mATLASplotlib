@@ -2,6 +2,7 @@ import matplotlib; matplotlib.use("PDF")
 import matplotlib.pyplot as pyplot
 import logging
 from .. import style
+from ..converters import Dataset
 from ..plotters import get_plotter
 from ..decorations import ATLAS_text, Legend, Text
 
@@ -33,6 +34,9 @@ class BaseCanvas(object):
 
 
     def plot_dataset(self, dataset, style, axes=None, **kwargs):
+        print "type",type(dataset)
+        if not isinstance(dataset, converters.Dataset):
+            dataset = Dataset(dataset)
         if axes is None: axes = self.main_subplot
         if "label" in kwargs:
             self.legend.add_dataset(label=kwargs["label"], visible_label=kwargs.get("visible_label", None), is_stack=("stack" in style))

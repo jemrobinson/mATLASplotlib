@@ -1,11 +1,11 @@
 import numpy as np
-from ..converters import root2data
+from . import root2data
 
-class BaseData(object):
-    """Base class for plottable datasets"""
-    # # Constructor - specify values and error pair separately for each dimension
-    # # Example : x vs y : __init__( [1,2,3], [4,9,16] )
-    # # Example : x vs y with y_errors : __init__( [1,2,3], None, [4,9,16], [2,3,4] )
+class Dataset(object):
+    """Container for plottable datasets"""
+    # Constructor - specify values and error pair separately for each dimension
+    # Example : x vs y : __init__( [1,2,3], [4,9,16] )
+    # Example : x vs y with y_errors : __init__( [1,2,3], None, [4,9,16], [2,3,4] )
     def __init__(self, *args, **kwargs):
         self._data = {}
         # Check how the data has been provided
