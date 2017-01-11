@@ -34,8 +34,7 @@ class BaseCanvas(object):
 
 
     def plot_dataset(self, dataset, style, axes=None, **kwargs):
-        print "type",type(dataset)
-        if not isinstance(dataset, converters.Dataset):
+        if not isinstance(dataset, Dataset):
             dataset = Dataset(dataset)
         if axes is None: axes = self.main_subplot
         if "label" in kwargs:
@@ -84,11 +83,10 @@ class BaseCanvas(object):
         if axes is None: axes = self.main_subplot
         ATLAS_text(plot_type).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], fontsize=fontsize)
 
-    def add_luminosity_label(self, x, y, luminosity_pb, sqrts_TeV, axes=None, anchor_to="lower left", fontsize=None):
+    def add_luminosity_label(self, x, y, sqrts_TeV, luminosity, units="fb-1", axes=None, anchor_to="lower left", fontsize=None):
         if axes is None: axes = self.main_subplot
         fontsize = [fontsize, 14][fontsize==None]
-        # text = r"$\mathrm{\mathsf{\sqrt{s}}} = " + str(sqrts_TeV) + "\,\mathrm{\mathsf{TeV}} \, \int \mathcal{L} \mathrm{dt} = $" + str(luminosity_pb) + " pb$^{-1}$"
-        text = r"$\mathrm{\mathsf{\sqrt{s}}} = " + str(sqrts_TeV) + "\,\mathrm{\mathsf{TeV}} \quad \mathcal{L} = $" + str(luminosity_pb) + " pb$^{-1}$"
+        text = r"$\mathrm{\mathsf{\sqrt{s}}} = " + str(sqrts_TeV) + "\,\mathrm{\mathsf{TeV}} \quad \mathcal{L} = $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$")
         Text(text).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], fontsize=fontsize)
 
     def add_text(self, x, y, text, axes=None, anchor_to="lower left", fontsize=None):

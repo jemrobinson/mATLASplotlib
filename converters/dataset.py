@@ -1,5 +1,5 @@
 import numpy as np
-from . import root2data
+from root2data import root2data
 
 class Dataset(object):
     """Container for plottable datasets"""
@@ -18,7 +18,7 @@ class Dataset(object):
                 if data.y_values is not None:
                     self._add_dimension("y", data.y_values, data.y_error_pairs)
                 if data.z_values is not None:
-                    self._add_dimension("y", data.z_values, data.z_error_pairs)
+                    self._add_dimension("z", data.z_values, data.z_error_pairs)
         # # Assume that x,y values have been passed
         # elif len(args) == 2:
         #     self.add_dimension("x", args[0], None, **kwargs)
@@ -143,8 +143,9 @@ class Dataset(object):
         setattr(self, "band_edges_y_high", self.__get_band_edges_y_high())
 
     # Construct expanded bin lists in x and y
-    def unroll_bins(self, *args):
-        bin_centres = np.meshgrid(*args, indexing="xy")
+    def unroll_bins(self, axes="xy"):
+        if axes == "xy":
+            bin_centres = np.meshgrid(self.x_points, self.y_points, indexing="xy")
         return [bin_centre.ravel() for bin_centre in bin_centres]
 
     # Return array of x/y/z points, constructing if necessary

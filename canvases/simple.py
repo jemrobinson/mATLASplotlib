@@ -3,8 +3,9 @@ from base_canvas import BaseCanvas
 
 class Simple(BaseCanvas):
     """Simple canvas with standard ATLAS setup"""
-
-    def __init__(self, n_pixels=(600, 600), axis_dimensions=[0.15, 0.1, 0.8, 0.85], **kwargs):
+    def __init__(self, shape="square", **kwargs):
+        n_pixels, axis_dimensions = (600, 600), [0.15, 0.1, 0.8, 0.85]
+        if shape == "rectangular": n_pixels, axis_dimensions = (800, 600), [0.12, 0.1, 0.85, 0.85]
         super(Simple, self).__init__(n_pixels, **kwargs)
         self.subplots["main"] = self.figure.add_axes(axis_dimensions)
         self.main_subplot = "main"
