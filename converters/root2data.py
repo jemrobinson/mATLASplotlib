@@ -25,7 +25,7 @@ class root2data(object):
         elif isinstance(root_object, ROOT.TGraph):
             self.construct_from_TGraph(root_object)
         else:
-            raise NotImplementedError('Constructor signature {0}, {1} not known'.format(*args, **kwargs))
+            raise ValueError("{0}, of type {1}, is not a convertible ROOT object".format(root_object, type(root_object)))
 
     @staticmethod
     def valid_input(test_object):

@@ -19,5 +19,6 @@ class Stack(object):
         self.plot_args["edgecolor"] = kwargs.pop("edgecolour", self.plot_args["color"]) # Default edgecolour: match fill colour
         if not hasattr(axes, 'stack_bottom'):
             axes.stack_bottom = [0] * len(dataset.y_points)
-        axes.bar(dataset.x_bin_low_edges, height=dataset.y_points, width=dataset.x_bin_widths, bottom=axes.stack_bottom, **self.plot_args)
+        # axes.bar(dataset.x_bin_low_edges, height=dataset.y_points, width=dataset.x_bin_widths, bottom=axes.stack_bottom, **self.plot_args)
+        axes.bar(dataset.x_points, height=dataset.y_points, width=dataset.x_bin_widths, bottom=axes.stack_bottom, **self.plot_args) # matplotlib now uses bin centres
         axes.stack_bottom = [increment + previous for increment, previous in zip(dataset.y_points, axes.stack_bottom)]

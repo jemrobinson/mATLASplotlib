@@ -96,19 +96,16 @@ class BaseCanvas(object):
     def get_axis_label(self, axis_name):
         raise NotImplementedError("get_label not defined by {0}".format(type(self)))
 
-
     def get_axis_range(self, axis_name):
         if axis_name in self.axis_ranges.keys():
             return self.axis_ranges[axis_name]
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
-
     def minor_tick_format_function(self, x, pos):
         if any(int(x) == elem for elem in self.minor_x_ticks):
             return "{0:.0f}".format(x)
         return ""
-
 
     def save_to_file(self, output_name):
         self.__finalise_plot_formatting()
@@ -116,10 +113,8 @@ class BaseCanvas(object):
         logger.info("Saved figure to: {0}.pdf".format(output_name))
         pyplot.close(self.figure)
 
-
     def set_axis_label(self, axis_name, axis_label):
         raise NotImplementedError("set_label not defined by {0}".format(type(self)))
-
 
     def set_axis_range(self, axis_name, axis_range):
         raise NotImplementedError("set_axis_range not defined by {0}".format(type(self)))
@@ -129,9 +124,3 @@ class BaseCanvas(object):
 
     def set_title(self, title):
         raise NotImplementedError("set_title not defined by {0}".format(type(self)))
-
-
-    # def translate_coordinates(self, coordinates, axes):
-    #     if coordinates == "axes":
-    #         return self.subplots[axes].transAxes
-    #     return self.figure.transFigure

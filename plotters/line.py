@@ -19,15 +19,14 @@ class Line(object):
         plot_args["marker"] = kwargs.pop("marker", None)           # Default marker: dot
 
         if "stepped" in self.plot_style:
-            axes.plot(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges, drawstyle="stepped", **plot_args)
-	
-	if "join centres" in self.plot_style:
+            axes.plot(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges, drawstyle="steps-pre", **plot_args)
+
+        if "join centres" in self.plot_style:
             axes.plot(dataset.x_points, dataset.y_points, **plot_args)
 
         if "smooth" in self.plot_style:
             print "x", dataset.x_all_bin_edges, len(dataset.x_all_bin_edges)
             print "y", dataset.y_at_x_bin_edges, len(dataset.y_at_x_bin_edges)
-
 
             # s=numpy.r_[x[window_len-1:0:-1],x,x[-1:-window_len:-1]]
             #   51     #print(len(s))
