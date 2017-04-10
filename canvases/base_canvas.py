@@ -113,11 +113,11 @@ class BaseCanvas(object):
             return "{0:.0f}".format(x)
         return ""
 
-    def save_to_file(self, output_name):
+    def save_to_file(self, output_name, extension="pdf"):
         """Document here."""
         self.__finalise_plot_formatting()
-        matplotlib.pyplot.savefig("{0}.pdf".format(output_name))
-        logger.info("Saved figure to: {0}.pdf".format(output_name))
+        matplotlib.pyplot.savefig("{0}.{1}".format(output_name, extension))
+        logger.info("Saved figure to: {0}.{1}".format(output_name, extension))
         matplotlib.pyplot.close(self.figure)
 
     def set_axis_label(self, axis_name, axis_label):
