@@ -35,7 +35,7 @@ class Ratio(BaseCanvas):
             self.subplots["bottom"].set_ylim(self.axis_ranges["y_ratio"])
 
         # Draw line at y = 1.0
-        self.subplots["bottom"].add_line(Line2D(self.axis_ranges["x"], [1, 1], transform=self.subplots["bottom"].transData, linewidth=1, linestyle="--", color="black"))
+        self.subplots["bottom"].add_line(Line2D(self.subplots["bottom"].get_xlim(), [1, 1], transform=self.subplots["bottom"].transData, linewidth=1, linestyle="--", color="black"))
 
         # Set ratio plot to linear scale
         if self.log_type.find("y") != -1:

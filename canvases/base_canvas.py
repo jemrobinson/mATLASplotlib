@@ -1,6 +1,7 @@
 import matplotlib; matplotlib.use("PDF")
 import matplotlib.pyplot as pyplot
 import logging
+import math
 from .. import style
 from ..converters import Dataset
 from ..plotters import get_plotter
@@ -35,7 +36,8 @@ class BaseCanvas(object):
 
     def plot_dataset(self, dataset, style, axes=None, **kwargs):
         if not isinstance(dataset, Dataset):
-            dataset = Dataset(dataset)
+            if hasattr(dataset, '__iter__'): dataset = Dataset(*dataset)
+            else: dataset = Dataset(dataset)
         if axes is None: axes = self.main_subplot
         if "label" in kwargs:
             self.legend.add_dataset(label=kwargs["label"], visible_label=kwargs.get("visible_label", None), is_stack=("stack" in style))
@@ -72,7 +74,9 @@ class BaseCanvas(object):
         # Finish by adding internal header
         if self.internal_header_fraction is not None:
             y_lo, y_hi = self.subplots[self.main_subplot].get_ylim()
-            self.subplots[self.main_subplot].set_ylim(y_lo, y_hi / (1.0 - self.internal_header_fraction))
+            y_top = (y_hi - self.internal_header_fraction * y_lo) / (1.0 - self.internal_header_fraction)
+            if "y" in self.log_type: y_top = math.exp((math.log(y_hi) - self.internal_header_fraction * math.log(y_lo)) / (1.0 - self.internal_header_fraction))
+            self.subplots[self.main_subplot].set_ylim(y_lo, y_top)
 
 
     def add_legend(self, x, y, axes=None, anchor_to="lower left", fontsize=None):

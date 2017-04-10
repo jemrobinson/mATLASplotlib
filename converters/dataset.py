@@ -19,36 +19,36 @@ class Dataset(object):
                     self._add_dimension("y", data.y_values, data.y_error_pairs)
                 if data.z_values is not None:
                     self._add_dimension("z", data.z_values, data.z_error_pairs)
-        # # Assume that x,y values have been passed
-        # elif len(args) == 2:
-        #     self.add_dimension("x", args[0], None, **kwargs)
-        #     self.add_dimension("y", args[1], None, **kwargs)
-        # # Assume that x,y,z values have been passed
-        # elif len(args) == 3:
-        #     self.add_dimension("x", args[0], None, **kwargs)
-        #     self.add_dimension("y", args[1], None, **kwargs)
-        #     self.add_dimension("z", args[2], None, **kwargs)
-        # # Assume that x,y values with errors have been passed
-        # elif len(args) == 4:
-        #     self.add_dimension("x", args[0], args[1], **kwargs)
-        #     self.add_dimension("y", args[2], args[3], **kwargs)
-        # # Assume that x,y,z values with errors have been passed
-        # elif len(args) == 6:
-        #     self.add_dimension("x", args[0], args[1], **kwargs)
-        #     self.add_dimension("y", args[2], args[3], **kwargs)
-        #     self.add_dimension("z", args[4], args[5], **kwargs)
-        # # Construct an array of points in N-dimensional space, with an error pair in each direction
-        # else:
-        #     if "x_values" in kwargs:
-        #         self.add_dimension("x", kwargs["x_values"], kwargs.get("x_error_pairs", None), **kwargs)
-        #     if "y_values" in kwargs:
-        #         self.add_dimension("y", kwargs["y_values"], kwargs.get("y_error_pairs", None), **kwargs)
-        #     if "z_values" in kwargs:
-        #         self.add_dimension("z", kwargs["z_values"], kwargs.get("z_error_pairs", None), **kwargs)
-        #     for dimension in self.get_dimensions():
-        #         assert(len(self._data[dimension]) == self.number_of_points())
+        # Assume that x,y values have been passed
+        elif len(args) == 2:
+            self._add_dimension("x", args[0], None, **kwargs)
+            self._add_dimension("y", args[1], None, **kwargs)
+        # Assume that x,y,z values have been passed
+        elif len(args) == 3:
+            self._add_dimension("x", args[0], None, **kwargs)
+            self._add_dimension("y", args[1], None, **kwargs)
+            self._add_dimension("z", args[2], None, **kwargs)
+        # Assume that x,y values with errors have been passed
+        elif len(args) == 4:
+            self._add_dimension("x", args[0], args[1], **kwargs)
+            self._add_dimension("y", args[2], args[3], **kwargs)
+        # Assume that x,y,z values with errors have been passed
+        elif len(args) == 6:
+            self._add_dimension("x", args[0], args[1], **kwargs)
+            self._add_dimension("y", args[2], args[3], **kwargs)
+            self._add_dimension("z", args[4], args[5], **kwargs)
+        # Construct an array of points in N-dimensional space, with an error pair in each direction
+        else:
+            if "x_values" in kwargs:
+                self._add_dimension("x", kwargs["x_values"], kwargs.get("x_error_pairs", None), **kwargs)
+            if "y_values" in kwargs:
+                self._add_dimension("y", kwargs["y_values"], kwargs.get("y_error_pairs", None), **kwargs)
+            if "z_values" in kwargs:
+                self._add_dimension("z", kwargs["z_values"], kwargs.get("z_error_pairs", None), **kwargs)
+            for dimension in self.get_dimensions():
+                assert(len(self._data[dimension]) == self.number_of_points())
         if "x" in self.get_dimensions() and "y" in self.get_dimensions():
-            self.add_xy_dimensions()
+            self._add_xy_dimensions()
         if len(self.get_dimensions()) == 0:
             raise RuntimeError("Attempt to initialise plottable {0} without providing data!".format(type(self)))
 
@@ -80,67 +80,20 @@ class Dataset(object):
         setattr(self, "{0}_bin_low_edges".format(dimension), self.__get_bin_low_edges(dimension))
         setattr(self, "{0}_bin_high_edges".format(dimension), self.__get_bin_high_edges(dimension))
 
+    # Add xy-appropriate methods
+    def _add_xy_dimensions(self):
+        setattr(self, "x_at_y_bin_edges", self.__get_x_at_y_bin_edges())
+        setattr(self, "y_at_x_bin_edges", self.__get_y_at_x_bin_edges())
+        setattr(self, "band_edges_x", self.__get_band_edges_x())
+        setattr(self, "band_edges_y_low", self.__get_band_edges_y_low())
+        setattr(self, "band_edges_y_high", self.__get_band_edges_y_high())
 
-
-    # # Constructor - specify values and error pair separately for each dimension
-    # # Example : x vs y : __init__( [1,2,3], [4,9,16] )
-    # # Example : x vs y with y_errors : __init__( [1,2,3], None, [4,9,16], [2,3,4] )
-    # def __init__(self, *args, **kwargs):
-    #     self._data = {}
-    #     # Use a configurator object to construct
-    #     if len(args) == 1:
-    #         if hasattr(args[0], "x_values") and getattr(args[0], "x_values") is not None:
-    #             self.add_dimension("x", args[0].x_values, args[0].x_error_pairs, **kwargs)
-    #         if hasattr(args[0], "y_values") and getattr(args[0], "y_values") is not None:
-    #             self.add_dimension("y", args[0].y_values, args[0].y_error_pairs, **kwargs)
-    #         if hasattr(args[0], "z_values") and getattr(args[0], "z_values") is not None:
-    #             self.add_dimension("z", args[0].z_values, args[0].z_error_pairs, **kwargs)
-    #     # Assume that x,y values have been passed
-    #     elif len(args) == 2:
-    #         self.add_dimension("x", args[0], None, **kwargs)
-    #         self.add_dimension("y", args[1], None, **kwargs)
-    #     # Assume that x,y,z values have been passed
-    #     elif len(args) == 3:
-    #         self.add_dimension("x", args[0], None, **kwargs)
-    #         self.add_dimension("y", args[1], None, **kwargs)
-    #         self.add_dimension("z", args[2], None, **kwargs)
-    #     # Assume that x,y values with errors have been passed
-    #     elif len(args) == 4:
-    #         self.add_dimension("x", args[0], args[1], **kwargs)
-    #         self.add_dimension("y", args[2], args[3], **kwargs)
-    #     # Assume that x,y,z values with errors have been passed
-    #     elif len(args) == 6:
-    #         self.add_dimension("x", args[0], args[1], **kwargs)
-    #         self.add_dimension("y", args[2], args[3], **kwargs)
-    #         self.add_dimension("z", args[4], args[5], **kwargs)
-    #     # Construct an array of points in N-dimensional space, with an error pair in each direction
-    #     else:
-    #         if "x_values" in kwargs:
-    #             self.add_dimension("x", kwargs["x_values"], kwargs.get("x_error_pairs", None), **kwargs)
-    #         if "y_values" in kwargs:
-    #             self.add_dimension("y", kwargs["y_values"], kwargs.get("y_error_pairs", None), **kwargs)
-    #         if "z_values" in kwargs:
-    #             self.add_dimension("z", kwargs["z_values"], kwargs.get("z_error_pairs", None), **kwargs)
-    #         for dimension in self.get_dimensions():
-    #             assert(len(self._data[dimension]) == self.number_of_points())
-    #     if "x" in self.get_dimensions() and "y" in self.get_dimensions():
-    #         self.add_xy_dimensions()
-    #     if len(self.get_dimensions()) == 0:
-    #         raise RuntimeError("Attempt to initialise plottable {0} without providing data!".format(type(self)))
-    #
     # def number_of_points(self):
     #     return len(self._data[self.get_dimensions()[0]])
 
     def get_dimensions(self):
         return sorted(self._data.keys())
 
-    # Add xy-appropriate methods
-    def add_xy_dimensions(self):
-        setattr(self, "x_at_y_bin_edges", self.__get_x_at_y_bin_edges())
-        setattr(self, "y_at_x_bin_edges", self.__get_y_at_x_bin_edges())
-        setattr(self, "band_edges_x", self.__get_band_edges_x())
-        setattr(self, "band_edges_y_low", self.__get_band_edges_y_low())
-        setattr(self, "band_edges_y_high", self.__get_band_edges_y_high())
 
     # Construct expanded bin lists in x and y
     def unroll_bins(self, axes="xy"):

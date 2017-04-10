@@ -16,7 +16,7 @@ class Line(object):
         plot_args["color"] = kwargs.pop("colour", "black")        # Default colour: black
         plot_args["label"] = kwargs.pop("label", None)            # Default label: None
         plot_args["linewidth"] = kwargs.pop("linewidth", 2)       # Default linewidth: 2
-        plot_args["marker"] = kwargs.pop("marker", None)           # Default marker: dot
+        plot_args["marker"] = kwargs.pop("marker", None)          # Default marker: dot
 
         if "stepped" in self.plot_style:
             axes.plot(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges, drawstyle="steps-pre", **plot_args)
@@ -25,8 +25,8 @@ class Line(object):
             axes.plot(dataset.x_points, dataset.y_points, **plot_args)
 
         if "smooth" in self.plot_style:
-            print "x", dataset.x_all_bin_edges, len(dataset.x_all_bin_edges)
-            print "y", dataset.y_at_x_bin_edges, len(dataset.y_at_x_bin_edges)
+            # print "x", dataset.x_all_bin_edges, len(dataset.x_all_bin_edges)
+            # print "y", dataset.y_at_x_bin_edges, len(dataset.y_at_x_bin_edges)
 
             # s=numpy.r_[x[window_len-1:0:-1],x,x[-1:-window_len:-1]]
             #   51     #print(len(s))
@@ -38,7 +38,7 @@ class Line(object):
             #   57     y=numpy.convolve(w/w.sum(),s,mode='valid')
             #   58     return y
 
-            spline = interpolate.interp1d(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges)#, kind="cubic")
+            spline = interpolate.interp1d(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges)  # , kind="cubic")
             # # dataset.x_all_bin_edges = np.arange(0, 2*np.pi+np.pi/4, 2*np.pi/8)
             # dataset.y_at_x_bin_edges = np.sin(dataset.x_all_bin_edges)
             # spline = interpolate.UnivariateSpline(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges)
