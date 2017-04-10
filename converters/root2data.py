@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import numpy as np
 import ROOT
 import uuid
@@ -15,6 +16,9 @@ class root2data(object):
         # Initialise TH1 constructor
         elif isinstance(root_object, ROOT.TH1):
             self.construct_from_TH1(root_object)
+        # Initialise TF1 constructor
+        elif isinstance(root_object, ROOT.TF1):
+            self.construct_from_TF1(root_object)
         # Initialise TGraphAsymmErrors constructor
         elif isinstance(root_object, ROOT.TGraphAsymmErrors):
             self.construct_from_TGraphAsymmErrors(root_object)
@@ -41,15 +45,24 @@ class root2data(object):
             output.Rebin(kwargs['rebin'])
         return root2data(output)
 
-    # Read TH1 into x, y dimensions
+    def construct_from_TF1(self, input_TF1):
+        """Read TF1 into x, y dimensions."""
+        x_min, x_max = ROOT.Double(), ROOT.Double()
+        input_TF1.GetRange(x_min, x_max)
+        self.x_values = np.linspace(x_min, x_max, num=1000, endpoint=True)
+        self.x_error_pairs = [[0, 0] for idx in range(len(self.x_values))]
+        self.y_values = [input_TF1.Eval(x) for x in self.x_values]
+        self.y_error_pairs = [[0, 0] for idx in range(len(self.y_values))]
+
     def construct_from_TH1(self, input_TH1):
+        """Read TH1 into x, y dimensions."""
         self.x_values = [input_TH1.GetXaxis().GetBinCenter(bin) for bin in range(1, input_TH1.GetNbinsX() + 1)]
         self.x_error_pairs = [[0.5 * input_TH1.GetXaxis().GetBinWidth(bin)] * 2 for bin in range(1, input_TH1.GetNbinsX() + 1)]
         self.y_values = [input_TH1.GetBinContent(bin) for bin in range(1, input_TH1.GetNbinsX() + 1)]
         self.y_error_pairs = [(input_TH1.GetBinErrorLow(bin), input_TH1.GetBinErrorUp(bin)) for bin in range(1, input_TH1.GetNbinsX() + 1)]
 
-    # Read TH2 into x, y, z dimensions
     def construct_from_TH2(self, input_TH2):
+        """Read TH2 into x, y, z dimensions."""
         self.x_values = [input_TH2.GetXaxis().GetBinCenter(bin) for bin in range(1, input_TH2.GetNbinsX() + 1)]
         self.x_error_pairs = [[0.5 * input_TH2.GetXaxis().GetBinWidth(bin)] * 2 for bin in range(1, input_TH2.GetNbinsX() + 1)]
         self.y_values = [input_TH2.GetYaxis().GetBinCenter(bin) for bin in range(1, input_TH2.GetNbinsY() + 1)]
@@ -62,30 +75,29 @@ class root2data(object):
             self.z_values.append(input_TH2.GetBinContent(ix, iy))
             self.z_error_pairs.append((input_TH2.GetBinErrorLow(ix, iy), input_TH2.GetBinErrorUp(ix, iy)))
 
-    # Read TGraph into x, y dimensions
     def construct_from_TGraph(self, input_TGraph):
-        x, x_errors = input_TGraphAsymmErrors.GetX(), input_TGraphAsymmErrors.GetEX()
-        y, y_errors = input_TGraphAsymmErrors.GetY(), input_TGraphAsymmErrors.GetEY()
+        """Read TGraph into x, y dimensions."""
+        x, y = input_TGraph.GetX(), input_TGraph.GetY()
         self.x_values, self.x_error_pairs, self.y_values, self.y_error_pairs = [], [], [], []
-        for ii in range(input_TGraphAsymmErrors.GetN()):
+        for ii in range(input_TGraph.GetN()):
             self.x_values.append(x[ii])
-            self.x_error_pairs.append([x_errors[ii]] * 2)
+            self.x_error_pairs.append([[0, 0]])
             self.y_values.append(y[ii])
-            self.y_error_pairs.append([y_errors[ii]] * 2)
+            self.y_error_pairs.append([[0, 0]])
 
-    # Read TGraphErrors into x, y dimensions
     def construct_from_TGraphErrors(self, input_TGraphErrors):
-        x, x_errors = input_TGraphAsymmErrors.GetX(), input_TGraphAsymmErrors.GetEX()
-        y, y_errors = input_TGraphAsymmErrors.GetY(), input_TGraphAsymmErrors.GetEY()
+        """Read TGraphErrors into x, y dimensions."""
+        x, x_errors = input_TGraphErrors.GetX(), input_TGraphErrors.GetEX()
+        y, y_errors = input_TGraphErrors.GetY(), input_TGraphErrors.GetEY()
         self.x_values, self.x_error_pairs, self.y_values, self.y_error_pairs = [], [], [], []
-        for ii in range(input_TGraphAsymmErrors.GetN()):
+        for ii in range(input_TGraphErrors.GetN()):
             self.x_values.append(x[ii])
             self.x_error_pairs.append([x_errors[ii]] * 2)
             self.y_values.append(y[ii])
             self.y_error_pairs.append([y_errors[ii]] * 2)
 
-    # Read TGraphErrors into x, y dimensions
     def construct_from_TGraphAsymmErrors(self, input_TGraphAsymmErrors):
+        """Read TGraphErrors into x, y dimensions."""
         x, x_errors_low, x_errors_high = input_TGraphAsymmErrors.GetX(), input_TGraphAsymmErrors.GetEXlow(), input_TGraphAsymmErrors.GetEXhigh()
         y, y_errors_low, y_errors_high = input_TGraphAsymmErrors.GetY(), input_TGraphAsymmErrors.GetEYlow(), input_TGraphAsymmErrors.GetEYhigh()
         self.x_values, self.x_error_pairs, self.y_values, self.y_error_pairs = [], [], [], []

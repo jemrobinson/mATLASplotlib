@@ -1,11 +1,11 @@
 import logging
 import matplotlib
 
+logger = logging.getLogger("mATLASplotlib.style")
+
+
 def set_atlas(shape="square"):
-    """Set the plotting style to ATLAS-style and then point this function to
-    'None' so that it can only be called once. Called on canvas creation.
-    """
-    logger = logging.getLogger("mATLASplotlib.style")
+    """Set the plotting style to ATLAS-style and then point this function to 'None' so that it can only be called once. Called on canvas creation."""
     logger.info("Setting ATLAS style")
 
     # Set figure layout
@@ -21,7 +21,7 @@ def set_atlas(shape="square"):
 
     # Set font options
     matplotlib.rcParams["font.family"] = "sans-serif"
-    matplotlib.rcParams["font.sans-serif"] = "Helvetica, helvetica, Nimbus Sans L, Mukti Narrow, FreeSans" # alternatives if helvetica is unavailable
+    matplotlib.rcParams["font.sans-serif"] = "Helvetica, helvetica, Nimbus Sans L, Mukti Narrow, FreeSans"  # alternatives if helvetica is unavailable
     matplotlib.rcParams["font.cursive"] = "Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive, Helvetica, helvetica"
     matplotlib.rcParams["mathtext.fontset"] = "custom"
     matplotlib.rcParams["mathtext.default"] = "sf"

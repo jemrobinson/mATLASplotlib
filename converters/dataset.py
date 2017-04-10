@@ -1,15 +1,19 @@
 import numpy as np
 from root2data import root2data
 
+
 class Dataset(object):
-    """Container for plottable datasets"""
-    # Constructor - specify values and error pair separately for each dimension
-    # Example : x vs y : __init__( [1,2,3], [4,9,16] )
-    # Example : x vs y with y_errors : __init__( [1,2,3], None, [4,9,16], [2,3,4] )
+    """Container for plottable datasets."""
+
     def __init__(self, *args, **kwargs):
+        """Constructor - specify values and error pair separately for each dimension.
+
+        Example : x vs y : __init__([1,2,3], [4,9,16])
+        Example : x vs y with y_errors : __init__([1,2,3], None, [4,9,16], [2,3,4])
+        """
         self._data = {}
         # Check how the data has been provided
-        if len(args) == 1 :
+        if len(args) == 1:
             # Check for ROOT input
             if root2data.valid_input(args[0]):
                 data = root2data(args[0])
@@ -52,10 +56,8 @@ class Dataset(object):
         if len(self.get_dimensions()) == 0:
             raise RuntimeError("Attempt to initialise plottable {0} without providing data!".format(type(self)))
 
-
-
-    # Add a new dimension with appropriate methods
     def _add_dimension(self, dimension, values, error_pairs):
+        """Add a new dimension with appropriate methods."""
         # Use zeros if no errors provided
         if error_pairs is None:
             error_pairs = [(0, 0)] * len(values)
@@ -88,117 +90,114 @@ class Dataset(object):
         setattr(self, "band_edges_y_low", self.__get_band_edges_y_low())
         setattr(self, "band_edges_y_high", self.__get_band_edges_y_high())
 
-    # def number_of_points(self):
-    #     return len(self._data[self.get_dimensions()[0]])
-
     def get_dimensions(self):
+        """Document here."""
         return sorted(self._data.keys())
 
-
-    # Construct expanded bin lists in x and y
     def unroll_bins(self, axes="xy"):
+        """Construct expanded bin lists in x and y."""
         if axes == "xy":
             bin_centres = np.meshgrid(self.x_points, self.y_points, indexing="xy")
         return [bin_centre.ravel() for bin_centre in bin_centres]
 
-    # Return array of x/y/z points, constructing if necessary
     def __get_points(self, dimension):
+        """Return array of x/y/z points, constructing if necessary."""
         attr_name = "_{0}_points".format(dimension)
         if not hasattr(self, attr_name):
             value = np.array([point[0] for point in self._data[dimension]])
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # Return array of x/y/z points, constructing if necessary
     def __get_error_pairs(self, dimension):
+        """Return array of x/y/z points, constructing if necessary."""
         attr_name = "_{0}_error_pairs".format(dimension)
         if not hasattr(self, attr_name):
             value = np.array([[point[1], point[2]] for point in self._data[dimension]])
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # Return array of x/y/z points, constructing if necessary
     def __get_points_error_symmetrised(self, dimension):
+        """Return array of x/y/z points, constructing if necessary."""
         attr_name = "_{0}_points_error_symmetrised".format(dimension)
         if not hasattr(self, attr_name):
             value = np.array([point[0] + (point[2] - point[1]) / 2.0 for point in self._data[dimension]])
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # Return array of x/y/z points, constructing if necessary
     def __get_errors_symmetrised(self, dimension):
+        """Return array of x/y/z points, constructing if necessary."""
         attr_name = "_{0}_errors_symmetrised".format(dimension)
         if not hasattr(self, attr_name):
             value = np.array([(point[1] + point[2]) / 2.0 for point in self._data[dimension]])
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # Return array of all x/y/z bin edges, constructing if necessary
     def __get_all_bin_edges(self, dimension):
+        """Return array of all x/y/z bin edges, constructing if necessary."""
         attr_name = "_{0}_all_bin_edges".format(dimension)
         if not hasattr(self, attr_name):
             value = np.array(sum([[low_edge, high_edge] for low_edge, high_edge in zip(self.__get_bin_low_edges(dimension), self.__get_bin_high_edges(dimension))], []))
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # Return array of x/y/z bin edges without duplicates, constructing if necessary
     def __get_bin_edges(self, dimension):
+        """Return array of x/y/z bin edges without duplicates, constructing if necessary."""
         attr_name = "_{0}_bin_edges".format(dimension)
         if not hasattr(self, attr_name):
             value = np.unique(getattr(self, "_{0}_all_bin_edges".format(dimension)))
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # Return array of x/y/z bin widths, constructing if necessary
     def __get_bin_widths(self, dimension):
+        """Return array of x/y/z bin widths, constructing if necessary."""
         attr_name = "_{0}_bin_widths".format(dimension)
         if not hasattr(self, attr_name):
             value = np.array([point[1] + point[2] for point in self._data[dimension]])
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # Return array of x/y/z bin low edges, constructing if necessary
     def __get_bin_low_edges(self, dimension):
+        """Return array of x/y/z bin low edges, constructing if necessary."""
         attr_name = "_{0}_bin_low_edges".format(dimension)
         if not hasattr(self, attr_name):
             value = np.array([point[0] - point[1] for point in self._data[dimension]])
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # Return array of x/y/z bin high edges, constructing if necessary
     def __get_bin_high_edges(self, dimension):
+        """Return array of x/y/z bin high edges, constructing if necessary."""
         attr_name = "_{0}_bin_high_edges".format(dimension)
         if not hasattr(self, attr_name):
             value = np.array([point[0] + point[2] for point in self._data[dimension]])
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
-    # Return array of x at the bin edges of y bins, constructing if necessary
     def __get_x_at_y_bin_edges(self):
+        """Return array of x at the bin edges of y bins, constructing if necessary."""
         if not hasattr(self, "_x_at_y_bin_edges"):
             self._x_at_y_bin_edges = np.array(sum([[x_point, x_point] for x_point in self.x_points], []))
         return self._x_at_y_bin_edges
 
-    # Return array of y at the bin edges of x bins, constructing if necessary
     def __get_y_at_x_bin_edges(self):
+        """Return array of y at the bin edges of x bins, constructing if necessary."""
         if not hasattr(self, "_y_at_x_bin_edges"):
             self._y_at_x_bin_edges = np.array(sum([[y_point, y_point] for y_point in self.y_points], []))
         return self._y_at_x_bin_edges
 
-    # Return array of x edges for fillable band, constructing if necessary
     def __get_band_edges_x(self):
+        """Return array of x edges for fillable band, constructing if necessary."""
         if not hasattr(self, "_band_edges_x"):
             self._band_edges_x = np.array(sum([[point[0] - point[1], point[0] + point[2]] for point in self._data["x"]], []))
         return self._band_edges_x
 
-    # Return array of y minima for fillable band, constructing if necessary
     def __get_band_edges_y_low(self):
+        """Return array of y minima for fillable band, constructing if necessary."""
         if not hasattr(self, "_band_edges_y_low"):
             self._band_edges_y_low = np.array(sum([[point[0] - point[1], point[0] - point[1]] for point in self._data["y"]], []))
         return self._band_edges_y_low
 
-    # Return array of y maxima for fillable band, constructing if necessary
     def __get_band_edges_y_high(self):
+        """Return array of y maxima for fillable band, constructing if necessary."""
         if not hasattr(self, "_band_edges_y_high"):
             self._band_edges_y_high = np.array(sum([[point[0] + point[2], point[0] + point[2]] for point in self._data["y"]], []))
         return self._band_edges_y_high

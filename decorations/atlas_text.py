@@ -1,20 +1,24 @@
 class ATLAS_text(object):
+    """Draw ATLAS text."""
+
     def __init__(self, plot_type=None):
+        """Constructor."""
         self.plot_type = plot_type
         self.default_fontsize = 17
 
     def draw(self, x, y, axes, ha, va, fontsize):
+        """Draw on axes."""
         transform = axes.transAxes
-        fontsize = [fontsize, self.default_fontsize][fontsize==None]
+        fontsize = [fontsize, self.default_fontsize][fontsize is None]
         if self.plot_type is None:
             axes.text(x, y, "ATLAS", style="italic", fontsize=fontsize, fontweight="bold", ha=ha, va=va, transform=transform)
         else:
             # Plot invisible text to get bounding box
-            style_args = {"fontsize":fontsize, "ha":ha, "va":va, "transform":transform}
+            style_args = {"fontsize": fontsize, "ha": ha, "va": va, "transform": transform}
             if ha == "left":  # draw ATLAS first and then align other text to it
                 invisible_ATLAS_text = axes.text(x, y, "ATLASI", alpha=0, style="italic", fontweight="bold", **style_args)
                 bounding_box = invisible_ATLAS_text.get_window_extent(renderer=self.__get_renderer(axes)).transformed(transform.inverted())
-                visible_ATLAS_text = axes.text(x, y, "ATLAS", style="italic", fontweight="bold", **style_args)
+                axes.text(x, y, "ATLAS", style="italic", fontweight="bold", **style_args)
                 axes.text(bounding_box.max[0], y, self.plot_type, **style_args)
             elif ha == "right":  # draw other text first and then align ATLAS to it
                 visible_normal_text = axes.text(x, y, " {}".format(self.plot_type), **style_args)
@@ -24,6 +28,7 @@ class ATLAS_text(object):
                 raise NotImplementedError("Alignment {} not recognised!".format(ha))
 
     def __get_renderer(self, axes):
+        """Retrieve appropriate renderer."""
         # axes.get_figure() was self.figure
         if hasattr(axes.get_figure().canvas, "get_renderer"):
             # Some backends, such as TkAgg, have the get_renderer method, which makes this easy.

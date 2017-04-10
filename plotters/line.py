@@ -4,6 +4,7 @@ from scipy import interpolate
 
 logger = logging.getLogger("mATLASplotlib.plotters")
 
+
 class Line(object):
     """Plot as points in the x-y plane"""
     def __init__(self, plot_style):
