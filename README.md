@@ -14,9 +14,8 @@ Probably somewhere like: `/System/Library/Fonts/Helvetica.dfont`
 
 3. Find where matplotlib stores its data
 
-`$ python
->>>import matplotlib; matplotlib.matplotlib_fname()
-u'/Users/james/.matplotlib/matplotlibrc'`
+At python prompt run: `import matplotlib; matplotlib.matplotlib_fname()`
+and get output like: `u'/Users/james/.matplotlib/matplotlibrc'`
 
 We need to put the `.ttf` in this path in `fonts/ttf`
 

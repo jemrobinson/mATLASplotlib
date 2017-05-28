@@ -1,7 +1,6 @@
-import matplotlib
-# import matplotlib.pyplot as pyplot
 import logging
 import math
+import matplotlib
 from .. import style
 from ..converters import Dataset
 from ..plotters import get_plotter

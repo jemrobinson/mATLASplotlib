@@ -24,8 +24,6 @@ class Legend(object):
         _legend.get_frame().set_linewidth(0)
         _legend.get_frame().set_alpha(0.0)
         fontsize = [fontsize, self.default_fontsize][fontsize is None]
-        # import matplotlib.pyplot as pyplot
-        # pyplot.setp(_legend.get_texts(), fontsize=fontsize)
         matplotlib.pyplot.setp(_legend.get_texts(), fontsize=fontsize)
         [text.set_va("bottom") for text in _legend.get_texts()]
 
