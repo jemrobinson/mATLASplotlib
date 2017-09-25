@@ -25,6 +25,7 @@ class BaseCanvas(object):
         # Set properties from arguments
         self.log_type = kwargs.get("log_type", "")
         self.x_ticks = kwargs.get("x_ticks", None)
+        self.x_tick_size = kwargs.get("x_tick_size", None)
         self.minor_x_ticks = kwargs.get("minor_x_ticks", [])
         # Set up value holders
         self.legend = Legend()
@@ -47,9 +48,12 @@ class BaseCanvas(object):
         for axes in self.figure.axes:
             # Draw x ticks
             if self.x_ticks is not None:
-                x_interval = (self.axis_ranges["x"][1] - self.axis_ranges["x"][0]) / len(self.x_ticks)
+                x_interval = (axes.get_xlim()[1] - axes.get_xlim()[0]) / len(self.x_ticks)
                 axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(x_interval))
-                axes.set_xticklabels([""] + self.x_ticks)  # for some reason the first label is getting lost
+                if self.x_tick_size is None:
+		    axes.set_xticklabels([""] + self.x_ticks)  # for some reason the first label is getting lost
+                else:
+                    axes.set_xticklabels([""] + self.x_ticks, fontsize=self.x_tick_size)  # for some reason the first label is getting lost
             # Draw minor ticks
             axes.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
             axes.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
