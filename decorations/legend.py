@@ -37,10 +37,7 @@ class Legend(object):
             if visible_label not in seen:
                 seen.add(visible_label)
                 labels.append(visible_label)
-                # if isinstance(handle, Polygon):
                 if isinstance(handle, matplotlib.patches.Polygon):
-                    # import matplotlib.pyplot as pyplot
-                    # proxy_artist = pyplot.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])
                     proxy_artist = matplotlib.pyplot.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])
                     handles.append(proxy_artist)
                 else:

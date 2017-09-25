@@ -1,23 +1,27 @@
+from base_plotter import BasePlotter
+from scipy import interpolate
 import logging
 import numpy as np
-from scipy import interpolate
 
 logger = logging.getLogger("mATLASplotlib.plotters")
 
 
-class Line(object):
+class Line(BasePlotter):
     """Plot as points in the x-y plane"""
     def __init__(self, plot_style):
-        self.plot_style = plot_style
+        """Constructor."""
+        super(Line, self).__init__(plot_style)
 
     # Add to canvas
     def add_to_axes(self, axes, dataset, **kwargs):
         # Construct plotting arguments
-        plot_args = {}
-        plot_args["color"] = kwargs.pop("colour", "black")        # Default colour: black
-        plot_args["label"] = kwargs.pop("label", None)            # Default label: None
-        plot_args["linewidth"] = kwargs.pop("linewidth", 2)       # Default linewidth: 2
-        plot_args["marker"] = kwargs.pop("marker", None)          # Default marker: dot
+        self.plot_args["color"] = kwargs.pop("colour", "black")         # Default colour: black
+        self.plot_args["label"] = kwargs.pop("label", None)             # Default label: None
+        self.plot_args["linewidth"] = kwargs.pop("linewidth", 2)        # Default linewidth: 2
+        self.plot_args["marker"] = kwargs.pop("marker", None)           # Default marker: dot
+        self.plot_args["linestyle"] = kwargs.pop("linestyle", "solid")  # Default linewidth: solid
+        # Add any other user-provided arguments
+        self.plot_args.update(kwargs)
 
         if "stepped" in self.plot_style:
             axes.plot(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges, drawstyle="steps-pre", **plot_args)
