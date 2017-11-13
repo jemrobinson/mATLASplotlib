@@ -1,4 +1,5 @@
 import logging
-logging.basicConfig(level=logging.INFO)
+import sys
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 import matplotlib
 matplotlib.use("pdf")

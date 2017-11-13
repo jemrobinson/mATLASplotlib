@@ -24,10 +24,10 @@ class Line(BasePlotter):
         self.plot_args.update(kwargs)
 
         if "stepped" in self.plot_style:
-            axes.plot(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges, drawstyle="steps-pre", **plot_args)
+            axes.plot(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges, drawstyle="steps-pre", **self.plot_args)
 
         if "join centres" in self.plot_style:
-            axes.plot(dataset.x_points, dataset.y_points, **plot_args)
+            axes.plot(dataset.x_points, dataset.y_points, **self.plot_args)
 
         if "smooth" in self.plot_style:
             # print "x", dataset.x_all_bin_edges, len(dataset.x_all_bin_edges)

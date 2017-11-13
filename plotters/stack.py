@@ -8,7 +8,7 @@ class Stack(BasePlotter):
     """Plot as points in the x-y plane."""
     def __init__(self, plot_style):
         """Constructor."""
-        super(Line, self).__init__(plot_style)
+        super(Stack, self).__init__(plot_style)
 
     def add_to_axes(self, axes, dataset, **kwargs):
         """Add to canvas."""

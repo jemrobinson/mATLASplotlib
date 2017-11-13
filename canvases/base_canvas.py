@@ -33,15 +33,19 @@ class BaseCanvas(object):
         self.subplots = {}
         self.internal_header_fraction = None
 
-    def plot_dataset(self, dataset, style, axes=None, **kwargs):
-        """Document here."""
-        if not isinstance(dataset, Dataset):
-            if hasattr(dataset, '__iter__'): dataset = Dataset(*dataset)
-            else: dataset = Dataset(dataset)
-        if axes is None: axes = self.main_subplot
+    def plot_dataset(self, *args, **kwargs):
+        """Plot a dataset, converting arguments as appropriate."""
+        if not isinstance(args, Dataset):
+            if hasattr(args, "__iter__"):
+                dataset = Dataset(*args)
+            else:
+                dataset = Dataset(args)
+        axes = kwargs.pop("axes", self.main_subplot)
+        plot_style = kwargs.pop("style", None)
+        plotter = get_plotter(plot_style)
         if "label" in kwargs:
-            self.legend.add_dataset(label=kwargs["label"], visible_label=kwargs.get("visible_label", None), is_stack=("stack" in style))
-        get_plotter(style).add_to_axes(dataset=dataset, axes=self.subplots[axes], **kwargs)
+            self.legend.add_dataset(label=kwargs["label"], visible_label=kwargs.get("visible_label", None), is_stack=("stack" in plot_style))
+        plotter.add_to_axes(dataset=dataset, axes=self.subplots[axes], **kwargs)
 
     def __finalise_plot_formatting(self):
         """Set useful axis properties."""

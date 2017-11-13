@@ -20,3 +20,4 @@ def get_plotter(plot_style):
         return Scatter(plot_style)
     if "stack" in plot_style:
         return Stack(plot_style)
+    raise NotImplementedError("Plotting style '{}' is not supported".format(plot_style))

@@ -13,7 +13,7 @@ class Bar(BasePlotter):
 
     def add_to_axes(self, axes, dataset, **kwargs):
         """Add to canvas."""
-        logger.debug("Adding dataset to axes as stack")
+        logger.debug("Adding dataset to axes as bar")
         # Interpret arguments
         self.plot_args["color"] = kwargs.pop("colour", "black")                          # Default colour: black
         self.plot_args["label"] = kwargs.pop("label", None)                              # Default label: None

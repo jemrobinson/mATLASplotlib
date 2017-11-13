@@ -19,7 +19,6 @@ class Scatter(BasePlotter):
         self.plot_args["color"] = kwargs.pop("colour", "black")        # Default colour: black
         self.plot_args["label"] = kwargs.pop("label", None)            # Default label: None
         self.plot_args["linewidth"] = kwargs.pop("linewidth", 2)       # Default linewidth: 2
-        self.plot_args["linestyle"] = kwargs.pop("linestyle", "solid") # Default linestyle: solid
         self.plot_args["marker"] = kwargs.pop("marker", "o")           # Default marker: dot
         # Add any other user-provided arguments
         self.plot_args.update(kwargs)
@@ -31,13 +30,14 @@ class Scatter(BasePlotter):
         # Get error cap sizes
         if mpl_version > "1.4.0":
             with_error_bar_caps = kwargs.pop("with_error_bar_caps", False)
-            plot_args["capthick"] = [0, plot_args.get("linewidth")][with_error_bar_caps]
-            plot_args["capsize"] = [0, 2 * plot_args.get("linewidth")][with_error_bar_caps]
+            self.plot_args["capthick"] = [0, self.plot_args.get("linewidth")][with_error_bar_caps]
+            self.plot_args["capsize"] = [0, 2 * self.plot_args.get("linewidth")][with_error_bar_caps]
         else:
             print "Matplotlib version {} is too old to allow error bar caps".format(mpl_version)
 
         # Draw points using errorbar
-        (joining_line, caplines, error_line) = axes.errorbar(dataset.x_points, dataset.y_points, fmt="", markeredgewidth=0, linestyle='None', **self.plot_args)
+        (joining_line, caplines, error_line) = axes.errorbar(dataset.x_points, dataset.y_points, fmt="", markeredgewidth=0, linestyle="None", **self.plot_args)
+        self.plot_args["linestyle"] = kwargs.pop("linestyle", "solid") # Default linestyle: solid
 
         # Draw a line joining the points
         if "join_centres" in kwargs and kwargs["join_centres"]:
