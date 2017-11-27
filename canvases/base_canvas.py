@@ -13,7 +13,7 @@ logger = logging.getLogger("mATLASplotlib.canvases")
 class BaseCanvas(object):
     """Base class for canvas properties."""
 
-    location_map = {"upper right": ["right", "top"], "upper left": ["left", "top"], "lower right": ["right", "bottom"], "lower left": ["left", "bottom"]}
+    location_map = {"upper right": ["right", "top"], "upper left": ["left", "top"], "centre left": ["left", "center"], "centre right": ["right", "center"], "lower right": ["right", "bottom"], "lower left": ["left", "bottom"]}
 
     def __init__(self, n_pixels, **kwargs):
         """Constructor."""
@@ -98,10 +98,11 @@ class BaseCanvas(object):
         text = text_sqrts + text_lumi
         Text(text).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], fontsize=fontsize)
 
-    def add_text(self, x, y, text, axes=None, anchor_to="lower left", fontsize=None):
+    def add_text(self, x, y, text, **kwargs):
         """Document here."""
-        if axes is None: axes = self.main_subplot
-        Text(text).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], fontsize=fontsize)
+        axes = kwargs.pop("axes", self.main_subplot)
+        anchor_to = kwargs.pop("anchor_to", "lower left")
+        Text(text).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], **kwargs)
 
     def get_axis_label(self, axis_name):
         """Document here."""
