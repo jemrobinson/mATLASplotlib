@@ -34,10 +34,14 @@ def set_atlas(shape="square"):
 
     # Set axes options
     matplotlib.rcParams["axes.labelsize"] = 20
+    matplotlib.rcParams["xtick.bottom"] = True
+    matplotlib.rcParams["xtick.top"] = True
     matplotlib.rcParams["xtick.direction"] = "in"
     matplotlib.rcParams["xtick.labelsize"] = 18
     matplotlib.rcParams["xtick.major.size"] = 12
     matplotlib.rcParams["xtick.minor.size"] = 6
+    matplotlib.rcParams["ytick.left"] = True
+    matplotlib.rcParams["ytick.right"] = True
     matplotlib.rcParams["ytick.direction"] = "in"
     matplotlib.rcParams["ytick.labelsize"] = 18
     matplotlib.rcParams["ytick.major.size"] = 14

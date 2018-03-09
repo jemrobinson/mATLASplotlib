@@ -45,6 +45,22 @@ class Simple(BaseCanvas):
         self.set_axis_label("y", y_axis_label)
 
     # Axis ranges
+    def set_axis_max(self, axis_name, maximum):
+        if axis_name == "x":
+            self.subplots["main"].set_xlim(top=maximum)
+        elif axis_name == "y":
+            self.subplots["main"].set_ylim(top=maximum)
+        else:
+            raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
+
+    def set_axis_min(self, axis_name, minimum):
+        if axis_name == "x":
+            self.subplots["main"].set_xlim(bottom=minimum)
+        elif axis_name == "y":
+            self.subplots["main"].set_ylim(bottom=minimum)
+        else:
+            raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
+
     def set_axis_range(self, axis_name, axis_range):
         """Document here."""
         if axis_name == "x":

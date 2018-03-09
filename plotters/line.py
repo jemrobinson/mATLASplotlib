@@ -53,6 +53,6 @@ class Line(BasePlotter):
             # # y_spline = interpolate.splev(x_spline, spline, der=0)
             y_spline = spline(x_spline)
             # print "y_spline", y_spline, len(y_spline)
-            axes.plot(x_spline, y_spline, **plot_args)
+            axes.plot(x_spline, y_spline, **self.plot_args)
 
     #def _smooth(x, window_size=3):

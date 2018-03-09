@@ -6,7 +6,7 @@ import uuid
 # Interpreter for ROOT objects
 class root2data(object):
 
-    def __init__(self, root_object):
+    def __init__(self, root_object, remove_zeros=False, **kwargs):
         self.x_values, self.x_error_pairs = None, None
         self.y_values, self.y_error_pairs = None, None
         self.z_values, self.z_error_pairs = None, None
@@ -30,6 +30,8 @@ class root2data(object):
             self.construct_from_TGraph(root_object)
         else:
             raise ValueError("{0}, of type {1}, is not a convertible ROOT object".format(root_object, type(root_object)))
+        if remove_zeros:
+            self.do_zero_removal()
 
     @staticmethod
     def valid_input(test_object):
@@ -81,9 +83,9 @@ class root2data(object):
         self.x_values, self.x_error_pairs, self.y_values, self.y_error_pairs = [], [], [], []
         for ii in range(input_TGraph.GetN()):
             self.x_values.append(x[ii])
-            self.x_error_pairs.append([[0, 0]])
+            self.x_error_pairs.append([0, 0])
             self.y_values.append(y[ii])
-            self.y_error_pairs.append([[0, 0]])
+            self.y_error_pairs.append([0, 0])
 
     def construct_from_TGraphErrors(self, input_TGraphErrors):
         """Read TGraphErrors into x, y dimensions."""
@@ -104,5 +106,15 @@ class root2data(object):
         for ii in range(input_TGraphAsymmErrors.GetN()):
             self.x_values.append(x[ii] + (x_errors_high[ii] - x_errors_low[ii]) / 2.0)
             self.x_error_pairs.append([(x_errors_high[ii] + x_errors_low[ii]) / 2.0] * 2)
-            self.y_values.append(y[ii] + (y_errors_high[ii] - y_errors_low[ii]) / 2.0)
-            self.y_error_pairs.append([(y_errors_high[ii] + y_errors_low[ii]) / 2.0] * 2)
+            self.y_values.append(y[ii])
+            self.y_error_pairs.append([y_errors_low[ii], y_errors_high[ii]])
+
+    def filter_by_list(self, input_list, filter_list):
+        return [val for idx, val in zip(filter_list, input_list) if idx]
+
+    def do_zero_removal(self):
+        indices_to_keep = [_y != 0 for _y in self.y_values]
+        self.x_values = self.filter_by_list(self.x_values, indices_to_keep)
+        self.x_error_pairs = self.filter_by_list(self.x_error_pairs, indices_to_keep)
+        self.y_values = self.filter_by_list(self.y_values, indices_to_keep)
+        self.y_error_pairs = self.filter_by_list(self.y_error_pairs, indices_to_keep)

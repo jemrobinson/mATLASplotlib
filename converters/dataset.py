@@ -16,7 +16,7 @@ class Dataset(object):
         if len(args) == 1:
             # Check for ROOT input
             if root2data.valid_input(args[0]):
-                data = root2data(args[0])
+                data = root2data(args[0], **kwargs)
                 if data.x_values is not None:
                     self._add_dimension("x", data.x_values, data.x_error_pairs)
                 if data.y_values is not None:
@@ -25,22 +25,22 @@ class Dataset(object):
                     self._add_dimension("z", data.z_values, data.z_error_pairs)
         # Assume that x,y values have been passed
         elif len(args) == 2:
-            self._add_dimension("x", args[0], None, **kwargs)
-            self._add_dimension("y", args[1], None, **kwargs)
+            self._add_dimension("x", args[0], None)
+            self._add_dimension("y", args[1], None)
         # Assume that x,y,z values have been passed
         elif len(args) == 3:
-            self._add_dimension("x", args[0], None, **kwargs)
-            self._add_dimension("y", args[1], None, **kwargs)
-            self._add_dimension("z", args[2], None, **kwargs)
+            self._add_dimension("x", args[0], None)
+            self._add_dimension("y", args[1], None)
+            self._add_dimension("z", args[2], None)
         # Assume that x,y values with errors have been passed
         elif len(args) == 4:
-            self._add_dimension("x", args[0], args[1], **kwargs)
-            self._add_dimension("y", args[2], args[3], **kwargs)
+            self._add_dimension("x", args[0], args[1])
+            self._add_dimension("y", args[2], args[3])
         # Assume that x,y,z values with errors have been passed
         elif len(args) == 6:
-            self._add_dimension("x", args[0], args[1], **kwargs)
-            self._add_dimension("y", args[2], args[3], **kwargs)
-            self._add_dimension("z", args[4], args[5], **kwargs)
+            self._add_dimension("x", args[0], args[1])
+            self._add_dimension("y", args[2], args[3])
+            self._add_dimension("z", args[4], args[5])
         # Construct an array of points in N-dimensional space, with an error pair in each direction
         else:
             if "x_values" in kwargs:

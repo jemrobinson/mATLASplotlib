@@ -7,7 +7,6 @@ from ..plotters import get_plotter
 from ..decorations import ATLAS_text, Legend, Text
 
 logger = logging.getLogger("mATLASplotlib.canvases")
-# matplotlib.use("PDF")
 
 
 class BaseCanvas(object):
@@ -35,11 +34,12 @@ class BaseCanvas(object):
 
     def plot_dataset(self, *args, **kwargs):
         """Plot a dataset, converting arguments as appropriate."""
+        remove_zeros = kwargs.pop("remove_zeros", False)
         if not isinstance(args, Dataset):
             if hasattr(args, "__iter__"):
-                dataset = Dataset(*args)
+                dataset = Dataset(*args, remove_zeros=remove_zeros, **kwargs)
             else:
-                dataset = Dataset(args)
+                dataset = Dataset(args, remove_zeros=remove_zeros, **kwargs)
         axes = kwargs.pop("axes", self.main_subplot)
         plot_style = kwargs.pop("style", None)
         plotter = get_plotter(plot_style)
@@ -50,6 +50,9 @@ class BaseCanvas(object):
     def __finalise_plot_formatting(self):
         """Set useful axis properties."""
         for axes in self.figure.axes:
+            # # Force tick marks on all edges
+            # axes.xaxis.set_ticks_position("both")
+            # axes.yaxis.set_ticks_position("both")
             # Draw x ticks
             if self.x_ticks is not None:
                 x_interval = (axes.get_xlim()[1] - axes.get_xlim()[0]) / len(self.x_ticks)
@@ -131,6 +134,14 @@ class BaseCanvas(object):
     def set_axis_label(self, axis_name, axis_label):
         """Document here."""
         raise NotImplementedError("set_label not defined by {0}".format(type(self)))
+
+    def set_axis_max(self, axis_name, maximum):
+        """Document here."""
+        raise NotImplementedError("set_axis_max not defined by {0}".format(type(self)))
+
+    def set_axis_min(self, axis_name, minimum):
+        """Document here."""
+        raise NotImplementedError("set_axis_min not defined by {0}".format(type(self)))
 
     def set_axis_range(self, axis_name, axis_range):
         """Document here."""

@@ -7,12 +7,13 @@ from numpy import arange
 class Ratio(BaseCanvas):
     """Ratio canvas with standard ATLAS setup"""
 
-    def __init__(self, n_pixels=(600, 600), **kwargs):
+    def __init__(self, n_pixels=(600, 600), line_ypos=1.0, **kwargs):
         super(Ratio, self).__init__(n_pixels, **kwargs)
         self.subplots["top"] = self.figure.add_axes([0.15, 0.35, 0.8, 0.6])
         self.subplots["bottom"] = self.figure.add_axes([0.15, 0.1, 0.8, 0.25])
         self.main_subplot = "top"
         self.axis_ranges["y_ratio"] = [0.5, 1.5]
+        self.line_ypos = line_ypos
 
     def add_plottable(self, plottable, axes="top", **kwargs):
         super(Ratio, self).add_plottable(plottable, axes, **kwargs)
@@ -35,7 +36,7 @@ class Ratio(BaseCanvas):
             self.subplots["bottom"].set_ylim(self.axis_ranges["y_ratio"])
 
         # Draw line at y = 1.0
-        self.subplots["bottom"].add_line(Line2D(self.subplots["bottom"].get_xlim(), [1, 1], transform=self.subplots["bottom"].transData, linewidth=1, linestyle="--", color="black"))
+        self.subplots["bottom"].add_line(Line2D(self.subplots["bottom"].get_xlim(), [self.line_ypos, self.line_ypos], transform=self.subplots["bottom"].transData, linewidth=1, linestyle="--", color="black"))
 
         # Set ratio plot to linear scale
         if self.log_type.find("y") != -1:
@@ -101,6 +102,28 @@ class Ratio(BaseCanvas):
         self.set_axis_label("y_ratio", ratio_y_axis_label)
 
     # Axis ranges
+    def set_axis_max(self, axis_name, maximum):
+        if axis_name == "x":
+            self.subplots["top"].set_xlim(top=maximum)
+            self.subplots["bottom"].set_xlim(top=maximum)
+        elif axis_name == "y":
+            self.subplots["top"].set_ylim(top=maximum)
+        elif axis_name == "y_ratio":
+            self.subplots["bottom"].set_ylim(top=maximum)
+        else:
+            raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
+
+    def set_axis_min(self, axis_name, minimum):
+        if axis_name == "x":
+            self.subplots["top"].set_xlim(bottom=minimum)
+            self.subplots["bottom"].set_xlim(bottom=minimum)
+        elif axis_name == "y":
+            self.subplots["top"].set_ylim(bottom=minimum)
+        elif axis_name == "y_ratio":
+            self.subplots["bottom"].set_ylim(bottom=minimum)
+        else:
+            raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
+
     def set_axis_range(self, axis_name, axis_range):
         if axis_name == "x":
             self.axis_ranges["x"] = axis_range
