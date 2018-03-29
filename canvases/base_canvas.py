@@ -50,9 +50,6 @@ class BaseCanvas(object):
     def __finalise_plot_formatting(self):
         """Set useful axis properties."""
         for axes in self.figure.axes:
-            # # Force tick marks on all edges
-            # axes.xaxis.set_ticks_position("both")
-            # axes.yaxis.set_ticks_position("both")
             # Draw x ticks
             if self.x_ticks is not None:
                 x_interval = (axes.get_xlim()[1] - axes.get_xlim()[0]) / len(self.x_ticks)
@@ -97,7 +94,7 @@ class BaseCanvas(object):
         if axes is None: axes = self.main_subplot
         fontsize = [fontsize, 14][fontsize is None]
         text_sqrts = r"$\mathrm{\mathsf{\sqrt{s}}} = " + str([sqrts_TeV, int(1000 * sqrts_TeV)][sqrts_TeV < 1.0]) + "\,\mathrm{\mathsf{" + ["TeV", "GeV"][sqrts_TeV < 1.0] + "}}"
-        text_lumi = ["\quad \mathcal{L} = $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$"), "$"][luminosity is None]
+        text_lumi = [", $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$"), "$"][luminosity is None]
         text = text_sqrts + text_lumi
         Text(text).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], fontsize=fontsize)
 

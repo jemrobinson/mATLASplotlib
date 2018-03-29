@@ -35,7 +35,7 @@ class Ratio(BaseCanvas):
         if "y_ratio" in self.axis_ranges:
             self.subplots["bottom"].set_ylim(self.axis_ranges["y_ratio"])
 
-        # Draw line at y = 1.0
+        # Draw line at y = line_ypos
         self.subplots["bottom"].add_line(Line2D(self.subplots["bottom"].get_xlim(), [self.line_ypos, self.line_ypos], transform=self.subplots["bottom"].transData, linewidth=1, linestyle="--", color="black"))
 
         # Set ratio plot to linear scale
@@ -43,9 +43,9 @@ class Ratio(BaseCanvas):
             self.subplots["bottom"].set_yscale("linear")
 
         # Remove bottom-most tick from top-plot and top-and-bottom from bottom-plot
-        if self.log_type.find("y") == -1:
-            self.subplots["top"].yaxis.set_major_locator(MaxNLocator(nbins=len(self.subplots["top"].get_yticklabels()), prune="lower"))
-        self.subplots["bottom"].yaxis.set_major_locator(FixedLocator(self.get_ratio_ticks(self.axis_ranges["y_ratio"])))
+        # if self.log_type.find("y") == -1:
+        #     self.subplots["top"].yaxis.set_major_locator(MaxNLocator(nbins=len(self.subplots["top"].get_yticklabels()))) #, prune="lower"))
+        # self.subplots["bottom"].yaxis.set_major_locator(FixedLocator(self.get_ratio_ticks(self.axis_ranges["y_ratio"])))
 
         # Remove tick-labels from top-plot
         self.subplots["top"].set_xticklabels([], minor=True)

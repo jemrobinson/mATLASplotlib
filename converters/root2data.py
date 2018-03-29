@@ -109,12 +109,11 @@ class root2data(object):
             self.y_values.append(y[ii])
             self.y_error_pairs.append([y_errors_low[ii], y_errors_high[ii]])
 
-    def filter_by_list(self, input_list, filter_list):
-        return [val for idx, val in zip(filter_list, input_list) if idx]
-
     def do_zero_removal(self):
+        def filter_by_list(input_list, filter_list):
+            return [val for idx, val in zip(filter_list, input_list) if idx]
         indices_to_keep = [_y != 0 for _y in self.y_values]
-        self.x_values = self.filter_by_list(self.x_values, indices_to_keep)
-        self.x_error_pairs = self.filter_by_list(self.x_error_pairs, indices_to_keep)
-        self.y_values = self.filter_by_list(self.y_values, indices_to_keep)
-        self.y_error_pairs = self.filter_by_list(self.y_error_pairs, indices_to_keep)
+        self.x_values = filter_by_list(self.x_values, indices_to_keep)
+        self.x_error_pairs = filter_by_list(self.x_error_pairs, indices_to_keep)
+        self.y_values = filter_by_list(self.y_values, indices_to_keep)
+        self.y_error_pairs = filter_by_list(self.y_error_pairs, indices_to_keep)
