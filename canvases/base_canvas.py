@@ -44,7 +44,7 @@ class BaseCanvas(object):
         plot_style = kwargs.pop("style", None)
         plotter = get_plotter(plot_style)
         if "label" in kwargs:
-            self.legend.add_dataset(label=kwargs["label"], visible_label=kwargs.get("visible_label", None), is_stack=("stack" in plot_style))
+            self.legend.add_dataset(label=kwargs["label"], visible_label=kwargs.get("visible_label", None), is_stack=("stack" in plot_style), sort_as=kwargs.pop("sort_as", None))
         plotter.add_to_axes(dataset=dataset, axes=self.subplots[axes], **kwargs)
 
     def __finalise_plot_formatting(self):

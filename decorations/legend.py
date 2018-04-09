@@ -7,13 +7,16 @@ class Legend(object):
     def __init__(self):
         """Constructor."""
         self.legend_order = []
+        self.sort_overrides = {}
         self.default_fontsize = 16
 
-    def add_dataset(self, label, visible_label=None, is_stack=False):
+    def add_dataset(self, label, visible_label=None, is_stack=False, sort_as=None):
         """Document here."""
         legend_text = ["", "stack:"][is_stack] + label
         if legend_text is not None and legend_text is not "" and legend_text not in self.legend_order:
             self.legend_order.append(legend_text)
+        if sort_as is not None:
+            self.sort_overrides[sort_as] = legend_text
 
     def draw(self, x, y, axes, anchor_to, fontsize):
         """Document here."""
@@ -58,4 +61,10 @@ class Legend(object):
         for label, handle in zip(labels, handles):
             sorted_labels.append(label)
             sorted_handles.append(handle)
+        # Apply sort overrides
+        for override in sorted(self.sort_overrides.keys(), reverse=True):
+            idx_label = [i for i, x in enumerate(sorted_labels) if x == self.sort_overrides[override]]
+            if len(idx_label) > 0:
+                sorted_labels.insert(0, sorted_labels.pop(idx_label[0]))
+                sorted_handles.insert(0, sorted_handles.pop(idx_label[0]))
         return sorted_handles, sorted_labels
