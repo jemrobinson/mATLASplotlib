@@ -134,6 +134,17 @@ class Ratio(BaseCanvas):
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
+    def set_axis_ticks(self, axis_name, ticks, force=False):
+        """Document here."""
+        if axis_name == "x":
+            self.subplots["top"].xaxis.set_major_locator(FixedLocator(ticks))
+        elif axis_name == "y":
+            self.subplots["top"].yaxis.set_major_locator(FixedLocator(ticks))
+        elif axis_name == "y_ratio":
+            self.subplots["bottom"].yaxis.set_major_locator(FixedLocator(ticks))
+        else:
+            raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
+
     def set_axis_ranges(self, x_axis_range, y_axis_range, ratio_y_axis_range):
         self.set_axis_range("x", x_axis_range)
         self.set_axis_range("y", y_axis_range)

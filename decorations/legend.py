@@ -43,6 +43,10 @@ class Legend(object):
                 if isinstance(handle, matplotlib.patches.Polygon):
                     proxy_artist = matplotlib.pyplot.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])
                     handles.append(proxy_artist)
+                elif isinstance(handle, matplotlib.patches.Ellipse):
+                    line = matplotlib.pyplot.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])
+                    rectangle = matplotlib.pyplot.Rectangle((0, 0), 0, 0, facecolor=handle.properties()["facecolor"])
+                    handles.append((rectangle, line))
                 else:
                     handles.append(handle)
         # Pre-sort legend order for stacks, which need reversing

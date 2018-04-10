@@ -23,8 +23,8 @@ class BaseCanvas(object):
         self.main_subplot = None
         # Set properties from arguments
         self.log_type = kwargs.get("log_type", "")
-        self.x_ticks = kwargs.get("x_ticks", None)
-        self.x_tick_size = kwargs.get("x_tick_size", None)
+        self.x_tick_labels = kwargs.get("x_tick_labels", None)
+        self.x_tick_label_size = kwargs.get("x_tick_label_size", None)
         self.minor_x_ticks = kwargs.get("minor_x_ticks", [])
         # Set up value holders
         self.legend = Legend()
@@ -49,26 +49,34 @@ class BaseCanvas(object):
 
     def __finalise_plot_formatting(self):
         """Set useful axis properties."""
-        for axes in self.figure.axes:
+        for name, axes in self.subplots.items():
             # Draw x ticks
-            if self.x_ticks is not None:
-                x_interval = (axes.get_xlim()[1] - axes.get_xlim()[0]) / len(self.x_ticks)
+            if self.x_tick_labels is not None:
+                x_interval = (axes.get_xlim()[1] - axes.get_xlim()[0]) / len(self.x_tick_labels)
                 axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(x_interval))
-                if self.x_tick_size is None:
-		    axes.set_xticklabels([""] + self.x_ticks)  # for some reason the first label is getting lost
+                if self.x_tick_label_size is None:
+		            axes.set_xticklabels([""] + self.x_tick_labels)  # for some reason the first label is getting lost
                 else:
-                    axes.set_xticklabels([""] + self.x_ticks, fontsize=self.x_tick_size)  # for some reason the first label is getting lost
-            # Draw minor ticks
-            axes.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
-            axes.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+                    axes.set_xticklabels([""] + self.x_tick_labels, fontsize=self.x_tick_label_size)  # for some reason the first label is getting lost
             # Set x-axis log
             if "x" in self.log_type:
+                locator = axes.xaxis.get_major_locator()
                 axes.set_xscale("log", subsx=[2, 3, 4, 5, 6, 7, 8, 9])
+                axes.yaxis.set_major_locator(locator)
                 axes.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
                 axes.xaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(self.minor_tick_format_function))  # only show certain minor labels
+            else:
+                axes.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
             # Set y-axis log
             if "y" in self.log_type:
-                axes.set_yscale("log", subsy=[2, 3, 4, 5, 6, 7, 8, 9])
+                locator = axes.yaxis.get_major_locator()
+                axes.set_yscale("log")
+                axes.yaxis.set_major_locator(locator)
+                fixed_minor_points = [10**x * val for x in range(-100, 100) for val in [2, 3, 4, 5, 6, 7, 8, 9]]
+                axes.yaxis.set_minor_locator(matplotlib.ticker.FixedLocator(fixed_minor_points))
+            else:
+                axes.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+
         # Call child formatter if available
         if hasattr(self, "_finalise"):
             self._finalise()
@@ -143,6 +151,10 @@ class BaseCanvas(object):
     def set_axis_range(self, axis_name, axis_range):
         """Document here."""
         raise NotImplementedError("set_axis_range not defined by {0}".format(type(self)))
+
+    def set_axis_ticks(self, axis_name, ticks, force=False):
+        """Document here."""
+        raise NotImplementedError("set_axis_ticks not defined by {0}".format(type(self)))
 
     def set_axis_log(self, log_type):
         """Document here."""

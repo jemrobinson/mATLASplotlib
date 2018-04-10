@@ -1,4 +1,5 @@
 from base_canvas import BaseCanvas
+from matplotlib.ticker import FixedLocator
 
 
 class Simple(BaseCanvas):
@@ -74,6 +75,15 @@ class Simple(BaseCanvas):
         """Document here."""
         self.set_axis_range("x", x_axis_range)
         self.set_axis_range("y", y_axis_range)
+
+    def set_axis_ticks(self, axis_name, ticks):
+        """Document here."""
+        if axis_name == "x":
+            self.subplots["main"].xaxis.set_major_locator(FixedLocator(ticks))
+        elif axis_name == "y":
+            self.subplots["main"].yaxis.set_major_locator(FixedLocator(ticks))
+        else:
+            raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
     # Plot title
     def set_title(self, title):
