@@ -8,7 +8,7 @@ class Simple(BaseCanvas):
     def __init__(self, shape="square", **kwargs):
         """Constructor."""
         shape_dict = {"square": {"n_pixels": (600, 600), "dimensions": (0.15, 0.1, 0.8, 0.85), "y_label_offset": -0.13},
-                      "rectangular": {"n_pixels": (800, 600), "dimensions": (0.12, 0.1, 0.85, 0.85), "y_label_offset": -0.0975}}
+                      "rectangular": {"n_pixels": (800, 600), "dimensions": (0.12, 0.1, 0.84, 0.85), "y_label_offset": -0.0975}}
         self.shape_dict = shape_dict[shape]
         super(Simple, self).__init__(self.shape_dict["n_pixels"], **kwargs)
         self.subplots["main"] = self.figure.add_axes(self.shape_dict["dimensions"])

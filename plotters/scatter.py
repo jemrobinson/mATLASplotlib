@@ -12,6 +12,7 @@ class Scatter(BasePlotter):
         super(Scatter, self).__init__(plot_style)
         self.show_x_errors = "xerror" in plot_style
         self.show_y_errors = "yerror" in plot_style
+        self.join_centres = "join centres" in plot_style
 
     # Add to canvas
     def add_to_axes(self, axes, dataset, **kwargs):
@@ -28,19 +29,20 @@ class Scatter(BasePlotter):
         if self.show_y_errors:
             self.plot_args["yerr"] = np.transpose(dataset.y_error_pairs)
         # Get error cap sizes
-        if mpl_version > "1.4.0":
-            with_error_bar_caps = kwargs.pop("with_error_bar_caps", False)
-            self.plot_args["capthick"] = [0, self.plot_args.get("linewidth")][with_error_bar_caps]
-            self.plot_args["capsize"] = [0, 2 * self.plot_args.get("linewidth")][with_error_bar_caps]
-        else:
-            print "Matplotlib version {} is too old to allow error bar caps".format(mpl_version)
+        if self.show_x_errors or self.show_y_errors:
+            if mpl_version > "1.4.0":
+                with_error_bar_caps = kwargs.pop("with_error_bar_caps", False)
+                self.plot_args["capthick"] = [0, self.plot_args.get("linewidth")][with_error_bar_caps]
+                self.plot_args["capsize"] = [0, 2 * self.plot_args.get("linewidth")][with_error_bar_caps]
+            else:
+                print "Matplotlib version {} is too old to allow error bar caps".format(mpl_version)
 
         # Draw points using errorbar
         (joining_line, caplines, error_line) = axes.errorbar(dataset.x_points, dataset.y_points, fmt="", markeredgewidth=0, linestyle="None", **self.plot_args)
         self.plot_args["linestyle"] = kwargs.pop("linestyle", "solid") # Default linestyle: solid
 
         # Draw a line joining the points
-        if "join_centres" in kwargs and kwargs["join_centres"]:
+        if self.join_centres or kwargs.pop("join_centres", False):
             # Set custom dash styling
             if self.plot_args["linestyle"] is "dashed":
                 self.plot_args["dashes"] = (3 * self.plot_args["linewidth"], 1 * self.plot_args["linewidth"])
@@ -48,4 +50,4 @@ class Scatter(BasePlotter):
                 self.plot_args["dashes"] = (1 * self.plot_args["linewidth"], 1 * self.plot_args["linewidth"])
             if self.plot_args["linestyle"] is "dashdot":
                 self.plot_args["dashes"] = (2 * self.plot_args["linewidth"], 1 * self.plot_args["linewidth"], 1 * self.plot_args["linewidth"], 1 * plot_args["linewidth"])
-            axes.plot(dataset.x_points, dataset.y_points, **plot_args)
+            axes.plot(dataset.x_points, dataset.y_points, **self.plot_args)
