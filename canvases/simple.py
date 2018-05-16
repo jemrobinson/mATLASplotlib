@@ -14,11 +14,14 @@ class Simple(BaseCanvas):
         self.subplots["main"] = self.figure.add_axes(self.shape_dict["dimensions"])
         self.main_subplot = "main"
 
-    def _finalise(self):
+    def apply_axis_limits(self):
         if "x" in self.axis_ranges:
             self.subplots["main"].set_xlim(self.axis_ranges["x"])
         if "y" in self.axis_ranges:
             self.subplots["main"].set_ylim(self.axis_ranges["y"])
+
+    def apply_final_formatting(self):
+        pass
 
     def get_axis_label(self, axis_name):
         """Get axis labels."""

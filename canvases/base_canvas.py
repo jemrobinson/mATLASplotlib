@@ -47,27 +47,28 @@ class BaseCanvas(object):
             self.legend.add_dataset(label=kwargs["label"], visible_label=kwargs.get("visible_label", None), is_stack=("stack" in plot_style), sort_as=kwargs.pop("sort_as", None))
         plotter.add_to_axes(dataset=dataset, axes=self.subplots[axes], **kwargs)
 
-    def __finalise_plot_formatting(self):
+    def finalise_plot_formatting(self):
         """Set useful axis properties."""
-        for name, axes in self.subplots.items():
+        for _, axes in self.subplots.items():
+            # Apply axis limits
+            self.apply_axis_limits()
             # Draw x ticks
             if self.x_tick_labels is not None:
-                x_interval = (axes.get_xlim()[1] - axes.get_xlim()[0]) / len(self.x_tick_labels)
+                x_tick_locations = axes.xaxis.get_major_locator()()
+                x_interval = (max(x_tick_locations) - min(x_tick_locations)) / (len(x_tick_locations) - 1)
                 axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(x_interval))
-                if self.x_tick_label_size is None:
-		            axes.set_xticklabels([""] + self.x_tick_labels)  # for some reason the first label is getting lost
-                else:
-                    axes.set_xticklabels([""] + self.x_tick_labels, fontsize=self.x_tick_label_size)  # for some reason the first label is getting lost
-            # Set x-axis log
+                tmp_kwargs = {"fontsize": self.x_tick_label_size} if self.x_tick_label_size is not None else {}
+                axes.set_xticklabels([""] + self.x_tick_labels, **tmp_kwargs) # the first and last ticks are off the scale so add a dummy label
+            # Set x-axis locators
             if "x" in self.log_type:
-                locator = axes.xaxis.get_major_locator()
+                xlocator = axes.xaxis.get_major_locator()
                 axes.set_xscale("log", subsx=[2, 3, 4, 5, 6, 7, 8, 9])
-                axes.yaxis.set_major_locator(locator)
+                axes.yaxis.set_major_locator(xlocator)
                 axes.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
                 axes.xaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(self.minor_tick_format_function))  # only show certain minor labels
             else:
                 axes.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
-            # Set y-axis log
+            # Set y-axis locators
             if "y" in self.log_type:
                 locator = axes.yaxis.get_major_locator()
                 axes.set_yscale("log")
@@ -77,9 +78,6 @@ class BaseCanvas(object):
             else:
                 axes.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
 
-        # Call child formatter if available
-        if hasattr(self, "_finalise"):
-            self._finalise()
         # Finish by adding internal header
         if self.internal_header_fraction is not None:
             y_lo, y_hi = self.subplots[self.main_subplot].get_ylim()
@@ -87,22 +85,28 @@ class BaseCanvas(object):
             if "y" in self.log_type: y_top = math.exp((math.log(y_hi) - self.internal_header_fraction * math.log(y_lo)) / (1.0 - self.internal_header_fraction))
             self.subplots[self.main_subplot].set_ylim(y_lo, y_top)
 
+        # Call child formatter if available
+        self.apply_final_formatting()
+
+
     def add_legend(self, x, y, axes=None, anchor_to="lower left", fontsize=None):
         """Document here."""
-        if axes is None: axes = self.main_subplot
+        if axes is None:
+            axes = self.main_subplot
         self.legend.draw(x, y, self.subplots[axes], anchor_to, fontsize)
 
     def add_ATLAS_label(self, x, y, plot_type=None, axes=None, anchor_to="lower left", fontsize=None):
         """Document here."""
-        if axes is None: axes = self.main_subplot
+        if axes is None:
+            axes = self.main_subplot
         ATLAS_text(plot_type).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], fontsize=fontsize)
 
-    def add_luminosity_label(self, x, y, sqrts_TeV, luminosity, units="fb-1", axes=None, anchor_to="lower left", fontsize=None):
+    def add_luminosity_label(self, x, y, sqrts_TeV, luminosity, units="fb-1", axes=None, anchor_to="lower left", fontsize=14):
         """Document here."""
-        if axes is None: axes = self.main_subplot
-        fontsize = [fontsize, 14][fontsize is None]
-        text_sqrts = r"$\mathrm{\mathsf{\sqrt{s}}} = " + str([sqrts_TeV, int(1000 * sqrts_TeV)][sqrts_TeV < 1.0]) + "\,\mathrm{\mathsf{" + ["TeV", "GeV"][sqrts_TeV < 1.0] + "}}"
-        text_lumi = [", $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$"), "$"][luminosity is None]
+        if axes is None:
+            axes = self.main_subplot
+        text_sqrts = r"$\mathrm{\mathsf{\sqrt{s}}} = " + str([sqrts_TeV, int(1000 * sqrts_TeV)][sqrts_TeV < 1.0]) + r"\,\mathrm{\mathsf{" + ["TeV", "GeV"][sqrts_TeV < 1.0] + "}}"
+        text_lumi = ", $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$") if luminosity is not None else "$"
         text = text_sqrts + text_lumi
         Text(text).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], fontsize=fontsize)
 
@@ -112,8 +116,16 @@ class BaseCanvas(object):
         anchor_to = kwargs.pop("anchor_to", "lower left")
         Text(text).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], **kwargs)
 
+    def apply_axis_limits(self):
+        """Should be overridden by child classes"""
+        raise NotImplementedError("apply_axis_limits not defined by {0}".format(type(self)))
+
+    def apply_final_formatting(self):
+        """Should be overridden by child classes"""
+        raise NotImplementedError("apply_final_formatting not defined by {0}".format(type(self)))
+
     def get_axis_label(self, axis_name):
-        """Document here."""
+        """Should be overridden by child classes"""
         raise NotImplementedError("get_label not defined by {0}".format(type(self)))
 
     def get_axis_range(self, axis_name):
@@ -131,7 +143,7 @@ class BaseCanvas(object):
 
     def save_to_file(self, output_name, extension="pdf"):
         """Document here."""
-        self.__finalise_plot_formatting()
+        self.finalise_plot_formatting()
         matplotlib.pyplot.savefig("{0}.{1}".format(output_name, extension))
         logger.info("Saved figure to: {0}.{1}".format(output_name, extension))
         matplotlib.pyplot.close(self.figure)

@@ -15,8 +15,11 @@ class Ratio(BaseCanvas):
         self.axis_ranges["y_ratio"] = [0.5, 1.5]
         self.line_ypos = line_ypos
 
-    def add_plottable(self, plottable, axes="top", **kwargs):
-        super(Ratio, self).add_plottable(plottable, axes, **kwargs)
+    def plot_dataset(self, *args, **kwargs):
+        axes = kwargs.get("axes", self.main_subplot)
+        super(Ratio, self).plot_dataset(*args, **kwargs)
+        # def plot_dataset(self, plottable, axes="top", **kwargs):
+        # super(Ratio, self).plot_dataset(plottable, axes, **kwargs)
         if "x" not in self.axis_ranges:
             self.set_axis_range("x", self.subplots[axes].get_xlim())
         if axes == "top":
@@ -26,7 +29,7 @@ class Ratio(BaseCanvas):
             if "y_ratio" not in self.axis_ranges:
                 self.set_axis_range("y_ratio", self.subplots[axes].get_ylim())
 
-    def _finalise(self):
+    def apply_axis_limits(self):
         if "x" in self.axis_ranges:
             self.subplots["top"].set_xlim(self.axis_ranges["x"])
             self.subplots["bottom"].set_xlim(self.axis_ranges["x"])
@@ -35,17 +38,13 @@ class Ratio(BaseCanvas):
         if "y_ratio" in self.axis_ranges:
             self.subplots["bottom"].set_ylim(self.axis_ranges["y_ratio"])
 
+    def apply_final_formatting(self):
         # Draw line at y = line_ypos
         self.subplots["bottom"].add_line(Line2D(self.subplots["bottom"].get_xlim(), [self.line_ypos, self.line_ypos], transform=self.subplots["bottom"].transData, linewidth=1, linestyle="--", color="black"))
 
         # Set ratio plot to linear scale
         if self.log_type.find("y") != -1:
             self.subplots["bottom"].set_yscale("linear")
-
-        # Remove bottom-most tick from top-plot and top-and-bottom from bottom-plot
-        # if self.log_type.find("y") == -1:
-        #     self.subplots["top"].yaxis.set_major_locator(MaxNLocator(nbins=len(self.subplots["top"].get_yticklabels()))) #, prune="lower"))
-        # self.subplots["bottom"].yaxis.set_major_locator(FixedLocator(self.get_ratio_ticks(self.axis_ranges["y_ratio"])))
 
         # Remove tick-labels from top-plot
         self.subplots["top"].set_xticklabels([], minor=True)
