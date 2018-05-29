@@ -26,11 +26,12 @@ def set_atlas(shape="square"):
     matplotlib.rcParams["mathtext.fontset"] = "custom"
     matplotlib.rcParams["mathtext.default"] = "sf"
     matplotlib.rcParams["mathtext.cal"] = "cursive"
-    matplotlib.rcParams["mathtext.bf"] = "sans:bold"
-    matplotlib.rcParams["mathtext.it"] = "sans:italic"
+    matplotlib.rcParams["mathtext.bf"] = "Helvetica:bold"
+    matplotlib.rcParams["mathtext.it"] = "Helvetica:italic"
     matplotlib.rcParams["mathtext.rm"] = "serif"
-    matplotlib.rcParams["mathtext.sf"] = "sans"
-    matplotlib.rcParams["mathtext.tt"] = "sans"
+    matplotlib.rcParams["mathtext.sf"] = "Helvetica"
+    matplotlib.rcParams["mathtext.tt"] = "monospace"
+
 
     # Set axes options
     matplotlib.rcParams["axes.labelsize"] = 20

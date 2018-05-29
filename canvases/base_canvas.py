@@ -105,7 +105,7 @@ class BaseCanvas(object):
         """Document here."""
         if axes is None:
             axes = self.main_subplot
-        text_sqrts = r"$\mathrm{\mathsf{\sqrt{s}}} = " + str([sqrts_TeV, int(1000 * sqrts_TeV)][sqrts_TeV < 1.0]) + r"\,\mathrm{\mathsf{" + ["TeV", "GeV"][sqrts_TeV < 1.0] + "}}"
+        text_sqrts = r"$\sqrt{\mathsf{s}} = " + str([sqrts_TeV, int(1000 * sqrts_TeV)][sqrts_TeV < 1.0]) + r"\,\mathsf{" + ["TeV", "GeV"][sqrts_TeV < 1.0] + "}"
         text_lumi = ", $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$") if luminosity is not None else "$"
         text = text_sqrts + text_lumi
         Text(text).draw(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], fontsize=fontsize)
@@ -148,7 +148,7 @@ class BaseCanvas(object):
         logger.info("Saved figure to: {0}.{1}".format(output_name, extension))
         matplotlib.pyplot.close(self.figure)
 
-    def set_axis_label(self, axis_name, axis_label):
+    def set_axis_label(self, axis_name, axis_label, **kwargs):
         """Document here."""
         raise NotImplementedError("set_label not defined by {0}".format(type(self)))
 

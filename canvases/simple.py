@@ -32,12 +32,13 @@ class Simple(BaseCanvas):
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
-    def set_axis_label(self, axis_name, axis_label):
-        """Set axis labels."""
+    def set_axis_label(self, axis_name, axis_label, **kwargs):
+        """Set axis label for axis_name."""
+        fontsize = kwargs.pop("fontsize", 16)
         if axis_name == "x":
-            self.subplots["main"].set_xlabel(axis_label, size=16, position=(1.0, 0.0), va="top", ha="right")
+            self.subplots["main"].set_xlabel(axis_label, fontsize=fontsize, position=(1.0, 0.0), va="top", ha="right")
         elif axis_name == "y":
-            self.subplots["main"].set_ylabel(axis_label, size=16)
+            self.subplots["main"].set_ylabel(axis_label, fontsize=fontsize)
             self.subplots["main"].yaxis.get_label().set_ha("right")
             self.subplots["main"].yaxis.set_label_coords(self.shape_dict["y_label_offset"], 1.0)
         else:

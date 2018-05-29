@@ -81,15 +81,16 @@ class Ratio(BaseCanvas):
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
-    def set_axis_label(self, axis_name, axis_label):
+    def set_axis_label(self, axis_name, axis_label, **kwargs):
+        fontsize = kwargs.pop("fontsize", 16)
         if axis_name == "x":
-            self.subplots["bottom"].set_xlabel(axis_label, size=16, position=(1.0, 0.0), va="top", ha="right")
+            self.subplots["bottom"].set_xlabel(axis_label, fontsize=fontsize, position=(1.0, 0.0), va="top", ha="right", *kwargs)
         elif axis_name == "y":
-            self.subplots["top"].set_ylabel(axis_label, size=16)
+            self.subplots["top"].set_ylabel(axis_label, fontsize=fontsize)
             self.subplots["top"].yaxis.get_label().set_ha("right")
             self.subplots["top"].yaxis.set_label_coords(-0.13, 1.0)
         elif axis_name == "y_ratio":
-            self.subplots["bottom"].set_ylabel(axis_label, size=16)
+            self.subplots["bottom"].set_ylabel(axis_label, fontsize=fontsize)
             self.subplots["bottom"].yaxis.get_label().set_ha("center")
             self.subplots["bottom"].yaxis.set_label_coords(-0.13, 0.5)
         else:
@@ -122,6 +123,9 @@ class Ratio(BaseCanvas):
             self.subplots["bottom"].set_ylim(bottom=minimum)
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
+        if axis_name in self.axis_ranges:
+            self.axis_ranges[axis_name] = (minimum, self.axis_ranges[axis_name][1])
+
 
     def set_axis_range(self, axis_name, axis_range):
         if axis_name == "x":

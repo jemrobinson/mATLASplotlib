@@ -18,6 +18,8 @@ class Stack(BasePlotter):
         self.plot_args["label"] = kwargs.pop("label", None)                              # Default label: None
         self.plot_args["linewidth"] = kwargs.pop("linewidth", 0.0)                       # Default linewidth: 0
         self.plot_args["edgecolor"] = kwargs.pop("edgecolour", self.plot_args["color"])  # Default edgecolour: match fill colour
+        if kwargs.get("hatch", None) is not None:
+            self.plot_args["hatch"] = kwargs.pop("hatch")                                # Default hatch: do not apply
 
         if not hasattr(axes, 'stack_bottom'):
             axes.stack_bottom = [0] * len(dataset.y_points)

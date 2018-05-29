@@ -12,6 +12,7 @@ class Legend(object):
 
     def add_dataset(self, label, visible_label=None, is_stack=False, sort_as=None):
         """Document here."""
+        label = [label, ""][label is None] + ["@{0}".format(visible_label), ""][visible_label is None]
         legend_text = ["", "stack:"][is_stack] + label
         if legend_text is not None and legend_text is not "" and legend_text not in self.legend_order:
             self.legend_order.append(legend_text)
