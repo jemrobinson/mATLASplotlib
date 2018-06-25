@@ -18,8 +18,6 @@ class Ratio(BaseCanvas):
     def plot_dataset(self, *args, **kwargs):
         axes = kwargs.get("axes", self.main_subplot)
         super(Ratio, self).plot_dataset(*args, **kwargs)
-        # def plot_dataset(self, plottable, axes="top", **kwargs):
-        # super(Ratio, self).plot_dataset(plottable, axes, **kwargs)
         if "x" not in self.axis_ranges:
             self.set_axis_range("x", self.subplots[axes].get_xlim())
         if axes == "top":

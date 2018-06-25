@@ -25,6 +25,8 @@ class BaseCanvas(object):
         self.log_type = kwargs.get("log_type", "")
         self.x_tick_labels = kwargs.get("x_tick_labels", None)
         self.x_tick_label_size = kwargs.get("x_tick_label_size", None)
+        self.y_tick_labels = kwargs.get("y_tick_labels", None)
+        self.y_tick_label_size = kwargs.get("y_tick_label_size", None)
         self.minor_x_ticks = kwargs.get("minor_x_ticks", [])
         # Set up value holders
         self.legend = Legend()
@@ -54,11 +56,16 @@ class BaseCanvas(object):
             self.apply_axis_limits()
             # Draw x ticks
             if self.x_tick_labels is not None:
-                x_tick_locations = axes.xaxis.get_major_locator()()
-                x_interval = (max(x_tick_locations) - min(x_tick_locations)) / (len(x_tick_locations) - 1)
+                x_interval = (max(axes.get_xlim()) - min(axes.get_xlim())) / (len(self.x_tick_labels))
                 axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(x_interval))
                 tmp_kwargs = {"fontsize": self.x_tick_label_size} if self.x_tick_label_size is not None else {}
                 axes.set_xticklabels([""] + self.x_tick_labels, **tmp_kwargs) # the first and last ticks are off the scale so add a dummy label
+            # Draw y ticks
+            if self.y_tick_labels is not None:
+                y_interval = (max(axes.get_ylim()) - min(axes.get_ylim())) / (len(self.y_tick_labels))
+                axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(y_interval))
+                tmp_kwargs = {"fontsize": self.y_tick_label_size} if self.y_tick_label_size is not None else {}
+                axes.set_yticklabels([""] + self.y_tick_labels, **tmp_kwargs) # the first and last ticks are off the scale so add a dummy label
             # Set x-axis locators
             if "x" in self.log_type:
                 xlocator = axes.xaxis.get_major_locator()
