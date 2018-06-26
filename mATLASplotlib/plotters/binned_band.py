@@ -1,22 +1,21 @@
-from base_plotter import BasePlotter
-from matplotlib.patches import Rectangle, Ellipse
-from scipy import interpolate
+"""This module provides the BinnedBand class."""
+
 import logging
 import numpy as np
+from matplotlib.patches import Rectangle, Ellipse
+from base_plotter import BasePlotter
 
 logger = logging.getLogger("mATLASplotlib.plotters")
 
+
 class BinnedBand(BasePlotter):
     """Plot as binned band in the x-y plane"""
-    def __init__(self, plot_style):
-        """Constructor."""
-        super(BinnedBand, self).__init__(plot_style)
-
     # Add to canvas
+
     def add_to_axes(self, axes, dataset, **kwargs):
         # Construct plotting arguments
         self.plot_args["facecolor"] = kwargs.pop("colour", "black")            # Default colour: black
-        self.plot_args["edgecolor"] = kwargs.pop("background_colour", "white") # Default colour: white
+        self.plot_args["edgecolor"] = kwargs.pop("background_colour", "white")  # Default colour: white
         line_colour = kwargs.pop("line_colour", "white")
         self.plot_args["hatch"] = kwargs.pop("hatch", None)                    # Default hatch: None
         self.plot_args["alpha"] = kwargs.pop("alpha", None)                    # Default alpha: None
@@ -28,7 +27,7 @@ class BinnedBand(BasePlotter):
         if "central line" in self.plot_style:
             axes.errorbar(dataset.x_points, dataset.y_points, fmt="", markeredgewidth=0, linestyle="None", color=line_colour, xerr=np.transpose(dataset.x_error_pairs))
 
-        if plot_label == None:
+        if plot_label is None:
             axes.fill_between(dataset.band_edges_x, dataset.band_edges_y_low, dataset.band_edges_y_high, **self.plot_args)
         else:
             axes.fill_between(dataset.band_edges_x, dataset.band_edges_y_low, dataset.band_edges_y_high, **self.plot_args)

@@ -1,3 +1,5 @@
+"""This module provides the set_atlas convenience function."""
+
 import logging
 import matplotlib
 
@@ -31,7 +33,6 @@ def set_atlas(shape="square"):
     matplotlib.rcParams["mathtext.rm"] = "serif"
     matplotlib.rcParams["mathtext.sf"] = "Helvetica"
     matplotlib.rcParams["mathtext.tt"] = "monospace"
-
 
     # Set axes options
     matplotlib.rcParams["axes.labelsize"] = 20

@@ -1,4 +1,6 @@
-from bar import Bar
+"""This module provides the get_plotter() convenience function."""
+
+from bar_chart import BarChart
 from binned_band import BinnedBand
 from coloured_2D import Coloured2D
 from line import Line
@@ -9,7 +11,7 @@ from stack import Stack
 def get_plotter(plot_style):
     """Document here."""
     if "bar" in plot_style:
-        return Bar(plot_style)
+        return BarChart(plot_style)
     if "binned band" in plot_style:
         return BinnedBand(plot_style)
     if "coloured_2D" in plot_style:

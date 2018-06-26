@@ -1,3 +1,4 @@
+""" This module provides the Dataset class."""
 import numpy as np
 from root2data import root2data
 
@@ -12,6 +13,8 @@ class Dataset(object):
         Example : x vs y with y_errors : __init__([1,2,3], None, [4,9,16], [2,3,4])
         """
         self._data = {}
+        self.nPoints = 0
+
         # Check how the data has been provided
         if len(args) == 1:
             # Check for ROOT input
@@ -23,29 +26,38 @@ class Dataset(object):
                     self._add_dimension("y", data.y_values, data.y_error_pairs)
                 if data.z_values is not None:
                     self._add_dimension("z", data.z_values, data.z_error_pairs)
-        # Assume that x,y values have been passed
+                self.nPoints = data.nPoints  # len(self._data["z"]) if "z" in self.get_dimensions() else len(self._data["x"])
+        # Assume that x, y values have been passed
         elif len(args) == 2:
             if len(args[0]) != len(args[1]):
                 raise AssertionError("Failed to interpret arguments as 'x' and 'y' points since they differ in size")
             self._add_dimension("x", args[0], None)
             self._add_dimension("y", args[1], None)
-        # Assume that x,y,z values have been passed
+            self.nPoints = len(self._data["x"])
+        # Assume that x, y, z values have been passed
         elif len(args) == 3:
+            if len(args[0]) * len(args[1]) != len(args[2]):
+                raise AssertionError("Failed to interpret arguments as 'x' and 'y' bins with 'z' values since they differ in size")
             self._add_dimension("x", args[0], None)
             self._add_dimension("y", args[1], None)
             self._add_dimension("z", args[2], None)
-        # Assume that x,y values with errors have been passed
+            self.nPoints = len(self._data["z"])
+        # Assume that x, y values with errors have been passed
         elif len(args) == 4:
-            if len(args[0]) != len(args[1]) !=  len(args[2]) != len(args[3]):
+            if len(args[0]) != len(args[1]) != len(args[2]) != len(args[3]):
                 raise AssertionError("Failed to interpret arguments as 'x' and 'y' points with errors since they differ in size")
             self._add_dimension("x", args[0], args[1])
             self._add_dimension("y", args[2], args[3])
-        # Assume that x,y,z values with errors have been passed
+            self.nPoints = len(self._data["x"])
+        # Assume that x, y, z values with errors have been passed
         elif len(args) == 6:
+            if len(args[0]) != len(args[1]) != len(args[2]) != len(args[3]):
+                raise AssertionError("Failed to interpret arguments as 'x' and 'y' points with errors since they differ in size")
             self._add_dimension("x", args[0], args[1])
             self._add_dimension("y", args[2], args[3])
             self._add_dimension("z", args[4], args[5])
-        # Construct an array of points in N-dimensional space, with an error pair in each direction
+            self.nPoints = len(self._data["z"])
+        # Construct an array of points in 3D space, with an error pair in each direction
         else:
             if "x_values" in kwargs:
                 self._add_dimension("x", kwargs["x_values"], kwargs.get("x_error_pairs", None), **kwargs)
@@ -53,11 +65,9 @@ class Dataset(object):
                 self._add_dimension("y", kwargs["y_values"], kwargs.get("y_error_pairs", None), **kwargs)
             if "z_values" in kwargs:
                 self._add_dimension("z", kwargs["z_values"], kwargs.get("z_error_pairs", None), **kwargs)
-            for dimension in self.get_dimensions():
-                assert(len(self._data[dimension]) == self.number_of_points())
         if "x" in self.get_dimensions() and "y" in self.get_dimensions():
             self._add_xy_dimensions()
-        if len(self.get_dimensions()) == 0:
+        if not self.get_dimensions():
             raise RuntimeError("Attempt to initialise plottable {0} without providing data!".format(type(self)))
 
     def _add_dimension(self, dimension, values, error_pairs):
@@ -68,10 +78,10 @@ class Dataset(object):
         # Pair-up errors if only single errors are provided
         try:
             for error_pair in error_pairs:
-                assert(len(error_pair) == 2)
+                assert len(error_pair) == 2
         except TypeError:
             error_pairs = [(e, e) for e in error_pairs]
-        assert(len(values) == len(error_pairs))
+        assert len(values) == len(error_pairs)
         try:
             self._data[dimension] = np.array([[value, error_pair[0], error_pair[1]] for value, error_pair in zip(values, error_pairs)])
         except IndexError:
@@ -86,8 +96,8 @@ class Dataset(object):
         setattr(self, "{0}_bin_low_edges".format(dimension), self.__get_bin_low_edges(dimension))
         setattr(self, "{0}_bin_high_edges".format(dimension), self.__get_bin_high_edges(dimension))
 
-    # Add xy-appropriate methods
     def _add_xy_dimensions(self):
+        """Add xy-appropriate methods."""
         setattr(self, "x_at_y_bin_edges", self.__get_x_at_y_bin_edges())
         setattr(self, "y_at_x_bin_edges", self.__get_y_at_x_bin_edges())
         setattr(self, "band_edges_x", self.__get_band_edges_x())
@@ -95,8 +105,11 @@ class Dataset(object):
         setattr(self, "band_edges_y_high", self.__get_band_edges_y_high())
 
     def get_dimensions(self):
-        """Document here."""
+        """Get a list of dimension names."""
         return sorted(self._data.keys())
+
+    def number_of_points(self):
+        return self.nPoints
 
     def unroll_bins(self, axes="xy"):
         """Construct expanded bin lists in x and y."""

@@ -1,10 +1,12 @@
+"""This module provides the BasePlotter class."""
+
 import logging
 
 logger = logging.getLogger("mATLASplotlib.plotters")
 
 
 class BasePlotter(object):
-    """Plot bar chart."""
+    """Base class for plot formatting."""
 
     def __init__(self, plot_style):
         """Constructor."""
@@ -14,4 +16,3 @@ class BasePlotter(object):
     def add_to_axes(self, axes, dataset, **kwargs):
         """Document here."""
         raise NotImplementedError("add_to_axes not defined by {0}".format(type(self)))
-

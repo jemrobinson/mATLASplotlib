@@ -1,15 +1,12 @@
-from base_plotter import BasePlotter
+"""This module provides the Bar class."""
 import logging
+from base_plotter import BasePlotter
 
 logger = logging.getLogger("mATLASplotlib.plotters")
 
 
-class Bar(BasePlotter):
+class BarChart(BasePlotter):
     """Plot bar chart."""
-
-    def __init__(self, plot_style):
-        """Constructor."""
-        super(Bar, self).__init__(plot_style)
 
     def add_to_axes(self, axes, dataset, **kwargs):
         """Add to canvas."""

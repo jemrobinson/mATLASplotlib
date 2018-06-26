@@ -5,6 +5,5 @@ canvases subpackage
     :maxdepth: 2
 
     canvases/base_canvas
-    canvases/composite
     canvases/ratio
     canvases/simple

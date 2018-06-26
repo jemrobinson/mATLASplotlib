@@ -1,18 +1,17 @@
-from base_plotter import BasePlotter
-from scipy import interpolate
+"""This module provides the Line class."""
+
 import logging
 import numpy as np
+from scipy import interpolate
+from base_plotter import BasePlotter
 
 logger = logging.getLogger("mATLASplotlib.plotters")
 
 
 class Line(BasePlotter):
     """Plot as points in the x-y plane"""
-    def __init__(self, plot_style):
-        """Constructor."""
-        super(Line, self).__init__(plot_style)
-
     # Add to canvas
+
     def add_to_axes(self, axes, dataset, **kwargs):
         # Construct plotting arguments
         self.plot_args["color"] = kwargs.pop("colour", "black")         # Default colour: black
@@ -31,6 +30,6 @@ class Line(BasePlotter):
 
         if "smooth" in self.plot_style:
             spline = interpolate.interp1d(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges)  # , kind="cubic")
-            x_spline = np.linspace(min(dataset.x_all_bin_edges), max(dataset.x_all_bin_edges), 1*len(dataset.x_all_bin_edges))
+            x_spline = np.linspace(min(dataset.x_all_bin_edges), max(dataset.x_all_bin_edges), 1 * len(dataset.x_all_bin_edges))
             y_spline = spline(x_spline)
             axes.plot(x_spline, y_spline, **self.plot_args)

@@ -1,3 +1,5 @@
+"""This subpackage contains the Legend class and the draw_text and draw_ATLAS_text functions."""
+
 from legend import Legend
-from atlas_text import ATLAS_text
-from text import Text
+from atlas_text import draw_ATLAS_text
+from text import draw_text

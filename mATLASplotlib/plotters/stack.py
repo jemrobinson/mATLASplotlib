@@ -1,14 +1,13 @@
-from base_plotter import BasePlotter
+"""This module provides the Stack class."""
+
 import logging
+from base_plotter import BasePlotter
 
 logger = logging.getLogger("mATLASplotlib.plotters")
 
 
 class Stack(BasePlotter):
     """Plot as points in the x-y plane."""
-    def __init__(self, plot_style):
-        """Constructor."""
-        super(Stack, self).__init__(plot_style)
 
     def add_to_axes(self, axes, dataset, **kwargs):
         """Add to canvas."""

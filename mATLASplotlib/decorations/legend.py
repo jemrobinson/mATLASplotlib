@@ -1,3 +1,4 @@
+"""This module provides the Legend class."""
 import matplotlib
 
 
@@ -14,25 +15,29 @@ class Legend(object):
         """Document here."""
         label = [label, ""][label is None] + ["@{0}".format(visible_label), ""][visible_label is None]
         legend_text = ["", "stack:"][is_stack] + label
-        if legend_text is not None and legend_text is not "" and legend_text not in self.legend_order:
+        if legend_text is not None and legend_text != "" and legend_text not in self.legend_order:
             self.legend_order.append(legend_text)
         if sort_as is not None:
             self.sort_overrides[sort_as] = legend_text
 
     def draw(self, x, y, axes, anchor_to, fontsize):
-        """Document here."""
-        if axes is None: axes = self.default_axes
+        """Draw the legend at (x, y) on the chosen axes."""
         transform = axes.transAxes
         handles, labels = self.__get_legend_handles_labels(axes)
         _legend = axes.legend(handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y), bbox_transform=transform, borderpad=0, borderaxespad=0, columnspacing=0)
         _legend.get_frame().set_linewidth(0)
         _legend.get_frame().set_alpha(0.0)
-        fontsize = [fontsize, self.default_fontsize][fontsize is None]
+        fontsize = self.default_fontsize if fontsize is None else fontsize
         matplotlib.pyplot.setp(_legend.get_texts(), fontsize=fontsize)
-        [text.set_va("bottom") for text in _legend.get_texts()]
+        for text in _legend.get_texts():
+            text.set_va("bottom")
 
     def __get_legend_handles_labels(self, axes):
-        """Document here."""
+        """Get legend handles and labels for the current axes.
+           Start from the matplotlib get_legend_handles_labels() function.
+           Add proxy artists as appropriate (for multi-component handles).
+           Reverse the order for stacks (so that the highest one has the highest label).
+           Apply any provided label-sorting overrides."""
         # Remove duplicates
         handles, labels, seen = [], [], set()
         old_handles, old_labels = axes.get_legend_handles_labels()
@@ -59,7 +64,7 @@ class Legend(object):
         sorted_labels, sorted_handles = [], []
         for label in self.legend_order:
             idx_label = [i for i, x in enumerate(labels) if x == label]
-            if len(idx_label) > 0:
+            if idx_label:
                 sorted_labels.append(labels.pop(idx_label[0]))
                 sorted_handles.append(handles.pop(idx_label[0]))
         # Append non-mATLASplotlib labels
@@ -69,7 +74,7 @@ class Legend(object):
         # Apply sort overrides
         for override in sorted(self.sort_overrides.keys(), reverse=True):
             idx_label = [i for i, x in enumerate(sorted_labels) if x == self.sort_overrides[override]]
-            if len(idx_label) > 0:
+            if idx_label:
                 sorted_labels.insert(0, sorted_labels.pop(idx_label[0]))
                 sorted_handles.insert(0, sorted_handles.pop(idx_label[0]))
         return sorted_handles, sorted_labels

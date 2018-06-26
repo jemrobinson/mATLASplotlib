@@ -1,14 +1,24 @@
-from base_canvas import BaseCanvas
+""" This module provides the Ratio canvas."""
 from matplotlib.lines import Line2D
-from matplotlib.ticker import FixedLocator, MaxNLocator
+from matplotlib.ticker import FixedLocator
 from numpy import arange
+from base_canvas import BaseCanvas
 
 
 class Ratio(BaseCanvas):
     """Ratio canvas with standard ATLAS setup"""
 
-    def __init__(self, n_pixels=(600, 600), line_ypos=1.0, **kwargs):
-        super(Ratio, self).__init__(n_pixels, **kwargs)
+    def __init__(self, shape="square", line_ypos=1.0, **kwargs):
+        """Set up Ratio canvas properties.
+
+        :param shape: use either the 'square' or 'rectangular' ATLAS proportions
+        :type shape: str
+        :param line_ypos: where to draw the reference line in the ratio plot
+        :type line_ypos: float
+
+        :Keyword Arguments: as for `BaseCanvas`
+        """
+        super(Ratio, self).__init__(shape, **kwargs)
         self.subplots["top"] = self.figure.add_axes([0.15, 0.35, 0.8, 0.6])
         self.subplots["bottom"] = self.figure.add_axes([0.15, 0.1, 0.8, 0.25])
         self.main_subplot = "top"
@@ -37,8 +47,11 @@ class Ratio(BaseCanvas):
             self.subplots["bottom"].set_ylim(self.axis_ranges["y_ratio"])
 
     def apply_final_formatting(self):
-        # Draw line at y = line_ypos
-        self.subplots["bottom"].add_line(Line2D(self.subplots["bottom"].get_xlim(), [self.line_ypos, self.line_ypos], transform=self.subplots["bottom"].transData, linewidth=1, linestyle="--", color="black"))
+        """Apply final formatting. Draw line at y = line_ypos"""
+        self.subplots["bottom"].add_line(Line2D(self.subplots["bottom"].get_xlim(),
+                                                [self.line_ypos, self.line_ypos],
+                                                transform=self.subplots["bottom"].transData,
+                                                linewidth=1, linestyle="--", color="black"))
 
         # Set ratio plot to linear scale
         if self.log_type.find("y") != -1:
@@ -48,21 +61,8 @@ class Ratio(BaseCanvas):
         self.subplots["top"].set_xticklabels([], minor=True)
         self.subplots["top"].set_xticklabels([], major=True)
 
-    # Provide defaults for inherited methods
-    def draw_ATLAS_text(self, x, y, axes="top", **kwargs):
-        super(Ratio, self).draw_ATLAS_text(x, y, axes=axes, **kwargs)
-
-    def draw_legend(self, x, y, axes="top", **kwargs):
-        super(Ratio, self).draw_legend(x, y, axes=axes, **kwargs)
-
-    def draw_luminosity_text(self, x, y, luminosity_value, axes="top", **kwargs):
-        super(Ratio, self).draw_luminosity_text(x, y, luminosity_value, axes=axes, **kwargs)
-
-    def draw_text(self, x, y, extra_value, axes="top", **kwargs):
-        super(Ratio, self).draw_text(x, y, extra_value, axes=axes, **kwargs)
-
     def get_ratio_ticks(self, axis_range, n_approximate=4):
-        # Choose ratio ticks to be sensibly spaced and always include 1.0
+        """Choose ratio ticks to be sensibly spaced and always include 1.0"""
         interval_estimate = abs(axis_range[1] - axis_range[0]) / float(n_approximate)
         tick_sizes = [0.001, 0.002, 0.005, 0.01, 0.02, 0.04, 0.05, 0.1, 0.2, 0.4, 0.5, 1.0, 2.0]
         tick_size = min(tick_sizes, key=lambda x: abs(x - interval_estimate))
@@ -75,14 +75,13 @@ class Ratio(BaseCanvas):
         elif axis_name == "y":
             return self.subplots["top"].get_ylabel()
         elif axis_name == "y_ratio":
-            self.subplots["bottom"].get_ylabel()
-        else:
-            raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
+            return self.subplots["bottom"].get_ylabel()
+        raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
-    def set_axis_label(self, axis_name, axis_label, **kwargs):
-        fontsize = kwargs.pop("fontsize", 16)
+    def set_axis_label(self, axis_name, axis_label, fontsize=16):
         if axis_name == "x":
-            self.subplots["bottom"].set_xlabel(axis_label, fontsize=fontsize, position=(1.0, 0.0), va="top", ha="right", *kwargs)
+            self.subplots["bottom"].set_xlabel(axis_label, position=(1.0, 0.0),
+                                               fontsize=fontsize, va="top", ha="right")
         elif axis_name == "y":
             self.subplots["top"].set_ylabel(axis_label, fontsize=fontsize)
             self.subplots["top"].yaxis.get_label().set_ha("right")
@@ -94,12 +93,6 @@ class Ratio(BaseCanvas):
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
-    def set_axis_labels(self, x_axis_label, y_axis_label, ratio_y_axis_label):
-        self.set_axis_label("x", x_axis_label)
-        self.set_axis_label("y", y_axis_label)
-        self.set_axis_label("y_ratio", ratio_y_axis_label)
-
-    # Axis ranges
     def set_axis_max(self, axis_name, maximum):
         if axis_name == "x":
             self.subplots["top"].set_xlim(top=maximum)
@@ -124,7 +117,6 @@ class Ratio(BaseCanvas):
         if axis_name in self.axis_ranges:
             self.axis_ranges[axis_name] = (minimum, self.axis_ranges[axis_name][1])
 
-
     def set_axis_range(self, axis_name, axis_range):
         if axis_name == "x":
             self.axis_ranges["x"] = axis_range
@@ -135,8 +127,7 @@ class Ratio(BaseCanvas):
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
-    def set_axis_ticks(self, axis_name, ticks, force=False):
-        """Document here."""
+    def set_axis_ticks(self, axis_name, ticks):
         if axis_name == "x":
             self.subplots["top"].xaxis.set_major_locator(FixedLocator(ticks))
         elif axis_name == "y":
@@ -146,11 +137,5 @@ class Ratio(BaseCanvas):
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
-    def set_axis_ranges(self, x_axis_range, y_axis_range, ratio_y_axis_range):
-        self.set_axis_range("x", x_axis_range)
-        self.set_axis_range("y", y_axis_range)
-        self.set_axis_range("y_ratio", ratio_y_axis_range)
-
-    # Plot title
     def set_title(self, title):
         self.subplots["top"].set_title(title)
