@@ -1,4 +1,4 @@
-mATLASplotlib
+mATLASplotlib [![Build Status](https://travis-ci.org/jemrobinson/mATLASplotlib.svg?branch=master)](https://travis-ci.org/jemrobinson/mATLASplotlib)
 =============
 
 Matplotlib wrappers to allow plots compatible with the ATLAS style guidelines.

@@ -1,0 +1,25 @@
+sudo: required
+dist: trusty
+language: python
+python: "2.7"
+
+# Download a precompiled ROOT system
+install:
+   - wget https://root.cern.ch/download/root_v6.14.00.Linux-ubuntu14-x86_64-gcc4.8.tar.gz
+   - tar -zxvf root_v6.14.00.Linux-ubuntu14-x86_64-gcc4.8.tar.gz
+   - . root/bin/thisroot.sh
+   - time python -c 'from ROOT import kTRUE'
+   - pip install -r requirements.txt
+
+script:
+  - py.test
+# services:
+#   - docker
+
+# before_install:
+#   - docker pull rootproject/root-ubuntu16:latest
+#   - docker run -it --name build rootproject/root-ubuntu16
+#   - docker exec build git clone https://github.com/jemrobinso/mATLASplotlib.git
+
+# script:
+#   - docker exec build py.test
