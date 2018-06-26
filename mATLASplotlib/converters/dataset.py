@@ -25,6 +25,8 @@ class Dataset(object):
                     self._add_dimension("z", data.z_values, data.z_error_pairs)
         # Assume that x,y values have been passed
         elif len(args) == 2:
+            if len(args[0]) != len(args[1]):
+                raise AssertionError("Failed to interpret arguments as 'x' and 'y' points since they differ in size")
             self._add_dimension("x", args[0], None)
             self._add_dimension("y", args[1], None)
         # Assume that x,y,z values have been passed
@@ -34,6 +36,8 @@ class Dataset(object):
             self._add_dimension("z", args[2], None)
         # Assume that x,y values with errors have been passed
         elif len(args) == 4:
+            if len(args[0]) != len(args[1]) !=  len(args[2]) != len(args[3]):
+                raise AssertionError("Failed to interpret arguments as 'x' and 'y' points with errors since they differ in size")
             self._add_dimension("x", args[0], args[1])
             self._add_dimension("y", args[2], args[3])
         # Assume that x,y,z values with errors have been passed
