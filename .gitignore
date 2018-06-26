@@ -1,4 +1,12 @@
+# File clutter
 *.pyc
 .DS_Store
 ._.DS_Store
+
+# Visual Studio Code settings
 .vscode*
+
+# Sphinx output
+docs/_build/*
+docs/_static/*
+docs/_templates/*
