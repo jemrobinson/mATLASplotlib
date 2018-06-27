@@ -13,3 +13,8 @@ docs/_templates/*
 
 # pytest output
 .pytest_cache
+
+# pypi package output
+build/
+dist/
+mATLASplotlib.egg-info/

@@ -7,7 +7,8 @@ mATLASplotlib
    :target: https://landscape.io/github/jemrobinson/mATLASplotlib/master
    :alt: Code Health
 
-This package provides wrappers around matplotlib functionality to allow plots compatible with the ATLAS style guidelines for users who are not familiar with matplotlib syntax.
+This package provides wrappers around matplotlib functionality produce plots compatible with the style guidelines for the ATLAS experiment at the LHC.
+It is particularly aimed at users who are not familiar with matplotlib syntax.
 Basic usage involves creating a canvas, plotting a dataset and saving the output to a file.
 For example, something like
 
