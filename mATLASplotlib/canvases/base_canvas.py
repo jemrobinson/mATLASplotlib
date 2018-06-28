@@ -23,12 +23,12 @@ class BaseCanvas(object):
     def __init__(self, shape="square", **kwargs):
         """Set up universal canvas properties.
 
-        :param shape: use either the 'square' or 'rectangular' ATLAS proportions
+        :param shape: use either the 'square' or 'landscape' ATLAS proportions
         :type shape: str
 
         :Keyword Arguments:
             * **log_type** (*str*) -- set x, y or both axes to log-scale
-            * **minor_x_ticks** (*list*) -- list of minor ticks for the x-axis
+            * **log_x_force_label_pos** (*list*) -- list of minor ticks to label when the x-axis is on a log scale
             * **x_tick_labels** (*iterable*) -- list of tick labels for the x-axis
             * **x_tick_label_size** (*float*) -- fontsize for x-axis tick labels
             * **y_tick_labels** (*iterable*) -- list of tick labels for the y-axis
@@ -36,8 +36,8 @@ class BaseCanvas(object):
         """
         # Set ATLAS style
         style.set_atlas()
-        n_pixels = {"square": (600, 600), "rectangular": (800, 600)}[shape]
         # Set up figure
+        n_pixels = {"square": (600, 600), "landscape": (800, 600)}[shape]
         self.figure = matplotlib.pyplot.figure(figsize=(n_pixels[0] / 100.0, n_pixels[1] / 100.0), dpi=100, facecolor="white")
         self.main_subplot = None
         # Set properties from arguments
@@ -46,12 +46,15 @@ class BaseCanvas(object):
         self.x_tick_label_size = kwargs.get("x_tick_label_size", None)
         self.y_tick_labels = kwargs.get("y_tick_labels", None)
         self.y_tick_label_size = kwargs.get("y_tick_label_size", None)
-        self.minor_x_ticks = kwargs.get("minor_x_ticks", [])
+        self.log_x_force_label_pos = kwargs.get("log_x_force_label_pos", [])
         # Set up value holders
         self.legend = Legend()
         self.axis_ranges = {}
         self.subplots = {}
         self.internal_header_fraction = None
+
+    def close(self):
+        matplotlib.pyplot.close(self.figure)
 
     def plot_dataset(self, *args, **kwargs):
         """Plot a dataset, converting arguments as appropriate."""
@@ -226,7 +229,7 @@ class BaseCanvas(object):
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
     def minor_tick_format_function(self, x, pos):
-        """User-defined function for tick formatting.
+        """Implement user-defined tick positions.
 
         :param x: tick value.
         :type x: float
@@ -235,8 +238,7 @@ class BaseCanvas(object):
         :return: formatted tick position string
         :rtype: str
         """
-        # :returns:  str -- the return code."""
-        if any(int(x) == elem for elem in self.minor_x_ticks):
+        if any(int(x) == elem for elem in self.log_x_force_label_pos):
             return "{0:.0f}".format(x)
         return ""
 
@@ -251,7 +253,7 @@ class BaseCanvas(object):
         self.finalise_plot_formatting()
         matplotlib.pyplot.savefig("{0}.{1}".format(output_name, extension))
         logger.info("Saved figure to: {0}.{1}".format(output_name, extension))
-        matplotlib.pyplot.close(self.figure)
+        self.close()
 
     def set_axis_label(self, axis_name, axis_label, fontsize=16):
         """Set the maximum value for the given axis.

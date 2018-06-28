@@ -15,6 +15,6 @@ docs/_templates/*
 .pytest_cache
 
 # pypi package output
-build/
-dist/
-mATLASplotlib.egg-info/
+build/*
+dist/*
+mATLASplotlib.egg-info/*

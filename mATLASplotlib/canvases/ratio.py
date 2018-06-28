@@ -18,7 +18,7 @@ class Ratio(BaseCanvas):
 
         :Keyword Arguments: as for `BaseCanvas`
         """
-        super(Ratio, self).__init__(shape, **kwargs)
+        super(Ratio, self).__init__(shape=shape, **kwargs)
         self.subplots["top"] = self.figure.add_axes([0.15, 0.35, 0.8, 0.6])
         self.subplots["bottom"] = self.figure.add_axes([0.15, 0.1, 0.8, 0.25])
         self.main_subplot = "top"
@@ -94,9 +94,11 @@ class Ratio(BaseCanvas):
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
     def set_axis_max(self, axis_name, maximum):
+        if axis_name in self.axis_ranges:
+            self.axis_ranges[axis_name] = (self.axis_ranges[axis_name][0], maximum)
         if axis_name == "x":
-            self.subplots["top"].set_xlim(top=maximum)
-            self.subplots["bottom"].set_xlim(top=maximum)
+            self.subplots["top"].set_xlim(right=maximum)
+            self.subplots["bottom"].set_xlim(right=maximum)
         elif axis_name == "y":
             self.subplots["top"].set_ylim(top=maximum)
         elif axis_name == "y_ratio":
@@ -105,9 +107,11 @@ class Ratio(BaseCanvas):
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
     def set_axis_min(self, axis_name, minimum):
+        if axis_name in self.axis_ranges:
+            self.axis_ranges[axis_name] = (minimum, self.axis_ranges[axis_name][1])
         if axis_name == "x":
-            self.subplots["top"].set_xlim(bottom=minimum)
-            self.subplots["bottom"].set_xlim(bottom=minimum)
+            self.subplots["top"].set_xlim(left=minimum)
+            self.subplots["bottom"].set_xlim(left=minimum)
         elif axis_name == "y":
             self.subplots["top"].set_ylim(bottom=minimum)
         elif axis_name == "y_ratio":

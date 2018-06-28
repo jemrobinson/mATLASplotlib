@@ -5,7 +5,7 @@ import sys
 import matplotlib_wrapper
 import canvases
 
-__all__ = ["canvases"]
+__all__ = ["canvases", "matplotlib_wrapper"]
 
 # Set up logging
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)

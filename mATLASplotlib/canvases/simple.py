@@ -8,9 +8,9 @@ class Simple(BaseCanvas):
 
     def __init__(self, shape="square", **kwargs):
         shape_dict = {"square": {"dimensions": (0.15, 0.1, 0.8, 0.85), "y_label_offset": -0.13},
-                      "rectangular": {"dimensions": (0.12, 0.1, 0.84, 0.85), "y_label_offset": -0.0975}}
+                      "landscape": {"dimensions": (0.12, 0.1, 0.84, 0.85), "y_label_offset": -0.0975}}
         self.shape_dict = shape_dict[shape]
-        super(Simple, self).__init__(shape, **kwargs)
+        super(Simple, self).__init__(shape=shape, **kwargs)
         self.subplots["main"] = self.figure.add_axes(self.shape_dict["dimensions"])
         self.main_subplot = "main"
 
@@ -45,16 +45,20 @@ class Simple(BaseCanvas):
 
     # Axis ranges
     def set_axis_max(self, axis_name, maximum):
+        if axis_name in self.axis_ranges:
+            self.axis_ranges[axis_name] = (self.axis_ranges[axis_name][0], maximum)
         if axis_name == "x":
-            self.subplots["main"].set_xlim(top=maximum)
+            self.subplots["main"].set_xlim(right=maximum)
         elif axis_name == "y":
             self.subplots["main"].set_ylim(top=maximum)
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 
     def set_axis_min(self, axis_name, minimum):
+        if axis_name in self.axis_ranges:
+            self.axis_ranges[axis_name] = (minimum, self.axis_ranges[axis_name][1])
         if axis_name == "x":
-            self.subplots["main"].set_xlim(bottom=minimum)
+            self.subplots["main"].set_xlim(left=minimum)
         elif axis_name == "y":
             self.subplots["main"].set_ylim(bottom=minimum)
         else:
@@ -62,9 +66,9 @@ class Simple(BaseCanvas):
 
     def set_axis_range(self, axis_name, axis_range):
         if axis_name == "x":
-            self.axis_ranges["x"] = axis_range
+            self.axis_ranges["x"] = tuple(axis_range)
         elif axis_name == "y":
-            self.axis_ranges["y"] = axis_range
+            self.axis_ranges["y"] = tuple(axis_range)
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
 

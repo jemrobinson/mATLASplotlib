@@ -10,6 +10,8 @@ from stack import Stack
 
 def get_plotter(plot_style):
     """Document here."""
+    if plot_style is None:
+        raise AttributeError("Plotting style must be provided!")
     if "bar" in plot_style:
         return BarChart(plot_style)
     if "binned band" in plot_style:

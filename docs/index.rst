@@ -15,7 +15,7 @@ For example, something like
 ::
 
     from mATLASplotlib import canvases
-    canvas = canvases.Simple(shape="rectangular")
+    canvas = canvases.Simple(shape="landscape")
     x, y = [0, 1, 2, 3], [0, 1, 4, 9]
     canvas.plot_dataset(x, y, style="scatter", label="Example points", colour="black")
     canvas.save_to_file("simple_example")
@@ -61,6 +61,7 @@ API
 .. toctree::
     :maxdepth: 2
 
+    source/introduction
     source/canvases
     source/converters
     source/decorations

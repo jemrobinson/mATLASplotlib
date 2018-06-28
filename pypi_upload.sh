@@ -7,4 +7,4 @@ python setup.py sdist bdist_wheel
 twine upload dist/*
 
 # Remove temporary files
-rm -rf build/ dist/
+rm -rf build/ dist/ mATLASplotlib.egg-info
