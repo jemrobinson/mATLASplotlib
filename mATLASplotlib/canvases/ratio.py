@@ -37,7 +37,7 @@ class Ratio(BaseCanvas):
             if "y_ratio" not in self.axis_ranges:
                 self.set_axis_range("y_ratio", self.subplots[axes].get_ylim())
 
-    def apply_axis_limits(self):
+    def _apply_axis_limits(self):
         if "x" in self.axis_ranges:
             self.subplots["top"].set_xlim(self.axis_ranges["x"])
             self.subplots["bottom"].set_xlim(self.axis_ranges["x"])
@@ -46,7 +46,7 @@ class Ratio(BaseCanvas):
         if "y_ratio" in self.axis_ranges:
             self.subplots["bottom"].set_ylim(self.axis_ranges["y_ratio"])
 
-    def apply_final_formatting(self):
+    def _apply_final_formatting(self):
         """Apply final formatting. Draw line at y = line_ypos"""
         self.subplots["bottom"].add_line(Line2D(self.subplots["bottom"].get_xlim(),
                                                 [self.line_ypos, self.line_ypos],

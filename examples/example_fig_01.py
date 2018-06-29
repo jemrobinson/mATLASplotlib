@@ -1,7 +1,7 @@
 #! /usr/bin/env python
-from mATLASplotlib import canvases
-import ROOT
 import numpy as np
+import ROOT
+from mATLASplotlib import canvases
 
 # Generate some ROOT data - MC prediction
 hpx_MC = ROOT.TH1F("hpx_MC", "This is the MC px distribution", 40, -4, 4)
@@ -12,7 +12,6 @@ for x in np.random.normal(size=50000):
 hpx_data = ROOT.TH1F("hpx_data", "This is the data px distribution", 40, -4, 4)
 for x in np.random.normal(size=10000):
     hpx_data.Fill(x)
-print "Data integral, max", hpx_data.Integral(), hpx_data.GetMaximum()
 
 # Generate some ROOT data - fit to data
 fit_fn = ROOT.TF1("fit_fn", "gaus", -4, 4)
@@ -22,7 +21,7 @@ mu_err, sigma_err = fit_fn.GetParError(1), fit_fn.GetParError(2)
 
 # OK, now we're ready to use mATLASplotlib
 # Let's start by opening a canvas
-canvas = canvases.Simple(shape="rectangular")
+canvas = canvases.Simple(shape="landscape")
 
 # We'll plot some datasets on it
 canvas.plot_dataset(hpx_data, style="scatter yerror", label="Data 2009", colour="black")
@@ -33,7 +32,8 @@ canvas.plot_dataset(fit_fn, style="smooth line", label="Gaussian fit", colour="r
 canvas.add_legend(0.04, 0.92, fontsize=16, anchor_to="upper left")
 
 # ... and some text with details of the fit
-canvas.add_text(0.04, 0.6, "$\mu = ({{{0:.2f}}}\pm{{{1:.2f}}})\,$ GeV\n$\sigma = ({{{0:.2f}}}\pm{{{1:.2f}}})\,$ GeV".format(mu, mu_err, sigma, sigma_err), fontsize=16)
+canvas.add_text(0.04, 0.60, r"$\mu = ({{{0:.2f}}}\pm{{{1:.2f}}})\,$ GeV".format(mu, mu_err), fontsize=16)
+canvas.add_text(0.04, 0.54, r"$\sigma = ({{{0:.2f}}}\pm{{{1:.2f}}})\,$ GeV".format(sigma, sigma_err), fontsize=16)
 
 # Now an ATLAS label on the right hand side
 canvas.add_ATLAS_label(0.96, 0.92, fontsize=20, plot_type="Preliminary", anchor_to="upper right")
@@ -53,4 +53,5 @@ canvas.set_axis_range("y", (0, 1200))
 canvas.set_axis_ticks("x", [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
 
 # Finally save to a file (.pdf will be used by default)
-canvas.save_to_file("example_fig_01")
+# canvas.save_to_file("example_fig_01", extension="png")
+canvas.save_to_file("example_fig_01", extension=["png", "pdf"])

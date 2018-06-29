@@ -53,11 +53,21 @@ class BaseCanvas(object):
         self.subplots = {}
         self.internal_header_fraction = None
 
-    def close(self):
-        matplotlib.pyplot.close(self.figure)
-
     def plot_dataset(self, *args, **kwargs):
-        """Plot a dataset, converting arguments as appropriate."""
+        """Plot a dataset.
+        Non-keyword arguments will be interpreted as the dataset to be plotted.
+        Keyword arguments will be interpreted as style arguments.
+
+        :Positional Arguments:
+            * **args**: (*ROOT.TObject*, *iterable*, *numpy array*) -- plottable information which is passed to ``Dataset`` to be interpreted
+
+        :Keyword Arguments:
+            * **remove_zeros**: (*bool*) -- prune any points in the dataset for which the y-value is 0
+            * **axes**: (*str*) -- which axes to use (defaults to the main subplot)
+            * **style**: (*str*) -- which of the plotters in ``plotters`` to use
+            * **label**: (*str*) -- label to use in automatic legend generation
+            * **sort_as**: (*str*) -- override
+        """
         remove_zeros = kwargs.pop("remove_zeros", False)
         if not isinstance(args, Dataset):
             if hasattr(args, "__iter__"):
@@ -70,53 +80,6 @@ class BaseCanvas(object):
         if "label" in kwargs:
             self.legend.add_dataset(label=kwargs["label"], visible_label=kwargs.get("visible_label", None), is_stack=("stack" in plot_style), sort_as=kwargs.pop("sort_as", None))
         plotter.add_to_axes(dataset=dataset, axes=self.subplots[axes], **kwargs)
-
-    def finalise_plot_formatting(self):
-        """Finalise plot by applying previously requested formatting."""
-        for _, axes in self.subplots.items():
-            # Apply axis limits
-            self.apply_axis_limits()
-            # Draw x ticks
-            if self.x_tick_labels is not None:
-                x_interval = (max(axes.get_xlim()) - min(axes.get_xlim())) / (len(self.x_tick_labels))
-                axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(x_interval))
-                tmp_kwargs = {"fontsize": self.x_tick_label_size} if self.x_tick_label_size is not None else {}
-                axes.set_xticklabels([""] + self.x_tick_labels, **tmp_kwargs)  # the first and last ticks are off the scale so add a dummy label
-            # Draw y ticks
-            if self.y_tick_labels is not None:
-                y_interval = (max(axes.get_ylim()) - min(axes.get_ylim())) / (len(self.y_tick_labels))
-                axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(y_interval))
-                tmp_kwargs = {"fontsize": self.y_tick_label_size} if self.y_tick_label_size is not None else {}
-                axes.set_yticklabels([""] + self.y_tick_labels, **tmp_kwargs)  # the first and last ticks are off the scale so add a dummy label
-            # Set x-axis locators
-            if "x" in self.log_type:
-                xlocator = axes.xaxis.get_major_locator()
-                axes.set_xscale("log", subsx=[2, 3, 4, 5, 6, 7, 8, 9])
-                axes.yaxis.set_major_locator(xlocator)
-                axes.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
-                axes.xaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(self.minor_tick_format_function))  # only show certain minor labels
-            else:
-                axes.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
-            # Set y-axis locators
-            if "y" in self.log_type:
-                locator = axes.yaxis.get_major_locator()
-                axes.set_yscale("log")
-                axes.yaxis.set_major_locator(locator)
-                fixed_minor_points = [10**x * val for x in range(-100, 100) for val in [2, 3, 4, 5, 6, 7, 8, 9]]
-                axes.yaxis.set_minor_locator(matplotlib.ticker.FixedLocator(fixed_minor_points))
-            else:
-                axes.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
-
-        # Finish by adding internal header
-        if self.internal_header_fraction is not None:
-            y_lo, y_hi = self.subplots[self.main_subplot].get_ylim()
-            y_top = (y_hi - self.internal_header_fraction * y_lo) / (1.0 - self.internal_header_fraction)
-            if "y" in self.log_type:
-                y_top = math.exp((math.log(y_hi) - self.internal_header_fraction * math.log(y_lo)) / (1.0 - self.internal_header_fraction))
-            self.subplots[self.main_subplot].set_ylim(y_lo, y_top)
-
-        # Call child formatter if available
-        self.apply_final_formatting()
 
     def add_legend(self, x, y, anchor_to="lower left", fontsize=None, axes=None):
         """Add a legend to the canvas at (x, y).
@@ -134,7 +97,7 @@ class BaseCanvas(object):
         """
         if axes is None:
             axes = self.main_subplot
-        self.legend.draw(x, y, self.subplots[axes], anchor_to, fontsize)
+        self.legend.plot(x, y, self.subplots[axes], anchor_to, fontsize)
 
     def add_ATLAS_label(self, x, y, plot_type=None, anchor_to="lower left", fontsize=None, axes=None):
         """Add an ATLAS label to the canvas at (x, y).
@@ -197,63 +160,26 @@ class BaseCanvas(object):
         anchor_to = kwargs.pop("anchor_to", "lower left")
         draw_text(text, x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], **kwargs)
 
-    def apply_axis_limits(self):
-        """Apply the previously defined axis limits."""
-        raise NotImplementedError("apply_axis_limits not defined by {0}".format(type(self)))
-
-    def apply_final_formatting(self):
-        """Apply any necessary final formatting."""
-        pass
-
-    def get_axis_label(self, axis_name):
-        """Get the label for the chosen axis
-
-        :param axis_name: which axis to use.
-        :type axis_name: str
-        :return: axis label
-        :rtype: str
-        """
-        raise NotImplementedError("get_label not defined by {0}".format(type(self)))
-
-    def get_axis_range(self, axis_name):
-        """Get the range for the chosen axis
-
-        :param axis_name: which axis to use.
-        :type axis_name: str
-        :return: axis range
-        :rtype: tuple
-        """
-        if axis_name in self.axis_ranges.keys():
-            return self.axis_ranges[axis_name]
-        else:
-            raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
-
-    def minor_tick_format_function(self, x, pos):
-        """Implement user-defined tick positions.
-
-        :param x: tick value.
-        :type x: float
-        :param pos: position.
-        :type pos: float
-        :return: formatted tick position string
-        :rtype: str
-        """
-        if any(int(x) == elem for elem in self.log_x_force_label_pos):
-            return "{0:.0f}".format(x)
-        return ""
-
     def save_to_file(self, output_name, extension="pdf"):
         """Save the current state of the canvas to a file.
 
         :param output_name: name of output file.
         :type output_name: str
         :param extension: type of output to produce.
-        :type extension: str
+        :type extension: str or list
         """
-        self.finalise_plot_formatting()
-        matplotlib.pyplot.savefig("{0}.{1}".format(output_name, extension))
-        logger.info("Saved figure to: {0}.{1}".format(output_name, extension))
+        self.__finalise_plot_formatting()
+        if isinstance(extension, str):
+            extension = [extension]
+        for output in extension:
+            matplotlib.pyplot.savefig("{0}.{1}".format(output_name, output))  # , dpi=1000)
+            logger.info("Saved figure to: {0}.{1}".format(output_name, output))
         self.close()
+
+    def close(self):
+        """Close the figure to free up memory.
+        When the file is saved, this function is automatically called."""
+        matplotlib.pyplot.close(self.figure)
 
     def set_axis_label(self, axis_name, axis_label, fontsize=16):
         """Set the maximum value for the given axis.
@@ -307,9 +233,13 @@ class BaseCanvas(object):
         """
         raise NotImplementedError("set_axis_ticks not defined by {0}".format(type(self)))
 
-    def set_axis_log(self, log_type):
-        """Document here."""
-        self.log_type = log_type
+    def set_axis_log(self, axis_names):
+        """Set the specified axis to be on a log-scale.
+
+        :param axis_names: which axis (or axes) to apply this to.
+        :type axis_names: str
+        """
+        self.log_type = axis_names
 
     def set_title(self, title):
         """Set the figure title.
@@ -318,3 +248,95 @@ class BaseCanvas(object):
         :type title: str
         """
         raise NotImplementedError("set_title not defined by {0}".format(type(self)))
+
+    def __finalise_plot_formatting(self):
+        """Finalise plot by applying previously requested formatting."""
+        for _, axes in self.subplots.items():
+            # Apply axis limits
+            self._apply_axis_limits()
+            # Draw x ticks
+            if self.x_tick_labels is not None:
+                x_interval = (max(axes.get_xlim()) - min(axes.get_xlim())) / (len(self.x_tick_labels))
+                axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(x_interval))
+                tmp_kwargs = {"fontsize": self.x_tick_label_size} if self.x_tick_label_size is not None else {}
+                axes.set_xticklabels([""] + self.x_tick_labels, **tmp_kwargs)  # the first and last ticks are off the scale so add a dummy label
+            # Draw y ticks
+            if self.y_tick_labels is not None:
+                y_interval = (max(axes.get_ylim()) - min(axes.get_ylim())) / (len(self.y_tick_labels))
+                axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(y_interval))
+                tmp_kwargs = {"fontsize": self.y_tick_label_size} if self.y_tick_label_size is not None else {}
+                axes.set_yticklabels([""] + self.y_tick_labels, **tmp_kwargs)  # the first and last ticks are off the scale so add a dummy label
+            # Set x-axis locators
+            if "x" in self.log_type:
+                xlocator = axes.xaxis.get_major_locator()
+                axes.set_xscale("log", subsx=[2, 3, 4, 5, 6, 7, 8, 9])
+                axes.yaxis.set_major_locator(xlocator)
+                axes.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
+                axes.xaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(self.__minor_tick_format_function))  # only show certain minor labels
+            else:
+                axes.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+            # Set y-axis locators
+            if "y" in self.log_type:
+                locator = axes.yaxis.get_major_locator()
+                axes.set_yscale("log")
+                axes.yaxis.set_major_locator(locator)
+                fixed_minor_points = [10**x * val for x in range(-100, 100) for val in [2, 3, 4, 5, 6, 7, 8, 9]]
+                axes.yaxis.set_minor_locator(matplotlib.ticker.FixedLocator(fixed_minor_points))
+            else:
+                axes.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+
+        # Finish by adding internal header
+        if self.internal_header_fraction is not None:
+            y_lo, y_hi = self.subplots[self.main_subplot].get_ylim()
+            y_top = (y_hi - self.internal_header_fraction * y_lo) / (1.0 - self.internal_header_fraction)
+            if "y" in self.log_type:
+                y_top = math.exp((math.log(y_hi) - self.internal_header_fraction * math.log(y_lo)) / (1.0 - self.internal_header_fraction))
+            self.subplots[self.main_subplot].set_ylim(y_lo, y_top)
+
+        # Call child formatter if available
+        self._apply_final_formatting()
+
+    def _apply_axis_limits(self):
+        """Apply the previously defined axis limits."""
+        raise NotImplementedError("_apply_axis_limits not defined by {0}".format(type(self)))
+
+    def _apply_final_formatting(self):
+        """Apply any necessary final formatting."""
+        pass
+
+    def __minor_tick_format_function(self, x, pos):
+        """Implement user-defined tick positions.
+
+        :param x: tick value.
+        :type x: float
+        :param pos: position.
+        :type pos: float
+        :return: formatted tick position string
+        :rtype: str
+        """
+        if any(int(x) == elem for elem in self.log_x_force_label_pos):
+            return "{0:.0f}".format(x)
+        return ""
+
+    def get_axis_label(self, axis_name):
+        """Get the label for the chosen axis
+
+        :param axis_name: which axis to use.
+        :type axis_name: str
+        :return: axis label
+        :rtype: str
+        """
+        raise NotImplementedError("get_label not defined by {0}".format(type(self)))
+
+    def get_axis_range(self, axis_name):
+        """Get the range for the chosen axis
+
+        :param axis_name: which axis to use.
+        :type axis_name: str
+        :return: axis range
+        :rtype: tuple
+        """
+        if axis_name in self.axis_ranges.keys():
+            return self.axis_ranges[axis_name]
+        else:
+            raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))

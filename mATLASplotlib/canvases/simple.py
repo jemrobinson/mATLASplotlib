@@ -14,7 +14,7 @@ class Simple(BaseCanvas):
         self.subplots["main"] = self.figure.add_axes(self.shape_dict["dimensions"])
         self.main_subplot = "main"
 
-    def apply_axis_limits(self):
+    def _apply_axis_limits(self):
         if "x" in self.axis_ranges:
             self.subplots["main"].set_xlim(self.axis_ranges["x"])
         if "y" in self.axis_ranges:
@@ -37,11 +37,6 @@ class Simple(BaseCanvas):
             self.subplots["main"].yaxis.set_label_coords(self.shape_dict["y_label_offset"], 1.0)
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
-
-    # def set_axis_labels(self, x_axis_label, y_axis_label):
-    #     """Document here."""
-    #     self.set_axis_label("x", x_axis_label)
-    #     self.set_axis_label("y", y_axis_label)
 
     # Axis ranges
     def set_axis_max(self, axis_name, maximum):

@@ -9,19 +9,38 @@ logger = logging.getLogger("mATLASplotlib.plotters")
 
 
 class BinnedBand(BasePlotter):
-    """Plot as binned band in the x-y plane"""
-    # Add to canvas
+    """Plot as binned band in the x-y plane.
+
+    :Additional plot_style options:
+        * `central line` -- also draw a line at the bin centre
+    """
 
     def add_to_axes(self, axes, dataset, **kwargs):
+        """Add the chosen dataset to the chosen axes.
+
+        :param axes: which axes to plot this dataset on
+        :type axes: matplotlib.axes
+        :param dataset: which axes to plot this dataset on
+        :type dataset: matplotlib.axes
+
+        :Keyword Arguments:
+            * **alpha** (*float*) -- set alpha transparency
+            * **colour** (*str*) -- which face colour to use
+            * **background_colour** (*str*) -- which background colour to use
+            * **hatch** (*str*) -- set hatch pattern
+            * **line_colour** (*float*) -- which colour to use for the main line and for hatches
+            * **edgecolour** (*float*) -- which colour to use for the outline
+            * **label** (*str*) -- label to use when this appears in a legend
+        """
         # Construct plotting arguments
-        self.plot_args["facecolor"] = kwargs.pop("colour", "black")            # Default colour: black
+        self.plot_args["facecolor"] = kwargs.pop("colour", "black")             # Default colour: black
         self.plot_args["edgecolor"] = kwargs.pop("background_colour", "white")  # Default colour: white
-        line_colour = kwargs.pop("line_colour", "white")
-        self.plot_args["hatch"] = kwargs.pop("hatch", None)                    # Default hatch: None
-        self.plot_args["alpha"] = kwargs.pop("alpha", None)                    # Default alpha: None
-        self.plot_args["linewidth"] = kwargs.pop("linewidth", 0)               # Default linewidth: 2
+        line_colour = kwargs.pop("line_colour", "white")                        # Default colour: white
+        self.plot_args["hatch"] = kwargs.pop("hatch", None)                     # Default hatch: None
+        self.plot_args["alpha"] = kwargs.pop("alpha", None)                     # Default alpha: None
+        self.plot_args["linewidth"] = kwargs.pop("linewidth", 0)                # Default linewidth: 2
         # Add any other user-provided arguments
-        plot_label = kwargs.pop("label", None)                                 # Default label: None
+        plot_label = kwargs.pop("label", None)                                  # Default label: None
         self.plot_args.update(kwargs)
 
         if "central line" in self.plot_style:

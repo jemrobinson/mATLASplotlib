@@ -20,8 +20,8 @@ class Legend(object):
         if sort_as is not None:
             self.sort_overrides[sort_as] = legend_text
 
-    def draw(self, x, y, axes, anchor_to, fontsize):
-        """Draw the legend at (x, y) on the chosen axes."""
+    def plot(self, x, y, axes, anchor_to, fontsize):
+        """Plot the legend at (x, y) on the chosen axes."""
         transform = axes.transAxes
         handles, labels = self.__get_legend_handles_labels(axes)
         _legend = axes.legend(handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y), bbox_transform=transform, borderpad=0, borderaxespad=0, columnspacing=0)

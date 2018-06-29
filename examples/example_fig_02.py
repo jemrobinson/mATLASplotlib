@@ -36,14 +36,14 @@ canvas.add_legend(0.45, 0.75, fontsize=20, anchor_to="upper left")
 canvas.add_luminosity_label(0.15, 0.9, fontsize=20, sqrts_TeV=14, luminosity=None, anchor_to="upper left")
 
 # ... and some text with details of the selection
-canvas.add_text(0.53, 0.9, "$|\eta_{jet}| < 0.5$", fontsize=20, anchor_to="upper left")
+canvas.add_text(0.53, 0.9, r"$|\eta_{jet}| < 0.5$", fontsize=20, anchor_to="upper left")
 
 # Now an ATLAS label on the left hand side
 canvas.add_ATLAS_label(0.05, 0.05, fontsize=20, plot_type="Preliminary", anchor_to="lower left")
 
 # Set the axis titles
-canvas.set_axis_label("x", "$E_{T,jet}$  [GeV]")
-canvas.set_axis_label("y", "$d\sigma_{jet}/dE_{T,jet}$ [fb/GeV]")
+canvas.set_axis_label("x", r"$E_{T,jet}$  [GeV]")
+canvas.set_axis_label("y", r"$d\sigma_{jet}/dE_{T,jet}$ [fb/GeV]")
 
 # ... and ranges (optional, since matplotlib is very good at picking appropriate ranges)
 canvas.set_axis_range("x", (60.0, 3500.0))
@@ -57,4 +57,4 @@ canvas.set_axis_ticks("x", [500, 1000, 1500, 2000, 2500, 3000, 3500])
 canvas.set_axis_ticks("y", [1e-3, 1e-2, 1e-1, 1, 10, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7])
 
 # Finally save to a file (.pdf will be used by default)
-canvas.save_to_file("example_fig_02")
+canvas.save_to_file("example_fig_02", extension="png")

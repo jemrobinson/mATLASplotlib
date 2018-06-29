@@ -11,11 +11,21 @@ class Coloured2D(BasePlotter):
 
     # Add to canvas
     def add_to_axes(self, axes, dataset, **kwargs):
+        """Add the chosen dataset to the chosen axes.
+
+        :param axes: which axes to plot this dataset on
+        :type axes: matplotlib.axes
+        :param dataset: which axes to plot this dataset on
+        :type dataset: matplotlib.axes
+
+        :Keyword Arguments:
+            * **colour_map** (*str*) -- which colour map to use
+        """
         # Construct plotting arguments
         self.plot_args["cmap"] = getattr(pyplot.cm, kwargs.pop("colour_map", "Purples"))  # Default colour-map: Purples
         # Add any other user-provided arguments
         self.plot_args.update(kwargs)
-        x_values, y_values = dataset.unroll_bins(axes="xy")
+        x_values, y_values = dataset.construct_2D_bin_list(axes="xy")
         assert len(x_values) == len(y_values) == len(dataset.z_points)
         _, _, _, axes_image = axes.hist2d(x_values, y_values,
                                           bins=[dataset.x_bin_edges, dataset.y_bin_edges],

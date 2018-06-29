@@ -9,9 +9,17 @@ from stack import Stack
 
 
 def get_plotter(plot_style):
-    """Document here."""
+    """Convert a plot style argument into a concrete class inheriting from BasePlotter.
+
+    :param plot_style: which plot style to use.
+    :type plot_style: str
+    :return: instantiated plotter object
+    :rtype: BasePlotter
+    :raises ValueError: No plot style provided.
+    :raises NotImplementedError: Unsupported plot style provided.
+    """
     if plot_style is None:
-        raise AttributeError("Plotting style must be provided!")
+        raise ValueError("Plotting style must be provided!")
     if "bar" in plot_style:
         return BarChart(plot_style)
     if "binned band" in plot_style:

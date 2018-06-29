@@ -3,19 +3,36 @@ dist: trusty
 language: python
 python: "2.7"
 
+env:
+  global:
+    secure: T4N4o6Ms3X9G9N2/RycP2VMmK92LTIGmxfQOILoPKh8y8qYHRGEFkFiVeHxoKPKp4N0mdD72rGwWix3fWpuAUR4Cip9uhKfFmnEsXr+hPAB5LBOTYTusiR+URh94ftotqVn8VSNTZs9M9MMCKDevXIB65sDsCZvMS+djBhgaVJUYdlfW2loVFcZkFA16cdik2RjaqrBUy0v3u9mc1xcsDxmaww13fDfgZaPd+jAR52kSQ3D7nqGMPD3z9HhiOI9Be0NsDFTaD6OzVXiXp92WSqwigDhN+dQXyjLfQeL2J7kFnkHPw/7U0wfLk8VY+cSgPSxp3MG07jCo663lz8C9cdfeJY6dxSqk+nMPMG4tOWvk7rESl+rfIyLsxt03KhsbzE+msZAc3htQWT15PMZD8jYzlS2o0FO8Dk6lyte17ebIM+KQ6G5z7rcFCh34u+/Rl2Aqa5fH5Uh/VAdiiAIDEZgN/EOrdM/aHbN7a2u7eHGcPiq1pkCusNi/8W8vQZnCD5s2Fv3kuPlgy6NZyosq0NBJ8LwDQHCRvWcROymEGlTL4IAI7qSZ8fdSAVOo96iwrvEpqFCm4sdcYi3SgXNYNa/RpeCHb5BkCHUKbjQhiAueiXvBhXHVF/nZQ3ILhGnLd9JrL5RmQ9kQUPPN+TfvSlc8+f72w9IDyWllYPvx3rM=
+
 install:
-   # Download a precompiled ROOT system
-   - wget https://root.cern.ch/download/root_v6.14.00.Linux-ubuntu14-x86_64-gcc4.8.tar.gz
-   - tar -zxvf root_v6.14.00.Linux-ubuntu14-x86_64-gcc4.8.tar.gz
-   - . root/bin/thisroot.sh
-   - time python -c 'from ROOT import kTRUE'
-   # Install requirements
-   - pip install -r requirements.txt
-   - pip install pyflakes pycodestyle
+  # Download a precompiled ROOT system
+  - wget https://root.cern.ch/download/root_v6.14.00.Linux-ubuntu14-x86_64-gcc4.8.tar.gz
+  - tar -zxf root_v6.14.00.Linux-ubuntu14-x86_64-gcc4.8.tar.gz
+  - . root/bin/thisroot.sh
+  - time python -c 'from ROOT import kTRUE'
+  # Install requirements
+  - pip install -r requirements.txt
+  - pip install autopep8 pyflakes pycodestyle
 
 script:
+  # Run autopep8
+  - autopep8 mATLASplotlib --recursive --ignore=E501 --in-place
+  # Check git diff and update branch if needed
+  - |
+    if [ "$(git diff)" != "" ]; then
+      git config --global user.email "travis@travis-ci.org"
+      git config --global user.name "Travis CI autopep8"
+      git config --global push.default simple # Push only to the current branch.
+      git checkout ${TRAVIS_BRANCH}
+      git add mATLASplotlib/*
+      git status
+      git commit -m "Applying pep8 style changes."
+      git push --quiet https://${GITHUB_TOKEN}@github.com/jemrobinson/mATLASplotlib.git
+    fi
   # Static analysis
   - pyflakes mATLASplotlib
   - pycodestyle --statistics --ignore=E501 --count mATLASplotlib
-  # Run package tests
   - py.test
