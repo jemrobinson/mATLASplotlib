@@ -2,10 +2,15 @@ mATLASplotlib
 =============
 .. image:: https://travis-ci.org/jemrobinson/mATLASplotlib.svg?branch=master
    :target: https://travis-ci.org/jemrobinson/mATLASplotlib
+   :alt: Travis Build
 
 .. image:: https://landscape.io/github/jemrobinson/mATLASplotlib/master/landscape.svg?style=flat
    :target: https://landscape.io/github/jemrobinson/mATLASplotlib/master
    :alt: Code Health
+
+.. image:: https://coveralls.io/repos/github/jemrobinson/mATLASplotlib/badge.svg?branch=master
+   :target: https://coveralls.io/github/jemrobinson/mATLASplotlib?branch=master
+   :alt: Coverage
 
 This package provides wrappers around matplotlib functionality produce plots compatible with the style guidelines for the ATLAS experiment at the LHC.
 It is particularly aimed at users who are not familiar with matplotlib syntax.

@@ -15,7 +15,7 @@ install:
   - time python -c 'from ROOT import kTRUE'
   # Install requirements
   - pip install -r requirements.txt
-  - pip install autopep8 pyflakes pycodestyle
+  - pip install autopep8 pycodestyle pyflakes pytest-cov pytest-sugar python-coveralls
 
 script:
   # Run autopep8
@@ -35,4 +35,9 @@ script:
   # Static analysis
   - pyflakes mATLASplotlib
   - pycodestyle --statistics --ignore=E501 --count mATLASplotlib
-  - py.test
+  # Run tests using coveralls output
+  - py.test --cov=mATLASplotlib --cov-report term-missing
+
+after_success:
+  # Upload results to coveralls.io
+  - coveralls
