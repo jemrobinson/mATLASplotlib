@@ -5,6 +5,9 @@
 # This file does only contain a selection of the most common options. For a
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
+import os
+import sys
+from mock import Mock as MagicMock
 
 # -- Path setup --------------------------------------------------------------
 
@@ -12,8 +15,6 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -30,6 +31,14 @@ release = u''
 
 
 # -- General configuration ---------------------------------------------------
+
+# Add a mock modules
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+MOCK_MODULES = ["ROOT"]
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
@@ -87,7 +96,8 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# Default here is '_static' but this will cause errors if the directory does not exist
+html_static_path = []
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

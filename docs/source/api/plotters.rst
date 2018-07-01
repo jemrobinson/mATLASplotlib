@@ -5,7 +5,7 @@ plotters
     :maxdepth: 2
 
     plotters/base_plotter
-    plotters/bar
+    plotters/bar_chart
     plotters/binned_band
     plotters/coloured_2D
     plotters/get_plotter

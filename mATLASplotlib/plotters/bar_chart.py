@@ -1,7 +1,7 @@
-"""This module provides the ``Bar`` class."""
+"""This module provides the ``BarChart`` class."""
 import logging
-from base_plotter import BasePlotter
 from matplotlib.patches import Rectangle
+from base_plotter import BasePlotter
 
 logger = logging.getLogger("mATLASplotlib.plotters")
 
