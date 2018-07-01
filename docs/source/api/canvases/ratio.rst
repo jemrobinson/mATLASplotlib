@@ -1,5 +1,5 @@
-ratio module
-============
+ratio
+=====
 
 .. automodule:: mATLASplotlib.canvases.ratio
     :members:

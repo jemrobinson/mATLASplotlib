@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+"""mATLASplotlib implementation of example fig_01 from the ATLAS style page."""
 import numpy as np
 import ROOT
 from mATLASplotlib import canvases

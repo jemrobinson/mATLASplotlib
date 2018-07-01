@@ -8,8 +8,6 @@
 
 # Sphinx output
 docs/_build/*
-docs/_static/*
-docs/_templates/*
 
 # pytest output
 .pytest_cache

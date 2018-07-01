@@ -1,5 +1,5 @@
-base_canvas module
-==================
+base_canvas
+===========
 
 .. automodule:: mATLASplotlib.canvases.base_canvas
     :members:

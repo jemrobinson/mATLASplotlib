@@ -1,4 +1,4 @@
-""" This module provides the BaseCanvas canvas."""
+""" This module provides the ``BaseCanvas`` canvas."""
 import logging
 import math
 import matplotlib
@@ -78,7 +78,7 @@ class BaseCanvas(object):
         plot_style = kwargs.pop("style", None)
         plotter = get_plotter(plot_style)
         if "label" in kwargs:
-            self.legend.add_dataset(label=kwargs["label"], visible_label=kwargs.get("visible_label", None), is_stack=("stack" in plot_style), sort_as=kwargs.pop("sort_as", None))
+            self.legend.add_dataset(label=kwargs["label"], is_stack=("stack" in plot_style), sort_as=kwargs.pop("sort_as", None))
         plotter.add_to_axes(dataset=dataset, axes=self.subplots[axes], **kwargs)
 
     def add_legend(self, x, y, anchor_to="lower left", fontsize=None, axes=None):
@@ -117,7 +117,8 @@ class BaseCanvas(object):
         """
         if axes is None:
             axes = self.main_subplot
-        draw_ATLAS_text(x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], plot_type=plot_type, fontsize=fontsize)
+        ha, va = self.location_map[anchor_to]
+        draw_ATLAS_text(x, y, self.subplots[axes], ha=ha, va=va, plot_type=plot_type, fontsize=fontsize)
 
     def add_luminosity_label(self, x, y, sqrts_TeV, luminosity, units="fb-1", anchor_to="lower left", fontsize=14, axes=None):
         """Add a luminosity label to the canvas at (x, y).
@@ -141,10 +142,12 @@ class BaseCanvas(object):
         """
         if axes is None:
             axes = self.main_subplot
-        text_sqrts = r"$\sqrt{\mathsf{s}} = " + str([sqrts_TeV, int(1000 * sqrts_TeV)][sqrts_TeV < 1.0]) + r"\,\mathsf{" + ["TeV", "GeV"][sqrts_TeV < 1.0] + "}"
-        text_lumi = ", $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$") if luminosity is not None else "$"
-        text = text_sqrts + text_lumi
-        draw_text(text, x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], fontsize=fontsize)
+        text_sqrts = r"$\sqrt{\mathsf{s}} = " +\
+            str([sqrts_TeV, int(1000 * sqrts_TeV)][sqrts_TeV < 1.0]) +\
+            r"\,\mathsf{" + ["TeV", "GeV"][sqrts_TeV < 1.0] + "}"
+        text_lumi = "$" if luminosity is None else ", $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$")
+        ha, va = self.location_map[anchor_to]
+        draw_text(text_sqrts + text_lumi, x, y, self.subplots[axes], ha=ha, va=va, fontsize=fontsize)
 
     def add_text(self, x, y, text, **kwargs):
         """Add text to the canvas at (x, y).
@@ -158,7 +161,8 @@ class BaseCanvas(object):
         """
         axes = kwargs.pop("axes", self.main_subplot)
         anchor_to = kwargs.pop("anchor_to", "lower left")
-        draw_text(text, x, y, self.subplots[axes], ha=self.location_map[anchor_to][0], va=self.location_map[anchor_to][1], **kwargs)
+        ha, va = self.location_map[anchor_to]
+        draw_text(text, x, y, self.subplots[axes], ha=ha, va=va, **kwargs)
 
     def save_to_file(self, output_name, extension="pdf"):
         """Save the current state of the canvas to a file.

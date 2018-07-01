@@ -1,4 +1,4 @@
-"""This module provides the Stack class."""
+"""This module provides the ``Stack`` class."""
 
 import logging
 from base_plotter import BasePlotter

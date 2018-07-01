@@ -1,4 +1,4 @@
-"""This module provides the Coloured2D class."""
+"""This module provides the ``Coloured2D`` class."""
 import logging
 import matplotlib.pyplot as pyplot
 from base_plotter import BasePlotter

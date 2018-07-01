@@ -1,4 +1,4 @@
-"""This module provides the Line class."""
+"""This module provides the ``Line`` class."""
 
 import logging
 import numpy as np

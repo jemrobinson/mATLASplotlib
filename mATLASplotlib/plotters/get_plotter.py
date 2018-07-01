@@ -1,4 +1,4 @@
-"""This module provides the get_plotter() convenience function."""
+"""This module provides the ``get_plotter()`` convenience function."""
 
 from bar_chart import BarChart
 from binned_band import BinnedBand

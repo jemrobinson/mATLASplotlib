@@ -1,5 +1,5 @@
-converters subpackage
-=====================
+converters
+==========
 
 .. toctree::
     :maxdepth: 2

@@ -1,4 +1,4 @@
-"""This module provides the BinnedBand class."""
+"""This module provides the ``BinnedBand`` class."""
 
 import logging
 import numpy as np

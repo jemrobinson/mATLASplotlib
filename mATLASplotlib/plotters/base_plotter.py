@@ -1,4 +1,4 @@
-"""This module provides the BasePlotter class."""
+"""This module provides the ``BasePlotter`` class."""
 
 import logging
 

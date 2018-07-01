@@ -1,4 +1,4 @@
-"""This module provides the Scatter class."""
+"""This module provides the ``Scatter`` class."""
 
 import logging
 import numpy as np

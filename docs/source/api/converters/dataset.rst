@@ -1,5 +1,5 @@
-dataset module
-==============
+dataset
+=======
 
 .. automodule:: mATLASplotlib.converters.dataset
     :members:

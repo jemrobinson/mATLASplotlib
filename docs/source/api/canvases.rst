@@ -1,5 +1,5 @@
-canvases subpackage
-===================
+canvases
+========
 
 .. toctree::
     :maxdepth: 2

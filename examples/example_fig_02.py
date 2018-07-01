@@ -1,8 +1,9 @@
 #! /usr/bin/env python
-from mATLASplotlib import canvases
+"""mATLASplotlib implementation of example fig_02 from the ATLAS style page."""
 import array
-import ROOT
 import numpy as np
+import ROOT
+from mATLASplotlib import canvases
 
 # Take the NLO QCD prediction from the ATLAS ROOT file
 NLOQCD_x = array.array("d", [150, 250, 350, 450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350, 2450, 2550, 2650, 2750, 2850, 2950, 3050, 3150, 3250, 3350, 3450, 3550, 3650, 3750, 3850, 3950, 4050, 4150, 4250, 4350, 4450, 4550, 4650, 4750, 4850, 4950, 5050, 5150, 5250, 5350, 5450, 5550, 5650, 5750, 5850, 5950, 6050, 6150, 6250, 6350, 6450, 6550, 6650, 6750, 6850, 6950])

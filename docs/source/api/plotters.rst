@@ -1,5 +1,5 @@
-plotters subpackage
-===================
+plotters
+========
 
 .. toctree::
     :maxdepth: 2

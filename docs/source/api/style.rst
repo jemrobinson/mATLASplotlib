@@ -1,5 +1,5 @@
-style subpackage
-================
+style
+=====
 
 .. toctree::
     :maxdepth: 2

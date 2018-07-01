@@ -1,4 +1,4 @@
-""" This module provides the Simple canvas."""
+""" This module provides the ``Simple`` canvas."""
 from matplotlib.ticker import FixedLocator
 from base_canvas import BaseCanvas
 

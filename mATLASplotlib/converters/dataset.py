@@ -1,4 +1,4 @@
-""" This module provides the Dataset class."""
+""" This module provides the ``Dataset`` class."""
 import numpy as np
 from root2data import root2data
 
@@ -11,9 +11,10 @@ class Dataset(object):
 
         Arguments will be interpreted as the dataset to be plotted.
 
-        Example : x vs y : __init__([1,2,3], [4,9,16])
-        Example : x vs y with y_errors : __init__([1,2,3], None, [4,9,16], [2,3,4])
-        Example : z values at each (x, y) point : __init__([1, 2], [3, 4], [3, 4, 6, 8])
+        :Examples:
+            * x vs y : __init__([1,2,3], [4,9,16])
+            * x vs y with y_errors : __init__([1,2,3], None, [4,9,16], [2,3,4])
+            * z values at each (x, y) point : __init__([1, 2], [3, 4], [3, 4, 6, 8])
 
         :Positional Arguments:
             * **args**: (*ROOT.TObject*, *iterable*, *numpy array*) -- plottable information which is used to build a ``Dataset``

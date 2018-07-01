@@ -1,4 +1,4 @@
-""" This module provides the root2data class."""
+""" This module provides the ``root2data`` class."""
 import uuid
 import numpy as np
 import ROOT

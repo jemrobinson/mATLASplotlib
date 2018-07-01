@@ -1,5 +1,5 @@
-decorations subpackage
-======================
+decorations
+===========
 
 .. toctree::
     :maxdepth: 2

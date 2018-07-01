@@ -1,8 +1,24 @@
-"""This module provides the draw_ATLAS_text convenience function."""
+"""This module provides the ``draw_ATLAS_text`` convenience function."""
 
 
 def draw_ATLAS_text(x, y, axes, ha, va, plot_type=None, fontsize=17):
-    """Draw ATLAS text on axes."""
+    """Draw ATLAS text on axes.
+
+    :param x: x-position of text
+    :type x: float
+    :param y: y-position of text
+    :type y: float
+    :param axes: axes to plot on
+    :type axes: str
+    :param ha: horizontal alignment
+    :type ha: str
+    :param va: vertical aligment
+    :type va: str
+    :param plot_type: Internal/Preliminary/Work-In-Progress etc.
+    :type plot_type: str
+    :param fontsize: fontsize of legend contents
+    :type fontsize: float
+    """
     transform = axes.transAxes
     if plot_type is None:
         axes.text(x, y, "ATLAS", style="italic",

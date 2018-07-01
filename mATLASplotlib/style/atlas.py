@@ -1,4 +1,4 @@
-"""This module provides the set_atlas convenience function."""
+"""This module provides the ``set_atlas()`` convenience function."""
 
 import logging
 import matplotlib

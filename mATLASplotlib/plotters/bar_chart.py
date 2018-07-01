@@ -1,4 +1,4 @@
-"""This module provides the Bar class."""
+"""This module provides the ``Bar`` class."""
 import logging
 from base_plotter import BasePlotter
 from matplotlib.patches import Rectangle
@@ -32,11 +32,11 @@ class BarChart(BasePlotter):
         # Add any other user-provided arguments
         self.plot_args.update(kwargs)
 
-        # Draw edges if requested
+        # First draw the edges if requested
         if edgecolour is not None:
             axes.bar(dataset.x_points, height=dataset.y_points, width=dataset.x_bin_widths, color=None, edgecolor=edgecolour, linewidth=linewidth)
 
-        # Draw main bar
+        # Draw main bar - expand the widths slightly to fill in zero-width gaps
         axes.bar(dataset.x_points, height=dataset.y_points, width=[1.005 * x for x in dataset.x_bin_widths], edgecolor=None, **self.plot_args)
 
         # Add a proxy artist with correct edge and facecolours
