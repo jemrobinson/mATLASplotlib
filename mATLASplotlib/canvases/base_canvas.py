@@ -27,7 +27,7 @@ class BaseCanvas(object):
         :type shape: str
 
         :Keyword Arguments:
-            * **log_type** (*str*) -- set x, y or both axes to log-scale
+            * **log_type** (*str*) -- set 'x', 'y' or both ('xy') axes to log-scale
             * **log_x_force_label_pos** (*list*) -- list of minor ticks to label when the x-axis is on a log scale
             * **x_tick_labels** (*iterable*) -- list of tick labels for the x-axis
             * **x_tick_label_size** (*float*) -- fontsize for x-axis tick labels
@@ -53,18 +53,31 @@ class BaseCanvas(object):
         self.subplots = {}
         self.internal_header_fraction = None
 
+    def __enter__(self):
+        """Enter the runtime context related to this object.
+        This object will be bound to the target of the `with` statement.
+        """
+        return self
+
+    def __exit__(self, *args):
+        """Exit the runtime context related to this object.
+        The parameters describe the exception that caused the context to be exited.
+        If the context was exited without an exception, all three arguments will be ``None``.
+        """
+        matplotlib.pyplot.close(self.figure)
+
     def plot_dataset(self, *args, **kwargs):
         """Plot a dataset.
         Non-keyword arguments will be interpreted as the dataset to be plotted.
         Keyword arguments will be interpreted as style arguments.
 
         :Positional Arguments:
-            * **args**: (*ROOT.TObject*, *iterable*, *numpy array*) -- plottable information which is passed to ``Dataset`` to be interpreted
+            * **args**: (*ROOT.TObject*, *iterable*, *numpy array*) -- plottable information which is passed to `Dataset` to be interpreted
 
         :Keyword Arguments:
             * **remove_zeros**: (*bool*) -- prune any points in the dataset for which the y-value is 0
             * **axes**: (*str*) -- which axes to use (defaults to the main subplot)
-            * **style**: (*str*) -- which of the plotters in ``plotters`` to use
+            * **style**: (*str*) -- which of the plotters in `plotters` to use
             * **label**: (*str*) -- label to use in automatic legend generation
             * **sort_as**: (*str*) -- override
         """
@@ -178,12 +191,11 @@ class BaseCanvas(object):
         for output in extension:
             matplotlib.pyplot.savefig("{0}.{1}".format(output_name, output))  # , dpi=1000)
             logger.info("Saved figure to: {0}.{1}".format(output_name, output))
-        self.close()
 
     def close(self):
         """Close the figure to free up memory.
-        When the file is saved, this function is automatically called."""
-        matplotlib.pyplot.close(self.figure)
+        Not needed when this object is used as a context manager."""
+        self.__exit__()
 
     def set_axis_label(self, axis_name, axis_label, fontsize=16):
         """Set the maximum value for the given axis.

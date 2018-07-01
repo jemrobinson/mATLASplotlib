@@ -3,7 +3,7 @@
 import array
 import numpy as np
 import ROOT
-from mATLASplotlib import canvases
+import mATLASplotlib
 
 # Take the NLO QCD prediction from the ATLAS ROOT file
 NLOQCD_x = array.array("d", [150, 250, 350, 450, 550, 650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450, 1550, 1650, 1750, 1850, 1950, 2050, 2150, 2250, 2350, 2450, 2550, 2650, 2750, 2850, 2950, 3050, 3150, 3250, 3350, 3450, 3550, 3650, 3750, 3850, 3950, 4050, 4150, 4250, 4350, 4450, 4550, 4650, 4750, 4850, 4950, 5050, 5150, 5250, 5350, 5450, 5550, 5650, 5750, 5850, 5950, 6050, 6150, 6250, 6350, 6450, 6550, 6650, 6750, 6850, 6950])
@@ -23,39 +23,39 @@ for x, y, _r1, _r2 in zip(NLOQCD_x, NLOQCD_y, r1, r2):
     h_data.SetBinError(h_data.FindFixBin(x), np.sqrt(data_y * 1000) / 200.)
 
 # OK, now we're ready to use mATLASplotlib
-# Let's start by opening a canvas
-canvas = canvases.Simple(shape="square")
+# Let's start by opening a canvas as a context manager
+with mATLASplotlib.canvases.Simple(shape="square") as canvas:
 
-# We'll plot some datasets on it
-canvas.plot_dataset(h_data, style="scatter yerror", label="Data 2009", colour="black")
-canvas.plot_dataset(g_NLOQCD, style="binned band central line", label="NLO QCD", colour="#ffff00", line_colour="black")
+    # We'll plot some datasets on it
+    canvas.plot_dataset(h_data, style="scatter yerror", label="Data 2009", colour="black")
+    canvas.plot_dataset(g_NLOQCD, style="binned band central line", label="NLO QCD", colour="#ffff00", line_colour="black")
 
-# Let's add a legend (automatically generated from the 'label' arguments above)
-canvas.add_legend(0.45, 0.75, fontsize=20, anchor_to="upper left")
+    # Let's add a legend (automatically generated from the 'label' arguments above)
+    canvas.add_legend(0.45, 0.75, fontsize=20, anchor_to="upper left")
 
-# ... and a sqrts label with no luminosity stated
-canvas.add_luminosity_label(0.15, 0.9, fontsize=20, sqrts_TeV=14, luminosity=None, anchor_to="upper left")
+    # ... and a sqrts label with no luminosity stated
+    canvas.add_luminosity_label(0.15, 0.9, fontsize=20, sqrts_TeV=14, luminosity=None, anchor_to="upper left")
 
-# ... and some text with details of the selection
-canvas.add_text(0.53, 0.9, r"$|\eta_{jet}| < 0.5$", fontsize=20, anchor_to="upper left")
+    # ... and some text with details of the selection
+    canvas.add_text(0.53, 0.9, r"$|\eta_{jet}| < 0.5$", fontsize=20, anchor_to="upper left")
 
-# Now an ATLAS label on the left hand side
-canvas.add_ATLAS_label(0.05, 0.05, fontsize=20, plot_type="Preliminary", anchor_to="lower left")
+    # Now an ATLAS label on the left hand side
+    canvas.add_ATLAS_label(0.05, 0.05, fontsize=20, plot_type="Preliminary", anchor_to="lower left")
 
-# Set the axis titles
-canvas.set_axis_label("x", r"$E_{T,jet}$  [GeV]")
-canvas.set_axis_label("y", r"$d\sigma_{jet}/dE_{T,jet}$ [fb/GeV]")
+    # Set the axis titles
+    canvas.set_axis_label("x", r"$E_{T,jet}$  [GeV]")
+    canvas.set_axis_label("y", r"$d\sigma_{jet}/dE_{T,jet}$ [fb/GeV]")
 
-# ... and ranges (optional, since matplotlib is very good at picking appropriate ranges)
-canvas.set_axis_range("x", (60.0, 3500.0))
-canvas.set_axis_range("y", (1e-3, 2e7))
+    # ... and ranges (optional, since matplotlib is very good at picking appropriate ranges)
+    canvas.set_axis_range("x", (60.0, 3500.0))
+    canvas.set_axis_range("y", (1e-3, 2e7))
 
-# ... make the y-axis log-scale
-canvas.set_axis_log("y")
+    # ... make the y-axis log-scale
+    canvas.set_axis_log("y")
 
-# ... now override the default choice of axis labels on the axes
-canvas.set_axis_ticks("x", [500, 1000, 1500, 2000, 2500, 3000, 3500])
-canvas.set_axis_ticks("y", [1e-3, 1e-2, 1e-1, 1, 10, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7])
+    # ... now override the default choice of axis labels on the axes
+    canvas.set_axis_ticks("x", [500, 1000, 1500, 2000, 2500, 3000, 3500])
+    canvas.set_axis_ticks("y", [1e-3, 1e-2, 1e-1, 1, 10, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7])
 
-# Finally save to a file (.pdf will be used by default)
-canvas.save_to_file("example_fig_02", extension="png")
+    # Finally save to a file (.pdf will be used by default)
+    canvas.save_to_file("example_fig_02", extension="png")

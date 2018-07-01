@@ -16,7 +16,7 @@ class Ratio(BaseCanvas):
         :param line_ypos: where to draw the reference line in the ratio plot
         :type line_ypos: float
 
-        :Keyword Arguments: as for ``BaseCanvas``
+        :Keyword Arguments: as for :py:class:`.BaseCanvas`
         """
         super(Ratio, self).__init__(shape=shape, **kwargs)
         self.subplots["top"] = self.figure.add_axes([0.15, 0.35, 0.8, 0.6])

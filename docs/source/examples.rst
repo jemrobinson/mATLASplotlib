@@ -11,7 +11,7 @@ Import necessary packages
 
     import numpy as np
     import ROOT
-    from mATLASplotlib import canvases
+    import mATLASplotlib
 
 Generate some ROOT data - MC prediction
 
@@ -38,19 +38,19 @@ Now we fit the data (using ROOT again)
     mu, sigma = fit_fn.GetParameter(1), fit_fn.GetParameter(2)
     mu_err, sigma_err = fit_fn.GetParError(1), fit_fn.GetParError(2)
 
-Open a canvas and plot these three datasets
+Open a canvas as a context manager and plot these three datasets
 
 .. code:: python
 
-    canvas = canvases.Simple(shape="landscape")
-    canvas.plot_dataset(hpx_data, style="scatter yerror", label="Data 2009", colour="black")
-    canvas.plot_dataset(hpx_MC, style="bar", label="Non-diffractive minimum bias", colour="#ffff00", edgecolour="black")
-    canvas.plot_dataset(fit_fn, style="smooth line", label="Gaussian fit", colour="red")
+    with mATLASplotlib.canvases.Simple(shape="landscape") as canvas:
+        canvas.plot_dataset(hpx_data, style="scatter yerror", label="Data 2009", colour="black")
+        canvas.plot_dataset(hpx_MC, style="bar", label="Non-diffractive minimum bias", colour="#ffff00", edgecolour="black")
+        canvas.plot_dataset(fit_fn, style="smooth line", label="Gaussian fit", colour="red")
 
-Note that three different styles are used here: ``scatter``, ``bar`` and ``line``.
+Note that three different styles are used here: :py:class:`scatter <.Scatter>`, :py:class:`bar <.BarChart>` and :py:class:`line <.Line>`.
 The additional words in these arguments: ``yerror`` and ``smooth`` specify particular additional plotting properties - namely error bars in the y-direction and a smooth interpolation between the points.
 
-The ``label`` argument to ``plot_dataset`` is used to build the legend which can then be drawn in one line
+The ``label`` argument to :py:meth:`plot_dataset <.BaseCanvas.plot_dataset>` is used to build the legend which can then be drawn in one line
 
 .. code:: python
 
@@ -134,13 +134,13 @@ Generate some data which looks like the QCD background plus a small amount of si
         h_data.SetBinContent(h_data.FindFixBin(x), data_y)
         h_data.SetBinError(h_data.FindFixBin(x), np.sqrt(data_y * 1000) / 200.)
 
-Create a canvas and plot the datasets
+Open a canvas and plot the datasets
 
 .. code:: python
 
-    canvas = canvases.Simple(shape="square")
-    canvas.plot_dataset(h_data, style="scatter yerror", label="Data 2009", colour="black")
-    canvas.plot_dataset(g_NLOQCD, style="binned band central line", label="NLO QCD", colour="#ffff00", line_colour="black")
+    with mATLASplotlib.canvases.Simple(shape="square") as canvas:
+        canvas.plot_dataset(h_data, style="scatter yerror", label="Data 2009", colour="black")
+        canvas.plot_dataset(g_NLOQCD, style="binned band central line", label="NLO QCD", colour="#ffff00", line_colour="black")
 
 next the legend and text
 

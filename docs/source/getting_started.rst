@@ -9,23 +9,11 @@ After following the installation instructions, ``mATLASplotlib`` should be avail
 
     >>> import mATLASplotlib
 
-The user interface of ``mATLASplotlib`` is centered on a ``canvas`` on which datasets can be plotted.
+The user interface of ``mATLASplotlib`` is centered on a :py:class:`canvas <.BaseCanvas>` on which datasets can be plotted.
 
-2. Setting up a canvas
-----------------------
-Currently the supported canvases are the ``Simple`` canvas which contains one set of ``matplotlib`` axes and the ``Ratio`` canvas, which contains a main plot and a ratio plot underneath.
-
-.. code:: python
-
-    from mATLASplotlib import canvases
-    canvas = canvases.Simple(shape="square")
-
-The two shapes preferred in the ATLAS style guide are "square" (600 x 600 pixels) and "landscape" (600 x 800 pixels).
-Here we have chosen to use "square".
-
-3. Adding some data to the canvas
----------------------------------
-Now we need some data, let's construct some using ``ROOT`` and ``numpy``
+2. Constructing some data
+-------------------------
+To demonstrate how plotting works, we need some data: let's construct some using ``ROOT`` and ``numpy``
 
 .. code:: python
 
@@ -36,22 +24,34 @@ Now we need some data, let's construct some using ``ROOT`` and ``numpy``
         hist.Fill(x)
 
 this should have drawn 10000 samples from a normal distribution and added them to a ROOT histogram.
-We can now plot this using the ``plot_dataset()`` method
+
+3. Setting up a canvas
+----------------------
+We use a context manager to open the canvas, which ensures that necessary cleanup is done when the canvas is no longer needed.
+Currently the supported canvases are the :py:class:`.Simple` canvas which contains one set of ``matplotlib`` axes and the :py:class:`.Ratio` canvas, which contains a main plot and a ratio plot underneath.
 
 .. code:: python
 
-    canvas.plot_dataset(hist, style="scatter", label="Generated data", colour="black")
+    import mATLASplotlib
+    with mATLASplotlib.canvases.Simple(shape="square") as canvas:
+        canvas.plot_dataset(hist, style="scatter", label="Generated data", colour="black")
+
+The two shapes preferred in the ATLAS style guide are "square" (600 x 600 pixels) and "landscape" (600 x 800 pixels).
+Here we have chosen to use "square".
+
+After setting up the canvas, we can plot the dataset we constructed earlier using the :py:meth:`plot_dataset <.BaseCanvas.plot_dataset>` method.
+
 
 4. Plotting options
 -------------------
 The different ``style`` options specify how the data should be displayed. Options are
 
-- ``bar`` (a histogram or bar chart)
-- ``binned band`` (a band with a fill colour in between the maximum and minimum values in each bin)
-- ``coloured_2D`` (a 2D histogram with a colour-scale to indicate the 'z' value in each bin)
-- ``line`` (a single line, either smooth or consisting of straight line segments)
-- ``scatter`` (a scatter plot - often used for data points)
-- ``stack`` (one of a series of histograms that should be summed up when drawn)
+- :py:class:`bar <.BarChart>` (a histogram or bar chart)
+- :py:class:`binned_band <.BinnedBand>` (a band with a fill colour in between the maximum and minimum values in each bin)
+- :py:class:`coloured_2D <.Coloured2D>` (a 2D histogram with a colour-scale to indicate the 'z' value in each bin)
+- :py:class:`line <.Line>` (a single line, either smooth or consisting of straight line segments)
+- :py:class:`scatter <.Scatter>` (a scatter plot - often used for data points)
+- :py:class:`stack <.Stack>` (one of a series of histograms that should be summed up when drawn)
 
 Other options like ``linestyle`` and ``colour`` can be used to distinguish different datasets.
 
@@ -73,4 +73,4 @@ The output should be similar to that shown in the image below.
     :alt: simple_example
     :figclass: align-center
 
-    Sample output
+    Simple example

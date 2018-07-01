@@ -19,11 +19,11 @@ For example, something like
 
 ::
 
-    from mATLASplotlib import canvases
-    canvas = canvases.Simple(shape="landscape")
-    x, y = [0, 1, 2, 3], [0, 1, 4, 9]
-    canvas.plot_dataset(x, y, style="scatter", label="Example points", colour="black")
-    canvas.save_to_file("simple_example")
+    import mATLASplotlib
+    with mATLASplotlib.canvases.Simple(shape="landscape") as canvas:
+        x, y = [0, 1, 2, 3], [0, 1, 4, 9]
+        canvas.plot_dataset(x, y, style="scatter", label="Example points", colour="black")
+        canvas.save_to_file("simple_example")
 
 will produce a minimal scatter plot with automatically determined axis limits and save this to a PDF (if not otherwise specified).
 
