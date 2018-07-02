@@ -2,6 +2,9 @@
 import numpy as np
 import ROOT
 
+# pylint: disable=no-member
+# ROOT members are incorrectly flagged as not belonging to the package
+
 
 class root2data(object):
     """Interpreter for ROOT objects."""

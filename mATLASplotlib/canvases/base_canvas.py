@@ -42,10 +42,8 @@ class BaseCanvas(object):
         self.main_subplot = None
         # Set properties from arguments
         self.log_type = kwargs.get("log_type", "")
-        self.x_tick_labels = kwargs.get("x_tick_labels", None)
-        self.x_tick_label_size = kwargs.get("x_tick_label_size", None)
-        self.y_tick_labels = kwargs.get("y_tick_labels", None)
-        self.y_tick_label_size = kwargs.get("y_tick_label_size", None)
+        self.tick_labels = {"x": (kwargs.get("x_tick_labels", None), kwargs.get("x_tick_label_size", None)),
+                            "y": (kwargs.get("y_tick_labels", None), kwargs.get("y_tick_label_size", None))}
         self.x_ticks_extra = kwargs.get("x_ticks_extra", [])
         # Set up value holders
         self.legend = Legend()
@@ -126,8 +124,9 @@ class BaseCanvas(object):
         """
         if axes is None:
             axes = self.main_subplot
-        ha, va = self.location_map[anchor_to]
-        draw_ATLAS_text(x, y, self.subplots[axes], ha=ha, va=va, plot_type=plot_type, fontsize=fontsize)
+        # ha, va = self.location_map[anchor_to]
+        # draw_ATLAS_text(x, y, self.subplots[axes], ha=ha, va=va, plot_type=plot_type, fontsize=fontsize)
+        draw_ATLAS_text(self.subplots[axes], (x, y), self.location_map[anchor_to], plot_type=plot_type, fontsize=fontsize)
 
     def add_luminosity_label(self, x, y, sqrts_TeV, luminosity, units="fb-1", anchor_to="lower left", fontsize=14, axes=None):
         """Add a luminosity label to the canvas at (x, y).
@@ -155,8 +154,7 @@ class BaseCanvas(object):
             str([sqrts_TeV, int(1000 * sqrts_TeV)][sqrts_TeV < 1.0]) +\
             r"\,\mathsf{" + ["TeV", "GeV"][sqrts_TeV < 1.0] + "}"
         text_lumi = "$" if luminosity is None else ", $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$")
-        ha, va = self.location_map[anchor_to]
-        draw_text(text_sqrts + text_lumi, x, y, self.subplots[axes], ha=ha, va=va, fontsize=fontsize)
+        draw_text(text_sqrts + text_lumi, self.subplots[axes], (x, y), self.location_map[anchor_to], fontsize=fontsize)
 
     def add_text(self, x, y, text, **kwargs):
         """Add text to the canvas at (x, y).
@@ -170,8 +168,7 @@ class BaseCanvas(object):
         """
         axes = kwargs.pop("axes", self.main_subplot)
         anchor_to = kwargs.pop("anchor_to", "lower left")
-        ha, va = self.location_map[anchor_to]
-        draw_text(text, x, y, self.subplots[axes], ha=ha, va=va, **kwargs)
+        draw_text(text, self.subplots[axes], (x, y), self.location_map[anchor_to], **kwargs)
 
     def save(self, output_name, extension="pdf"):
         """Save the current state of the canvas to a file.
@@ -261,6 +258,26 @@ class BaseCanvas(object):
         """
         raise NotImplementedError("set_title not defined by {0}".format(type(self)))
 
+    @property
+    def x_tick_labels(self):
+        """Labels for x-ticks"""
+        return self.tick_labels["x"][0]
+
+    @property
+    def x_tick_label_size(self):
+        """Label size for x-ticks"""
+        return self.tick_labels["x"][1]
+
+    @property
+    def y_tick_labels(self):
+        """Labels for y-ticks"""
+        return self.tick_labels["y"][0]
+
+    @property
+    def y_tick_label_size(self):
+        """Label size for y-ticks"""
+        return self.tick_labels["y"][1]
+
     def __finalise_plot_formatting(self):
         """Finalise plot by applying previously requested formatting."""
         for _, axes in self.subplots.items():
@@ -284,7 +301,6 @@ class BaseCanvas(object):
                 axes.set_xscale("log", subsx=[2, 3, 4, 5, 6, 7, 8, 9])
                 axes.yaxis.set_major_locator(xlocator)
                 axes.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
-                print "287"
                 axes.xaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(self.__force_extra_x_ticks))  # only show certain minor labels
             else:
                 axes.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
@@ -327,8 +343,8 @@ class BaseCanvas(object):
         :return: formatted tick position string
         :rtype: str
         """
+        del pos  # this function signature is required by FuncFormatter
         if any(int(x) == elem for elem in self.x_ticks_extra):
-            print "{0:.0f}".format(x)
             return "{0:.0f}".format(x)
         return ""
 

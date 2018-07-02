@@ -5,7 +5,7 @@ with open("README.md", "r") as f_readme:
 
 setup(
     name                          = "mATLASplotlib",
-    version                       = "0.1",
+    version                       = "1.0",
     description                   = "Wrappers around matplotlib functionality to produce plots compatible with the style guidelines for the ATLAS experiment at the LHC",
     long_description              = long_description,
     long_description_content_type = "text/markdown",

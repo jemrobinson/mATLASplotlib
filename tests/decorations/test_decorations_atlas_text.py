@@ -73,7 +73,7 @@ def test_atlas_text_incorrect_alignment():
     with mATLASplotlib.canvases.Simple() as canvas:
         canvas.plot_dataset([0, 1], [5, 10], style="scatter")
         with pytest.raises(NotImplementedError):
-            mATLASplotlib.decorations.atlas_text.draw_ATLAS_text(0.5, 0.5, canvas.subplots["main"], "center", "top", plot_type="Internal")
+            mATLASplotlib.decorations.atlas_text.draw_ATLAS_text(canvas.subplots["main"], (0.5, 0.5), ("center", "top"), plot_type="Internal")
 
 
 def test_atlas_text_renderer():

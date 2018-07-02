@@ -38,7 +38,7 @@ class Dataset(object):
             if root2data.valid_input(args[0]):
                 self.__from_ROOT(args[0], **kwargs)
             else:
-                self.__from_dataset(args[0], **kwargs)
+                self.__from_dataset(args[0])
 
         # Assume that x, y values have been passed
         elif len(args) == 2:
@@ -91,7 +91,7 @@ class Dataset(object):
         """
         return sorted(self._data.keys())
 
-    def __from_dataset(self, input_dataset, **kwargs):
+    def __from_dataset(self, input_dataset):
         """Construct from an existing dataset or a ROOT object.
 
         :param input_dataset: dataset

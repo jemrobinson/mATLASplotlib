@@ -1,6 +1,6 @@
 Font setup
 ==========
-To allow ``matplotlib`` to use Helvetica (required for ATLAS style) follow the guidelines from here http://blog.olgabotvinnik.com/blog/2012/11/15/2012-11-15-how-to-set-helvetica-as-the-default-sans-serif-font-in/ (reproduced below).
+To allow ``matplotlib`` to use Helvetica (required for ATLAS style) follow the guidelines from here https://olgabotvinnik.com/blog/how-to-set-helvetica-as-the-default-sans-serif-font-in/ (reproduced below).
 
 1. Linux users
 --------------

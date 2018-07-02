@@ -64,19 +64,13 @@ class Legend(object):
         :type axes: str
         """
         # Remove duplicates
-        handles, labels, seen = [], [], set()
-        old_handles, old_labels = axes.get_legend_handles_labels()
-        for handle, label in zip(old_handles, old_labels):
-            if label not in seen:
-                seen.add(label)
+        handles, labels = [], []
+        for handle, label in zip(*axes.get_legend_handles_labels()):
+            if label not in labels:
                 labels.append(label)
                 if isinstance(handle, matplotlib.patches.Ellipse):
-                    line = matplotlib.pyplot.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])
-                    rectangle = matplotlib.pyplot.Rectangle((0, 0), 0, 0, facecolor=handle.properties()["facecolor"])
-                    handles.append((rectangle, line))
-                # elif isinstance(handle, matplotlib.patches.Polygon):
-                #     proxy_artist = matplotlib.pyplot.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])
-                #     handles.append(proxy_artist)
+                    handles.append((matplotlib.patches.Rectangle((0, 0), 0, 0, facecolor=handle.properties()["facecolor"]),
+                                    matplotlib.lines.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])))
                 else:
                     handles.append(handle)
         # Pre-sort legend order for stacks, which need reversing
@@ -86,19 +80,18 @@ class Legend(object):
             self.legend_order[idx] = label
         # Sort list of labels
         sorted_labels, sorted_handles = [], []
-        for label in self.legend_order:
-            idx_label = [i for i, x in enumerate(labels) if x == label]
-            if idx_label:
-                sorted_labels.append(labels.pop(idx_label[0]))
-                sorted_handles.append(handles.pop(idx_label[0]))
+        for label in [l for l in self.legend_order if l in labels]:
+            idx = labels.index(label)
+            sorted_handles.append(handles.pop(idx))
+            sorted_labels.append(labels.pop(idx))
         # Append non-mATLASplotlib labels
-        for label, handle in zip(labels, handles):
-            sorted_labels.append(label)
+        for handle, label in zip(handles, labels):
             sorted_handles.append(handle)
+            sorted_labels.append(label)
         # Apply sort overrides
         for override in sorted(self.sort_overrides.keys(), reverse=True):
-            idx_label = [i for i, x in enumerate(sorted_labels) if x == self.sort_overrides[override]]
-            if idx_label:
-                sorted_labels.insert(0, sorted_labels.pop(idx_label[0]))
-                sorted_handles.insert(0, sorted_handles.pop(idx_label[0]))
+            idx = [i for i, x in enumerate(sorted_labels) if x == self.sort_overrides[override]]
+            if idx:
+                sorted_labels.insert(0, sorted_labels.pop(idx[0]))
+                sorted_handles.insert(0, sorted_handles.pop(idx[0]))
         return sorted_handles, sorted_labels
