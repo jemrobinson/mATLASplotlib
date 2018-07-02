@@ -1,3 +1,4 @@
+import os
 import matplotlib
 import pytest
 import mATLASplotlib
@@ -54,19 +55,27 @@ def test_base_set_title():
             canvas.set_title("title")
 
 
-def test_simple_apply_axis_limits():
+def test_base_apply_axis_limits():
     with pytest.raises(NotImplementedError):
         with mATLASplotlib.canvases.base_canvas.BaseCanvas() as canvas:
             canvas._apply_axis_limits()
 
 
-def test_simple_get_axis_label():
+def test_base_apply_final_formatting():
+    with mATLASplotlib.canvases.base_canvas.BaseCanvas() as canvas:
+        canvas._apply_final_formatting()
+        canvas.save("blank_test_output")
+        assert os.path.isfile("blank_test_output.pdf")
+        os.remove("blank_test_output.pdf")
+
+
+def test_base_get_axis_label():
     with pytest.raises(NotImplementedError):
         with mATLASplotlib.canvases.base_canvas.BaseCanvas() as canvas:
             canvas.get_axis_label("x")
 
 
-def test_simple_get_axis_range():
+def test_base_get_axis_range():
     with pytest.raises(ValueError):
         with mATLASplotlib.canvases.base_canvas.BaseCanvas() as canvas:
             canvas.get_axis_range("x")

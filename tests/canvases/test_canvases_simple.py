@@ -122,6 +122,18 @@ def test_simple_axis_ranges_unknown():
             canvas.set_axis_max("imaginary", 5)
 
 
+def test_simple_tick_ndp():
+    with mATLASplotlib.canvases.Simple() as canvas:
+        for axis, ax_range in zip(["x", "y"], [(5, 10), [0, 100]]):
+            canvas.set_axis_range(axis, ax_range)
+            canvas.set_axis_tick_ndp(axis, 2)
+            assert axis in canvas.axis_tick_ndps
+            assert canvas.axis_tick_ndps[axis] == 2
+        canvas.save("blank_test_output")
+        assert os.path.isfile("blank_test_output.pdf")
+        os.remove("blank_test_output.pdf")
+
+
 def test_simple_save():
     # Test pdf output
     with mATLASplotlib.canvases.Simple() as canvas:
@@ -174,6 +186,7 @@ def test_simple_save_internal_header_fraction():
         canvas.save("blank_test_output")
         assert os.path.isfile("blank_test_output.pdf")
         os.remove("blank_test_output.pdf")
+
 
 def test_simple_save_internal_header_fraction_log():
     with mATLASplotlib.canvases.Simple(x_ticks_extra=[20, 60]) as canvas:

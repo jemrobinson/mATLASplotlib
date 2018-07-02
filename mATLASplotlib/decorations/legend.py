@@ -27,7 +27,7 @@ class Legend(object):
         if sort_as is not None:
             self.sort_overrides[sort_as] = legend_text
 
-    def plot(self, x, y, axes, anchor_to, fontsize):
+    def plot(self, x, y, axes, anchor_to, fontsize, use_axes=False):
         """Plot the legend at (x, y) on the chosen axes.
 
         :param x: x-position of legend
@@ -40,9 +40,15 @@ class Legend(object):
         :type anchor_to: str
         :param fontsize: fontsize of legend contents
         :type fontsize: float
+        :param use_axes: get handles and labels from all axes in list
+        :type use_axes: list[matplotlib.axes.Axes]
         """
         transform = axes.transAxes
-        handles, labels = self.__get_legend_handles_labels(axes)
+        if use_axes:
+            handles, labels = zip(*[self.__get_legend_handles_labels(subplot) for subplot in use_axes])
+            handles, labels = sum(handles, []), sum(labels, [])
+        else:
+            handles, labels = self.__get_legend_handles_labels(axes)
         _legend = axes.legend(handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y),
                               bbox_transform=transform, borderpad=0, borderaxespad=0, columnspacing=0)
         _legend.get_frame().set_linewidth(0)

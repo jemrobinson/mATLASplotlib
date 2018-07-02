@@ -1,6 +1,7 @@
 """ This module provides the ``Simple`` canvas."""
-from matplotlib.ticker import FixedLocator
+from matplotlib.ticker import FixedLocator, FuncFormatter
 from base_canvas import BaseCanvas
+from ..formatters import force_ndp
 
 
 class Simple(BaseCanvas):
@@ -8,25 +9,35 @@ class Simple(BaseCanvas):
 
     def __init__(self, shape="square", **kwargs):
         shape_dict = {"square": {"dimensions": (0.15, 0.1, 0.8, 0.85), "y_label_offset": -0.13},
-                      "landscape": {"dimensions": (0.12, 0.1, 0.84, 0.85), "y_label_offset": -0.0975}}
+                      "landscape": {"dimensions": (0.12, 0.1, 0.84, 0.85), "y_label_offset": -0.0975},
+                      "portrait": {"dimensions": (0.12, 0.1, 0.84, 0.85), "y_label_offset": -0.13}}
         self.shape_dict = shape_dict[shape]
         super(Simple, self).__init__(shape=shape, **kwargs)
         self.subplots["main"] = self.figure.add_axes(self.shape_dict["dimensions"])
         self.main_subplot = "main"
 
     def plot_dataset(self, *args, **kwargs):
-        axes = kwargs.get("axes", self.main_subplot)
+        subplot_name = kwargs.get("axes", self.main_subplot)
         super(Simple, self).plot_dataset(*args, **kwargs)
         if "x" not in self.axis_ranges:
-            self.set_axis_range("x", self.subplots[axes].get_xlim())
+            self.set_axis_range("x", self.subplots[subplot_name].get_xlim())
         if "y" not in self.axis_ranges:
-            self.set_axis_range("y", self.subplots[axes].get_ylim())
+            self.set_axis_range("y", self.subplots[subplot_name].get_ylim())
 
     def _apply_axis_limits(self):
         if "x" in self.axis_ranges:
             self.subplots["main"].set_xlim(self.axis_ranges["x"])
         if "y" in self.axis_ranges:
             self.subplots["main"].set_ylim(self.axis_ranges["y"])
+
+    def _apply_final_formatting(self):
+        """Apply final formatting."""
+        # Set axis decimal places
+        for axis_name, ndp in self.axis_tick_ndps.items():
+            if axis_name == "x":
+                self.subplots["main"].xaxis.set_major_formatter(FuncFormatter(force_ndp(nplaces=ndp)))
+            elif axis_name == "y":
+                self.subplots["main"].yaxis.set_major_formatter(FuncFormatter(force_ndp(nplaces=ndp)))
 
     def get_axis_label(self, axis_name):
         if axis_name == "x":

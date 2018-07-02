@@ -7,16 +7,13 @@ import mATLASplotlib
 
 def test_ratio_constructor():
     with mATLASplotlib.canvases.Ratio() as canvas:
-        # Default shape should be square
         assert canvas.figure.get_figheight() == 6.0
         assert canvas.figure.get_figwidth() == 6.0
-        # Subplot should be main
         assert canvas.main_subplot == "top"
 
 
 def test_ratio_constructor_shape():
     with mATLASplotlib.canvases.Ratio(shape="landscape") as canvas:
-        # Default shape should be square
         assert canvas.figure.get_figheight() == 6.0
         assert canvas.figure.get_figwidth() == 8.0
 
@@ -49,6 +46,7 @@ def test_simple_set_axis_ticks():
     with mATLASplotlib.canvases.Ratio() as canvas:
         canvas.set_axis_ticks("x", [1, 2, 3])
         assert np.array_equal(canvas.subplots["top"].xaxis.get_major_locator()(), [1, 2, 3])
+        assert np.array_equal(canvas.subplots["bottom"].xaxis.get_major_locator()(), [1, 2, 3])
         canvas.set_axis_ticks("y", [4, 5, 6])
         assert np.array_equal(canvas.subplots["top"].yaxis.get_major_locator()(), [4, 5, 6])
         canvas.set_axis_ticks("y_ratio", [0.8, 1.0, 1.2])
@@ -93,17 +91,25 @@ def test_ratio_axis_labels_unknown():
             canvas.get_axis_label("imaginary")
 
 
+def test_ratio_tick_ndp():
+    with mATLASplotlib.canvases.Ratio() as canvas:
+        for axis, ax_range in zip(["x", "y", "y_ratio"], [(5, 10), [0, 100], [0, 2]]):
+            canvas.set_axis_range(axis, ax_range)
+            canvas.set_axis_tick_ndp(axis, 2)
+            assert axis in canvas.axis_tick_ndps
+            assert canvas.axis_tick_ndps[axis] == 2
+        canvas.save("blank_test_output")
+        assert os.path.isfile("blank_test_output.pdf")
+        os.remove("blank_test_output.pdf")
+
+
 def test_ratio_axis_ranges():
     with mATLASplotlib.canvases.Ratio() as canvas:
         for axis, ax_range in zip(["x", "y", "y_ratio"], [(5, 10), [0, 100], [0, 2]]):
-            # Test set_axis_range()
             canvas.set_axis_range(axis, ax_range)
             assert np.array_equal(canvas.get_axis_range(axis), ax_range)
-            # Test set_axis_min() with a tuple
             canvas.set_axis_min(axis, 3)
-            assert np.array_equal(
-                canvas.get_axis_range(axis), (3, ax_range[1]))
-            # Test set_axis_max() with a list
+            assert np.array_equal(canvas.get_axis_range(axis), (3, ax_range[1]))
             canvas.set_axis_max(axis, 7)
             assert np.array_equal(canvas.get_axis_range(axis), [3, 7])
         canvas.save("blank_test_output")
@@ -129,17 +135,14 @@ def test_ratio_title():
 
 
 def test_ratio_save():
-    # Test pdf output
     with mATLASplotlib.canvases.Ratio() as canvas:
         canvas.save("blank_test_output")
         assert os.path.isfile("blank_test_output.pdf")
         os.remove("blank_test_output.pdf")
-    # Test png output
     with mATLASplotlib.canvases.Ratio() as canvas:
         canvas.save("blank_test_output", extension="png")
         assert os.path.isfile("blank_test_output.png")
         os.remove("blank_test_output.png")
-    # Test eps output
     with mATLASplotlib.canvases.Ratio() as canvas:
         canvas.save("blank_test_output", extension="eps")
         assert os.path.isfile("blank_test_output.eps")
@@ -153,6 +156,7 @@ def test_ratio_plot_dataset():
         assert "x" in canvas.axis_ranges.keys()
         assert "y" in canvas.axis_ranges.keys()
         assert "y_ratio" in canvas.axis_ranges.keys()
+
 
 def test_ratio_plot_dataset_bottom():
     with mATLASplotlib.canvases.Ratio() as canvas:

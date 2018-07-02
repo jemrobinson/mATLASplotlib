@@ -28,7 +28,9 @@ this should have drawn 10000 samples from a normal distribution and added them t
 3. Setting up a canvas
 ----------------------
 We use a context manager to open the canvas, which ensures that necessary cleanup is done when the canvas is no longer needed.
-Currently the supported canvases are the :py:class:`.Simple` canvas which contains one set of ``matplotlib`` axes and the :py:class:`.Ratio` canvas, which contains a main plot and a ratio plot underneath.
+Currently the supported canvases are the :py:class:`.Simple` canvas which contains one set of ``matplotlib`` axes,
+the :py:class:`.Ratio` canvas, which contains a main plot and a ratio plot underneath,
+and the the :py:class:`.Panelled` canvas which contains a top panel and an arbitrary number of lower panels beneath it.
 
 .. code:: python
 
@@ -36,7 +38,7 @@ Currently the supported canvases are the :py:class:`.Simple` canvas which contai
     with mATLASplotlib.canvases.Simple(shape="square") as canvas:
         canvas.plot_dataset(hist, style="scatter", label="Generated data", colour="black")
 
-The two shapes preferred in the ATLAS style guide are "square" (600 x 600 pixels) and "landscape" (600 x 800 pixels).
+The three shapes preferred by the ATLAS style guide are "square" (600 x 600 pixels), "landscape" (600 x 800 pixels) and "portrait" (800 x 600 pixels).
 Here we have chosen to use "square".
 
 After setting up the canvas, we can plot the dataset we constructed earlier using the :py:meth:`plot_dataset <.BaseCanvas.plot_dataset>` method.

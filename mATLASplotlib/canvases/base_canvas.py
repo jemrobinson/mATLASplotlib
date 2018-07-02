@@ -2,8 +2,10 @@
 import logging
 import math
 import matplotlib
+import numpy as np
 from .. import style
 from ..converters import Dataset
+from ..formatters import force_extra_ticks
 from ..plotters import get_plotter
 from ..decorations import draw_ATLAS_text, draw_text, Legend
 
@@ -13,6 +15,7 @@ logger = logging.getLogger("mATLASplotlib.canvases")
 class BaseCanvas(object):
     """Base class for canvas properties."""
 
+    #: Map of locations to matplotlib coordinates
     location_map = {"upper right": ["right", "top"],
                     "upper left": ["left", "top"],
                     "centre left": ["left", "center"],
@@ -20,10 +23,16 @@ class BaseCanvas(object):
                     "lower right": ["right", "bottom"],
                     "lower left": ["left", "bottom"]}
 
+    #: List of sensible tick intervals
+    auto_tick_intervals = [0.001, 0.002, 0.0025, 0.004, 0.005,
+                           0.01, 0.02, 0.025, 0.04, 0.05,
+                           0.1, 0.2, 0.25, 0.4, 0.5,
+                           1.0, 2.0, 2.5, 4.0, 5.0]
+
     def __init__(self, shape="square", **kwargs):
         """Set up universal canvas properties.
 
-        :param shape: use either the 'square' or 'landscape' ATLAS proportions
+        :param shape: use either the 'square', 'landscape' or 'portrait' ATLAS proportions
         :type shape: str
 
         :Keyword Arguments:
@@ -37,7 +46,7 @@ class BaseCanvas(object):
         # Set ATLAS style
         style.set_atlas()
         # Set up figure
-        n_pixels = {"square": (600, 600), "landscape": (800, 600)}[shape]
+        n_pixels = {"square": (600, 600), "landscape": (800, 600), "portrait": (600, 800)}[shape]
         self.figure = matplotlib.pyplot.figure(figsize=(n_pixels[0] / 100.0, n_pixels[1] / 100.0), dpi=100, facecolor="white")
         self.main_subplot = None
         # Set properties from arguments
@@ -48,6 +57,7 @@ class BaseCanvas(object):
         # Set up value holders
         self.legend = Legend()
         self.axis_ranges = {}
+        self.axis_tick_ndps = {}
         self.subplots = {}
         self.internal_header_fraction = None
 
@@ -79,14 +89,14 @@ class BaseCanvas(object):
             * **label**: (*str*) -- label to use in automatic legend generation
             * **sort_as**: (*str*) -- override
         """
-        axes = kwargs.pop("axes", self.main_subplot)
+        subplot_name = kwargs.pop("axes", self.main_subplot)
         plot_style = kwargs.pop("style", None)
         remove_zeros = kwargs.pop("remove_zeros", False)
         dataset = Dataset(*args, remove_zeros=remove_zeros, **kwargs)
         plotter = get_plotter(plot_style)
         if "label" in kwargs:
             self.legend.add_dataset(label=kwargs["label"], is_stack=("stack" in plot_style), sort_as=kwargs.pop("sort_as", None))
-        plotter.add_to_axes(dataset=dataset, axes=self.subplots[axes], **kwargs)
+        plotter.add_to_axes(dataset=dataset, axes=self.subplots[subplot_name], **kwargs)
 
     def add_legend(self, x, y, anchor_to="lower left", fontsize=None, axes=None):
         """Add a legend to the canvas at (x, y).
@@ -102,9 +112,8 @@ class BaseCanvas(object):
         :param axes: which of the different axes in this canvas to use.
         :type axes: str
         """
-        if axes is None:
-            axes = self.main_subplot
-        self.legend.plot(x, y, self.subplots[axes], anchor_to, fontsize)
+        subplot_name = self.main_subplot if axes is None else axes
+        self.legend.plot(x, y, self.subplots[subplot_name], anchor_to, fontsize)
 
     def add_ATLAS_label(self, x, y, plot_type=None, anchor_to="lower left", fontsize=None, axes=None):
         """Add an ATLAS label to the canvas at (x, y).
@@ -122,11 +131,8 @@ class BaseCanvas(object):
         :param axes: which of the different axes in this canvas to use.
         :type axes: str
         """
-        if axes is None:
-            axes = self.main_subplot
-        # ha, va = self.location_map[anchor_to]
-        # draw_ATLAS_text(x, y, self.subplots[axes], ha=ha, va=va, plot_type=plot_type, fontsize=fontsize)
-        draw_ATLAS_text(self.subplots[axes], (x, y), self.location_map[anchor_to], plot_type=plot_type, fontsize=fontsize)
+        subplot_name = self.main_subplot if axes is None else axes
+        draw_ATLAS_text(self.subplots[subplot_name], (x, y), self.location_map[anchor_to], plot_type=plot_type, fontsize=fontsize)
 
     def add_luminosity_label(self, x, y, sqrts_TeV, luminosity, units="fb-1", anchor_to="lower left", fontsize=14, axes=None):
         """Add a luminosity label to the canvas at (x, y).
@@ -148,13 +154,12 @@ class BaseCanvas(object):
         :param axes: which of the different axes in this canvas to use.
         :type axes: str
         """
-        if axes is None:
-            axes = self.main_subplot
+        subplot_name = self.main_subplot if axes is None else axes
         text_sqrts = r"$\sqrt{\mathsf{s}} = " +\
             str([sqrts_TeV, int(1000 * sqrts_TeV)][sqrts_TeV < 1.0]) +\
             r"\,\mathsf{" + ["TeV", "GeV"][sqrts_TeV < 1.0] + "}"
         text_lumi = "$" if luminosity is None else ", $" + str(luminosity) + " " + units.replace("-1", "$^{-1}$")
-        draw_text(text_sqrts + text_lumi, self.subplots[axes], (x, y), self.location_map[anchor_to], fontsize=fontsize)
+        draw_text(text_sqrts + text_lumi, self.subplots[subplot_name], (x, y), self.location_map[anchor_to], fontsize=fontsize)
 
     def add_text(self, x, y, text, **kwargs):
         """Add text to the canvas at (x, y).
@@ -166,9 +171,9 @@ class BaseCanvas(object):
         :param text: text to add.
         :type text: str
         """
-        axes = kwargs.pop("axes", self.main_subplot)
+        subplot_name = kwargs.pop("axes", self.main_subplot)
         anchor_to = kwargs.pop("anchor_to", "lower left")
-        draw_text(text, self.subplots[axes], (x, y), self.location_map[anchor_to], **kwargs)
+        draw_text(text, self.subplots[subplot_name], (x, y), self.location_map[anchor_to], **kwargs)
 
     def save(self, output_name, extension="pdf"):
         """Save the current state of the canvas to a file.
@@ -242,6 +247,16 @@ class BaseCanvas(object):
         """
         raise NotImplementedError("set_axis_ticks not defined by {0}".format(type(self)))
 
+    def set_axis_tick_ndp(self, axis_name, ndp):
+        """Set number of decimal places to show.
+
+        :param axis_name:  which axis to apply this to.
+        :type axis_name: str
+        :param ndp: how many decimal places to show.
+        :type ndp: int
+        """
+        self.axis_tick_ndps[axis_name] = ndp
+
     def set_axis_log(self, axis_names):
         """Set the specified axis to be on a log-scale.
 
@@ -280,39 +295,40 @@ class BaseCanvas(object):
 
     def __finalise_plot_formatting(self):
         """Finalise plot by applying previously requested formatting."""
-        for _, axes in self.subplots.items():
+        for _, subplot in self.subplots.items():
             # Apply axis limits
             self._apply_axis_limits()
             # Draw x ticks
             if self.x_tick_labels is not None:
-                x_interval = (max(axes.get_xlim()) - min(axes.get_xlim())) / (len(self.x_tick_labels))
-                axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(x_interval))
+                x_interval = (max(subplot.get_xlim()) - min(subplot.get_xlim())) / (len(self.x_tick_labels))
+                subplot.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(x_interval))
                 tmp_kwargs = {"fontsize": self.x_tick_label_size} if self.x_tick_label_size is not None else {}
-                axes.set_xticklabels([""] + self.x_tick_labels, **tmp_kwargs)  # the first and last ticks are off the scale so add a dummy label
+                subplot.set_xticklabels([""] + self.x_tick_labels, **tmp_kwargs)  # the first and last ticks are off the scale so add a dummy label
             # Draw y ticks
             if self.y_tick_labels is not None:
-                y_interval = (max(axes.get_ylim()) - min(axes.get_ylim())) / (len(self.y_tick_labels))
-                axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(y_interval))
+                y_interval = (max(subplot.get_ylim()) - min(subplot.get_ylim())) / (len(self.y_tick_labels))
+                subplot.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(y_interval))
                 tmp_kwargs = {"fontsize": self.y_tick_label_size} if self.y_tick_label_size is not None else {}
-                axes.set_yticklabels([""] + self.y_tick_labels, **tmp_kwargs)  # the first and last ticks are off the scale so add a dummy label
+                subplot.set_yticklabels([""] + self.y_tick_labels, **tmp_kwargs)  # the first and last ticks are off the scale so add a dummy label
+
             # Set x-axis locators
             if "x" in self.log_type:
-                xlocator = axes.xaxis.get_major_locator()
-                axes.set_xscale("log", subsx=[2, 3, 4, 5, 6, 7, 8, 9])
-                axes.yaxis.set_major_locator(xlocator)
-                axes.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
-                axes.xaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(self.__force_extra_x_ticks))  # only show certain minor labels
+                xlocator = subplot.xaxis.get_major_locator()
+                subplot.set_xscale("log", subsx=[2, 3, 4, 5, 6, 7, 8, 9])
+                subplot.yaxis.set_major_locator(xlocator)
+                subplot.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
+                subplot.xaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(force_extra_ticks(self.x_ticks_extra)))  # only show certain minor labels
             else:
-                axes.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+                subplot.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
             # Set y-axis locators
             if "y" in self.log_type:
-                locator = axes.yaxis.get_major_locator()
-                axes.set_yscale("log")
-                axes.yaxis.set_major_locator(locator)
+                locator = subplot.yaxis.get_major_locator()
+                subplot.set_yscale("log")
+                subplot.yaxis.set_major_locator(locator)
                 fixed_minor_points = [10**x * val for x in range(-100, 100) for val in [2, 3, 4, 5, 6, 7, 8, 9]]
-                axes.yaxis.set_minor_locator(matplotlib.ticker.FixedLocator(fixed_minor_points))
+                subplot.yaxis.set_minor_locator(matplotlib.ticker.FixedLocator(fixed_minor_points))
             else:
-                axes.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
+                subplot.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
 
         # Finish by adding internal header
         if self.internal_header_fraction is not None:
@@ -332,21 +348,6 @@ class BaseCanvas(object):
     def _apply_final_formatting(self):
         """Apply any necessary final formatting."""
         pass
-
-    def __force_extra_x_ticks(self, x, pos):
-        """Implement user-defined tick positions.
-
-        :param x: tick value.
-        :type x: float
-        :param pos: position.
-        :type pos: float
-        :return: formatted tick position string
-        :rtype: str
-        """
-        del pos  # this function signature is required by FuncFormatter
-        if any(int(x) == elem for elem in self.x_ticks_extra):
-            return "{0:.0f}".format(x)
-        return ""
 
     def get_axis_label(self, axis_name):
         """Get the label for the chosen axis
@@ -370,3 +371,21 @@ class BaseCanvas(object):
             return self.axis_ranges[axis_name]
         else:
             raise ValueError("axis {0} not recognised by {1}".format(axis_name, type(self)))
+
+    def _get_auto_axis_ticks(self, axis_name, n_approximate=4):
+        """Choose axis ticks to be sensibly spaced and always include 1.0.
+
+        :param axis_name: name of axis to work on
+        :type axis_name: str
+        :param n_approximate: approximate number of ticks to use.
+        :type n_approximate: int
+        :return: list of tick positions
+        :rtype: list
+        """
+        # Underestimate the interval size since we might be removing the highest tick
+        interval = 0.99 * abs(self.axis_ranges[axis_name][1] - self.axis_ranges[axis_name][0])
+        tick_size = min(self.auto_tick_intervals, key=lambda x: abs((interval / x) - n_approximate))
+        tick_list = np.arange(1.0 - 10 * tick_size, 1.0 + 10 * tick_size, tick_size)
+        # Remove topmost tick if it would be at the top of the axis
+        tick_list = [t for t in tick_list if not np.allclose(t, self.axis_ranges[axis_name][1])]
+        return tick_list
