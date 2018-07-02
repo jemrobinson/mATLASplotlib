@@ -11,6 +11,7 @@ def test_atlas_text():
         assert len(final_text_elements) - len(initial_text_elements) == 1
         assert len([t for t in final_text_elements if t.get_text() == "ATLAS"]) == 1
 
+
 def test_atlas_text_internal():
     with mATLASplotlib.canvases.Simple() as canvas:
         canvas.plot_dataset([0, 1], [5, 10], style="scatter")
@@ -23,6 +24,7 @@ def test_atlas_text_internal():
         assert len([t for t in final_text_elements if t.get_text() == "ATLAS"]) == 1
         assert len([t for t in final_text_elements if t.get_text() == "Internal"]) == 1
 
+
 def test_atlas_text_lower_left():
     with mATLASplotlib.canvases.Simple() as canvas:
         canvas.plot_dataset([0, 1], [5, 10], style="scatter")
@@ -32,6 +34,7 @@ def test_atlas_text_lower_left():
         assert [t for t in text_elements if t.get_text() == "ATLAS"][0].get_va() == "bottom"
         # Lower left should position the "ATLAS" at 0.5, 0.5
         assert [t for t in text_elements if t.get_text() == "ATLAS"][0].get_position() == (0.5, 0.5)
+
 
 def test_atlas_text_lower_right():
     with mATLASplotlib.canvases.Simple() as canvas:
@@ -43,6 +46,7 @@ def test_atlas_text_lower_right():
         # Lower right should position the " Internal" at 0.5, 0.5 -- note the spacing
         assert [t for t in text_elements if t.get_text() == " Internal"][0].get_position() == (0.5, 0.5)
 
+
 def test_atlas_text_upper_left():
     with mATLASplotlib.canvases.Simple() as canvas:
         canvas.plot_dataset([0, 1], [5, 10], style="scatter")
@@ -52,6 +56,7 @@ def test_atlas_text_upper_left():
         assert [t for t in text_elements if t.get_text() == "ATLAS"][0].get_va() == "top"
         # Upper left should position the "ATLAS" at 0.5, 0.5
         assert [t for t in text_elements if t.get_text() == "ATLAS"][0].get_position() == (0.5, 0.5)
+
 
 def test_atlas_text_upper_right():
     with mATLASplotlib.canvases.Simple() as canvas:

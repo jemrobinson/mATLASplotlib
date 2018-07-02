@@ -24,7 +24,10 @@ class Ratio(BaseCanvas):
         self.line_ypos = line_ypos
         self.main_subplot = "top"
         self.axis_ranges["y_ratio"] = [0.5, 1.5]
-        self.ratio_tick_sizes = [0.001, 0.002, 0.0025, 0.005, 0.01, 0.02, 0.025, 0.04, 0.05, 0.1, 0.2, 0.25, 0.4, 0.5, 1.0, 2.0]
+        self.auto_ratio_tick_intervals = [0.001, 0.002, 0.0025, 0.004, 0.005,
+                                          0.01, 0.02, 0.025, 0.04, 0.05,
+                                          0.1, 0.2, 0.25, 0.4, 0.5,
+                                          1.0, 2.0, 2.5, 4.0, 5.0]
         self.use_auto_ratio_ticks = True
 
     def plot_dataset(self, *args, **kwargs):
@@ -154,7 +157,7 @@ class Ratio(BaseCanvas):
         """
         # Underestimate the interval size since we might be removing the highest tick
         interval = 0.99 * abs(self.axis_ranges["y_ratio"][1] - self.axis_ranges["y_ratio"][0])
-        tick_size = min(self.ratio_tick_sizes, key=lambda x: abs((interval / x) - n_approximate))
+        tick_size = min(self.auto_ratio_tick_intervals, key=lambda x: abs((interval / x) - n_approximate))
         tick_list = arange(1.0 - 10 * tick_size, 1.0 + 10 * tick_size, tick_size)
         # Remove topmost tick if it would be at the top of the axis
         tick_list = [t for t in tick_list if not allclose(t, self.axis_ranges["y_ratio"][1])]

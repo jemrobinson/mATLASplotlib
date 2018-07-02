@@ -54,4 +54,4 @@ with mATLASplotlib.canvases.Simple(shape="landscape") as canvas:
     canvas.set_axis_ticks("x", [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
 
     # Finally save to a file (.pdf will be used by default)
-    canvas.save_to_file("example_fig_01", extension=["png", "pdf"])
+    canvas.save("example_fig_01", extension=["png", "pdf"])

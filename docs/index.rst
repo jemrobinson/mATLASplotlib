@@ -23,7 +23,7 @@ For example, something like
     with mATLASplotlib.canvases.Simple(shape="landscape") as canvas:
         x, y = [0, 1, 2, 3], [0, 1, 4, 9]
         canvas.plot_dataset(x, y, style="scatter", label="Example points", colour="black")
-        canvas.save_to_file("simple_example")
+        canvas.save("simple_example")
 
 will produce a minimal scatter plot with automatically determined axis limits and save this to a PDF (if not otherwise specified).
 

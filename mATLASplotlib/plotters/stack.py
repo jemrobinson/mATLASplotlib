@@ -20,20 +20,27 @@ class Stack(BasePlotter):
         :Keyword Arguments:
             * **colour** (*str*) -- which face colour to use
             * **hatch** (*str*) -- set hatch pattern
-            * **line_colour** (*float*) -- which colour to use for the main line and for hatches
-            * **edgecolour** (*float*) -- which colour to use for the outline
+            * **hatchcolour** (*str*) -- which hatch colour to use
             * **label** (*str*) -- label to use when this appears in a legend
+            * **outlinewidth** (*str*) -- how wide to draw the outline
         """
-        logger.debug("Adding dataset to axes as stack")
-        # Interpret arguments
-        self.plot_args["color"] = kwargs.pop("colour", "black")                          # Default colour: black
-        self.plot_args["label"] = kwargs.pop("label", None)                              # Default label: None
-        self.plot_args["linewidth"] = kwargs.pop("linewidth", 0.0)                       # Default linewidth: 0
-        self.plot_args["edgecolor"] = kwargs.pop("edgecolour", self.plot_args["color"])  # Default edgecolour: match fill colour
-        if kwargs.get("hatch", None) is not None:
-            self.plot_args["hatch"] = kwargs.pop("hatch")                                # Default hatch: do not apply
+        # Construct plotting argument dictionary
+        self.plot_args["color"] = kwargs.pop("colour", "black")               # Default colour: black
+        if "hatch" in kwargs:
+            self.plot_args["hatch"] = kwargs.pop("hatch")                     # Default hatch: do not apply
+            self.plot_args["edgecolor"] = kwargs.pop("hatchcolour", "white")  # Default colour: white
+        self.plot_args["label"] = kwargs.pop("label", None)                   # Default label: None
+        self.plot_args["linewidth"] = kwargs.pop("outlinewidth", 0.0)         # Default linewidth: 0
 
+        # Add any other user-provided arguments
+        self.plot_args.update(kwargs)
+
+        # Initialise stack bottom
         if not hasattr(axes, "stack_bottom"):
             axes.stack_bottom = [0] * len(dataset.y_points)
-        axes.bar(dataset.x_points, height=dataset.y_points, width=dataset.x_bin_widths, bottom=axes.stack_bottom, **self.plot_args)
+
+        # Plot with edge colour first if requested
+        axes.bar(dataset.x_points, height=dataset.y_points, width=[1.004 * x for x in dataset.x_bin_widths], bottom=axes.stack_bottom, **self.plot_args)
+
+        # Increment stack bottom
         axes.stack_bottom = [increment + previous for increment, previous in zip(dataset.y_points, axes.stack_bottom)]

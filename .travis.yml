@@ -34,6 +34,7 @@ script:
     fi
   # Static analysis
   - pyflakes mATLASplotlib
+  # Check PEP8 compliance
   - pycodestyle --statistics --ignore=E501 --count mATLASplotlib
   # Run tests using coveralls output
   - py.test --cov=mATLASplotlib --cov-report term-missing

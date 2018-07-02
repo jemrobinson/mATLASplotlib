@@ -39,17 +39,24 @@ class Scatter(BasePlotter):
         :Keyword Arguments:
             * **colour** (*str*) -- which face colour to use
             * **label** (*str*) -- label to use when this appears in a legend
+            * **linestyle** (*str*) -- which style (dotted/dashed/solid etc.) to draw the line with if `join centers` is specified
             * **linewidth** (*str*) -- how wide to draw the line
             * **marker** (*str*) -- which marker to use
             * **with_error_bar_caps** (*bool*) -- whether to draw caps on the end of the error bars
         """
-        # Construct plotting arguments
-        self.plot_args["color"] = kwargs.pop("colour", "black")        # Default colour: black
-        self.plot_args["label"] = kwargs.pop("label", None)            # Default label: None
-        self.plot_args["linewidth"] = kwargs.pop("linewidth", 2)       # Default linewidth: 2
-        self.plot_args["marker"] = kwargs.pop("marker", "o")           # Default marker: dot
+        # Construct plotting argument dictionary
+        self.plot_args["color"] = kwargs.pop("colour", "black")  # Default colour: black
+        self.plot_args["label"] = kwargs.pop("label", None)      # Default label: None
+        self.plot_args["linewidth"] = kwargs.pop("linewidth", 2)  # Default linewidth: 2
+        self.plot_args["marker"] = kwargs.pop("marker", "o")     # Default marker: dot
+
+        # Extract other known arguments from kwargs
+        linestyle = kwargs.pop("linestyle", "solid")                   # Default linestyle: solid
+        with_error_bar_caps = kwargs.pop("with_error_bar_caps", False)  # Default: False
+
         # Add any other user-provided arguments
         self.plot_args.update(kwargs)
+
         # Set whether error bars are shown
         if self.show_x_errors:
             self.plot_args["xerr"] = np.transpose(dataset.x_error_pairs)
@@ -58,23 +65,24 @@ class Scatter(BasePlotter):
         # Get error cap sizes
         if self.show_x_errors or self.show_y_errors:
             if mpl_version > "1.4.0":
-                with_error_bar_caps = kwargs.pop("with_error_bar_caps", False)
                 self.plot_args["capthick"] = self.plot_args.get("linewidth") if with_error_bar_caps else 0
                 self.plot_args["capsize"] = 2 * self.plot_args.get("linewidth") if with_error_bar_caps else 0
             else:
                 logger.warning("Matplotlib version {} is too old to allow error bar caps".format(mpl_version))
+        else:
+            self.plot_args["markeredgewidth"] = 0  # force error bar cap removal (unnecessary in newer matplotlib versions)
 
         # Draw points using errorbar
-        axes.errorbar(dataset.x_points, dataset.y_points, fmt="", markeredgewidth=0, linestyle="None", **self.plot_args)
+        axes.errorbar(dataset.x_points, dataset.y_points, fmt="", linestyle="None", **self.plot_args)
 
         # Draw a line joining the points
-        self.plot_args["linestyle"] = kwargs.pop("linestyle", "solid")  # Default linestyle: solid
-        if self.join_centres or kwargs.pop("join_centres", False):
+        if self.join_centres:
             # Set custom dash styling
-            if self.plot_args["linestyle"] == "dashed":
-                self.plot_args["dashes"] = (3 * self.plot_args["linewidth"], 1 * self.plot_args["linewidth"])
-            if self.plot_args["linestyle"] == "dotted":
-                self.plot_args["dashes"] = (1 * self.plot_args["linewidth"], 1 * self.plot_args["linewidth"])
-            if self.plot_args["linestyle"] == "dashdot":
-                self.plot_args["dashes"] = (2 * self.plot_args["linewidth"], 1 * self.plot_args["linewidth"], 1 * self.plot_args["linewidth"], 1 * self.plot_args["linewidth"])
-            axes.plot(dataset.x_points, dataset.y_points, **self.plot_args)
+            w = self.plot_args["linewidth"]
+            if linestyle == "dashed":
+                self.plot_args["dashes"] = (3 * w, 1 * w)
+            if linestyle == "dotted":
+                self.plot_args["dashes"] = (1 * w, 1 * w)
+            if linestyle == "dashdot":
+                self.plot_args["dashes"] = (2 * w, 1 * w, 1 * w, 1 * w)
+            axes.plot(dataset.x_points, dataset.y_points, linestyle=linestyle, **self.plot_args)

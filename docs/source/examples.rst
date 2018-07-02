@@ -88,7 +88,7 @@ And the file is saved
 
 .. code:: python
 
-    canvas.save_to_file("example_fig_01")
+    canvas.save("example_fig_01")
 
 .. image:: images/example_fig_01_official.png
    :width: 49%
@@ -172,7 +172,7 @@ Finally save it
 
 .. code:: python
 
-    canvas.save_to_file("example_fig_02", extension="png")
+    canvas.save("example_fig_02", extension="png")
 
 .. image:: images/example_fig_02_official.png
    :width: 49%

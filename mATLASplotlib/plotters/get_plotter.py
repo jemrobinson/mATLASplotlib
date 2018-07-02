@@ -24,7 +24,7 @@ def get_plotter(plot_style):
         return BarChart(plot_style)
     if "binned band" in plot_style:
         return BinnedBand(plot_style)
-    if "coloured_2D" in plot_style:
+    if "coloured 2D" in plot_style:
         return Coloured2D(plot_style)
     if "line" in plot_style:
         return Line(plot_style)

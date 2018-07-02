@@ -43,7 +43,8 @@ class Legend(object):
         """
         transform = axes.transAxes
         handles, labels = self.__get_legend_handles_labels(axes)
-        _legend = axes.legend(handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y), bbox_transform=transform, borderpad=0, borderaxespad=0, columnspacing=0)
+        _legend = axes.legend(handles, labels, numpoints=1, loc=anchor_to, bbox_to_anchor=(x, y),
+                              bbox_transform=transform, borderpad=0, borderaxespad=0, columnspacing=0)
         _legend.get_frame().set_linewidth(0)
         _legend.get_frame().set_alpha(0.0)
         fontsize = self.default_fontsize if fontsize is None else fontsize
@@ -69,13 +70,13 @@ class Legend(object):
             if label not in seen:
                 seen.add(label)
                 labels.append(label)
-                if isinstance(handle, matplotlib.patches.Polygon):
-                    proxy_artist = matplotlib.pyplot.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])
-                    handles.append(proxy_artist)
-                elif isinstance(handle, matplotlib.patches.Ellipse):
+                if isinstance(handle, matplotlib.patches.Ellipse):
                     line = matplotlib.pyplot.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])
                     rectangle = matplotlib.pyplot.Rectangle((0, 0), 0, 0, facecolor=handle.properties()["facecolor"])
                     handles.append((rectangle, line))
+                # elif isinstance(handle, matplotlib.patches.Polygon):
+                #     proxy_artist = matplotlib.pyplot.Line2D([0], [0], color=handle.properties()["edgecolor"], linestyle=handle.properties()["linestyle"])
+                #     handles.append(proxy_artist)
                 else:
                     handles.append(handle)
         # Pre-sort legend order for stacks, which need reversing

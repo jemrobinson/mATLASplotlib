@@ -28,16 +28,16 @@ class Line(BasePlotter):
         :Keyword Arguments:
             * **colour** (*str*) -- which face colour to use
             * **label** (*str*) -- label to use when this appears in a legend
+            * **linestyle** (*str*) -- which style (dotted/dashed/solid etc.) to draw the line with
             * **linewidth** (*str*) -- how wide to draw the line
-            * **linestyle** (*str*) -- which style (dotted/dashed/solid etc.) to draw the line in
             * **marker** (*str*) -- which marker to use
         """
-        # Construct plotting arguments
+        # Construct plotting argument dictionary
         self.plot_args["color"] = kwargs.pop("colour", "black")         # Default colour: black
         self.plot_args["label"] = kwargs.pop("label", None)             # Default label: None
+        self.plot_args["linestyle"] = kwargs.pop("linestyle", "solid")  # Default linewidth: solid
         self.plot_args["linewidth"] = kwargs.pop("linewidth", 2)        # Default linewidth: 2
         self.plot_args["marker"] = kwargs.pop("marker", None)           # Default marker: dot
-        self.plot_args["linestyle"] = kwargs.pop("linestyle", "solid")  # Default linewidth: solid
 
         # Add any other user-provided arguments
         self.plot_args.update(kwargs)
@@ -52,8 +52,8 @@ class Line(BasePlotter):
         if line_draw_style == "join centres":
             axes.plot(dataset.x_points, dataset.y_points, **self.plot_args)
         elif line_draw_style == "smooth":
-            spline = interpolate.interp1d(dataset.x_all_bin_edges, dataset.y_at_x_bin_edges)  # , kind="cubic")
-            x_spline = np.linspace(min(dataset.x_all_bin_edges), max(dataset.x_all_bin_edges), 1 * len(dataset.x_all_bin_edges))
+            spline = interpolate.interp1d(dataset.x_points, dataset.y_points, kind="cubic")
+            x_spline = np.linspace(min(dataset.x_points), max(dataset.x_points), 10 * len(dataset.x_points))
             y_spline = spline(x_spline)
             axes.plot(x_spline, y_spline, **self.plot_args)
         elif line_draw_style == "stepped":

@@ -19,16 +19,19 @@ class BarChart(BasePlotter):
 
         :Keyword Arguments:
             * **colour** (*str*) -- which face colour to use
-            * **edgewidth** (*float*) -- how large an outline width to use
             * **edgecolour** (*float*) -- which colour to use for the outline
+            * **edgewidth** (*float*) -- how large an outline width to use
             * **label** (*str*) -- label to use when this appears in a legend
         """
         logger.debug("Adding dataset to axes as bar")
-        # Interpret arguments
+        # Construct plotting argument dictionary
         self.plot_args["color"] = kwargs.pop("colour", "black")  # Default colour: black
-        linewidth = kwargs.pop("edgewidth", 4)                   # Default linewidth: 4
+
+        # Extract other known arguments from kwargs
         edgecolour = kwargs.pop("edgecolour", None)              # Default edgecolour: None
+        linewidth = kwargs.pop("edgewidth", 4)                   # Default linewidth: 4
         label = kwargs.pop("label", None)                        # Default label: None
+
         # Add any other user-provided arguments
         self.plot_args.update(kwargs)
 
@@ -37,7 +40,7 @@ class BarChart(BasePlotter):
             axes.bar(dataset.x_points, height=dataset.y_points, width=dataset.x_bin_widths, color=None, edgecolor=edgecolour, linewidth=linewidth)
 
         # Draw main bar - expand the widths slightly to fill in zero-width gaps
-        axes.bar(dataset.x_points, height=dataset.y_points, width=[1.005 * x for x in dataset.x_bin_widths], edgecolor=None, **self.plot_args)
+        axes.bar(dataset.x_points, height=dataset.y_points, width=[1.004 * x for x in dataset.x_bin_widths], edgecolor=None, **self.plot_args)
 
         # Add a proxy artist with correct edge and facecolours
         if edgecolour is None:

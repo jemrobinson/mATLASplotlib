@@ -177,7 +177,7 @@ class BaseCanvas(object):
         ha, va = self.location_map[anchor_to]
         draw_text(text, x, y, self.subplots[axes], ha=ha, va=va, **kwargs)
 
-    def save_to_file(self, output_name, extension="pdf"):
+    def save(self, output_name, extension="pdf"):
         """Save the current state of the canvas to a file.
 
         :param output_name: name of output file.
@@ -189,7 +189,7 @@ class BaseCanvas(object):
         if isinstance(extension, str):
             extension = [extension]
         for output in extension:
-            matplotlib.pyplot.savefig("{0}.{1}".format(output_name, output))  # , dpi=1000)
+            matplotlib.pyplot.savefig("{0}.{1}".format(output_name, output))
             logger.info("Saved figure to: {0}.{1}".format(output_name, output))
 
     def close(self):

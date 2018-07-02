@@ -96,7 +96,7 @@ class Dataset(object):
         :raises ValueError: unsupported axes argument
         """
         if axes == "xy":
-            bin_centres = np.meshgrid(self.x_points, self.y_points, indexing="xy")
+            bin_centres = np.meshgrid(getattr(self, "x_points"), getattr(self, "y_points"), indexing="xy")
         else:
             raise ValueError("Attempted to construct 2D bin list for {0} axes. Only 'xy' is currently supported.".format(axes))
         return [bin_centre.ravel() for bin_centre in bin_centres]
@@ -187,7 +187,8 @@ class Dataset(object):
         """Return array of all x/y/z bin edges, constructing if necessary."""
         attr_name = "_{0}_all_bin_edges".format(dimension)
         if not hasattr(self, attr_name):
-            value = np.array(sum([[low_edge, high_edge] for low_edge, high_edge in zip(self.__get_bin_low_edges(dimension), self.__get_bin_high_edges(dimension))], []))
+            low_edges, high_edges = self.__get_bin_low_edges(dimension), self.__get_bin_high_edges(dimension)
+            value = np.array(sum([[l, h] for l, h in zip(low_edges, high_edges)], []))
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
@@ -226,29 +227,29 @@ class Dataset(object):
     def __get_x_at_y_bin_edges(self):
         """Return array of x at the bin edges of y bins, constructing if necessary."""
         if not hasattr(self, "_x_at_y_bin_edges"):
-            setattr(self, "_x_at_y_bin_edges", np.array(sum([[x_point, x_point] for x_point in self.x_points], [])))
-        return self._x_at_y_bin_edges
+            setattr(self, "_x_at_y_bin_edges", np.array(sum([[x_point, x_point] for x_point in getattr(self, "x_points")], [])))
+        return getattr(self, "_x_at_y_bin_edges")
 
     def __get_y_at_x_bin_edges(self):
         """Return array of y at the bin edges of x bins, constructing if necessary."""
         if not hasattr(self, "_y_at_x_bin_edges"):
-            setattr(self, "_y_at_x_bin_edges", np.array(sum([[y_point, y_point] for y_point in self.y_points], [])))
-        return self._y_at_x_bin_edges
+            setattr(self, "_y_at_x_bin_edges", np.array(sum([[y_point, y_point] for y_point in getattr(self, "y_points")], [])))
+        return getattr(self, "_y_at_x_bin_edges")
 
     def __get_band_edges_x(self):
         """Return array of x edges for fillable band, constructing if necessary."""
         if not hasattr(self, "_band_edges_x"):
             setattr(self, "_band_edges_x", np.array(sum([[point[0] - point[1], point[0] + point[2]] for point in self._data["x"]], [])))
-        return self._band_edges_x
+        return getattr(self, "_band_edges_x")
 
     def __get_band_edges_y_low(self):
         """Return array of y minima for fillable band, constructing if necessary."""
         if not hasattr(self, "_band_edges_y_low"):
             setattr(self, "_band_edges_y_low", np.array(sum([[point[0] - point[1], point[0] - point[1]] for point in self._data["y"]], [])))
-        return self._band_edges_y_low
+        return getattr(self, "_band_edges_y_low")
 
     def __get_band_edges_y_high(self):
         """Return array of y maxima for fillable band, constructing if necessary."""
         if not hasattr(self, "_band_edges_y_high"):
             setattr(self, "_band_edges_y_high", np.array(sum([[point[0] + point[2], point[0] + point[2]] for point in self._data["y"]], [])))
-        return self._band_edges_y_high
+        return getattr(self, "_band_edges_y_high")

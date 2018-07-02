@@ -62,7 +62,7 @@ Saving the output to a file is very simple.
 
 .. code:: python
 
-    canvas.save_to_file("simple_example")
+    canvas.save("simple_example")
 
 This function takes an optional ``extension`` argument which sets the file extension of the output file.
 Running this code will produce a minimal scatter plot with automatically determined axis limits and save this to a PDF (if not otherwise specified).

@@ -14,6 +14,14 @@ class Simple(BaseCanvas):
         self.subplots["main"] = self.figure.add_axes(self.shape_dict["dimensions"])
         self.main_subplot = "main"
 
+    def plot_dataset(self, *args, **kwargs):
+        axes = kwargs.get("axes", self.main_subplot)
+        super(Simple, self).plot_dataset(*args, **kwargs)
+        if "x" not in self.axis_ranges:
+            self.set_axis_range("x", self.subplots[axes].get_xlim())
+        if "y" not in self.axis_ranges:
+            self.set_axis_range("y", self.subplots[axes].get_ylim())
+
     def _apply_axis_limits(self):
         if "x" in self.axis_ranges:
             self.subplots["main"].set_xlim(self.axis_ranges["x"])

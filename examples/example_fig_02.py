@@ -58,4 +58,4 @@ with mATLASplotlib.canvases.Simple(shape="square") as canvas:
     canvas.set_axis_ticks("y", [1e-3, 1e-2, 1e-1, 1, 10, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7])
 
     # Finally save to a file (.pdf will be used by default)
-    canvas.save_to_file("example_fig_02", extension="png")
+    canvas.save("example_fig_02", extension="png")
