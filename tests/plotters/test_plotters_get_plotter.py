@@ -33,12 +33,12 @@ def test_get_plotter_stack():
 
 
 def test_get_plotter_None():
-    with pytest.raises(ValueError) as e_info:
+    with pytest.raises(ValueError):
         mATLASplotlib.plotters.get_plotter(None)
 
 
 def test_get_plotter_non_existant():
-    with pytest.raises(NotImplementedError) as e_info:
+    with pytest.raises(NotImplementedError):
         mATLASplotlib.plotters.get_plotter("Dummy")
 
 

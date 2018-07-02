@@ -11,6 +11,7 @@ docs/_build/*
 
 # pytest output
 .pytest_cache
+.coverage
 
 # pypi package output
 build/*

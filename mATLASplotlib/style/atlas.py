@@ -6,15 +6,12 @@ import matplotlib
 logger = logging.getLogger("mATLASplotlib.style")
 
 
-def set_atlas(shape="square"):
+def set_atlas():
     """Set the plotting style to ATLAS-style and then point this function to 'None' so that it can only be called once. Called on canvas creation."""
     logger.info("Setting ATLAS style")
 
     # Set figure layout
-    if shape == "square":
-        matplotlib.rcParams["figure.figsize"] = (6, 6)
-    else:
-        matplotlib.rcParams["figure.figsize"] = (8.75, 5.92)
+    matplotlib.rcParams["figure.figsize"] = (6, 6)
     matplotlib.rcParams["figure.facecolor"] = "white"
     matplotlib.rcParams["figure.subplot.bottom"] = 0.16
     matplotlib.rcParams["figure.subplot.top"] = 0.95

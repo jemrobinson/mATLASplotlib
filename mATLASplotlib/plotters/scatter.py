@@ -2,7 +2,6 @@
 
 import logging
 import numpy as np
-from matplotlib import __version__ as mpl_version
 from base_plotter import BasePlotter
 
 logger = logging.getLogger("mATLASplotlib.plotters")
@@ -64,11 +63,8 @@ class Scatter(BasePlotter):
             self.plot_args["yerr"] = np.transpose(dataset.y_error_pairs)
         # Get error cap sizes
         if self.show_x_errors or self.show_y_errors:
-            if mpl_version > "1.4.0":
-                self.plot_args["capthick"] = self.plot_args.get("linewidth") if with_error_bar_caps else 0
-                self.plot_args["capsize"] = 2 * self.plot_args.get("linewidth") if with_error_bar_caps else 0
-            else:
-                logger.warning("Matplotlib version {} is too old to allow error bar caps".format(mpl_version))
+            self.plot_args["capthick"] = self.plot_args.get("linewidth") if with_error_bar_caps else 0
+            self.plot_args["capsize"] = 2 * self.plot_args.get("linewidth") if with_error_bar_caps else 0
         else:
             self.plot_args["markeredgewidth"] = 0  # force error bar cap removal (unnecessary in newer matplotlib versions)
 
@@ -77,12 +73,4 @@ class Scatter(BasePlotter):
 
         # Draw a line joining the points
         if self.join_centres:
-            # Set custom dash styling
-            w = self.plot_args["linewidth"]
-            if linestyle == "dashed":
-                self.plot_args["dashes"] = (3 * w, 1 * w)
-            if linestyle == "dotted":
-                self.plot_args["dashes"] = (1 * w, 1 * w)
-            if linestyle == "dashdot":
-                self.plot_args["dashes"] = (2 * w, 1 * w, 1 * w, 1 * w)
             axes.plot(dataset.x_points, dataset.y_points, linestyle=linestyle, **self.plot_args)

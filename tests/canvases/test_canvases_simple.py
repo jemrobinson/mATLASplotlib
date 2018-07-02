@@ -1,5 +1,7 @@
-import os
+import matplotlib
 import numpy as np
+import os
+import pytest
 import mATLASplotlib
 
 
@@ -35,9 +37,19 @@ def test_simple_constructor_log_type_xy():
         assert "y" in canvas.log_type
 
 
-def test_simple_constructor_log_x_force_label_pos():
-    with mATLASplotlib.canvases.Simple(log_type="x", log_x_force_label_pos=[1, 2, 4]) as canvas:
-        assert canvas.log_x_force_label_pos == [1, 2, 4]
+def test_simple_constructor_x_ticks_extra():
+    with mATLASplotlib.canvases.Simple(log_type="x", x_ticks_extra=[1, 2, 4]) as canvas:
+        assert canvas.x_ticks_extra == [1, 2, 4]
+
+
+def test_simple_set_axis_ticks():
+    with mATLASplotlib.canvases.Simple() as canvas:
+        canvas.set_axis_ticks("x", [1, 2, 3])
+        assert np.array_equal(canvas.subplots["main"].xaxis.get_major_locator()(), [1, 2, 3])
+        canvas.set_axis_ticks("y", [4, 5, 6])
+        assert np.array_equal(canvas.subplots["main"].yaxis.get_major_locator()(), [4, 5, 6])
+        with pytest.raises(ValueError):
+            canvas.set_axis_ticks("imaginary", [0.8, 1.0, 1.2])
 
 
 def test_simple_constructor_x_tick_labels():
@@ -67,6 +79,21 @@ def test_simple_axis_labels():
             assert canvas.get_axis_label(axis) == label
 
 
+def test_simple_axis_labels_unknown():
+    with mATLASplotlib.canvases.Simple() as canvas:
+        with pytest.raises(ValueError):
+            canvas.set_axis_label("imaginary", "test")
+        with pytest.raises(ValueError):
+            canvas.get_axis_label("imaginary")
+
+
+def test_simple_title():
+    with mATLASplotlib.canvases.Simple() as canvas:
+        canvas.set_title("title")
+        title_text = [c for c in canvas.subplots["main"].get_children() if isinstance(c, matplotlib.text.Text)][0]
+        assert title_text.get_text() == "title"
+
+
 def test_simple_axis_ranges():
     with mATLASplotlib.canvases.Simple() as canvas:
         for axis, ax_range in zip(["x", "y"], [(5, 10), [0, 100]]):
@@ -80,6 +107,19 @@ def test_simple_axis_ranges():
             # Test set_axis_max() with a list
             canvas.set_axis_max(axis, 7)
             assert np.array_equal(canvas.get_axis_range(axis), [3, 7])
+        canvas.save("blank_test_output")
+        assert os.path.isfile("blank_test_output.pdf")
+        os.remove("blank_test_output.pdf")
+
+
+def test_simple_axis_ranges_unknown():
+    with mATLASplotlib.canvases.Simple() as canvas:
+        with pytest.raises(ValueError):
+            canvas.set_axis_range("imaginary", (0, 5))
+        with pytest.raises(ValueError):
+            canvas.set_axis_min("imaginary", 0)
+        with pytest.raises(ValueError):
+            canvas.set_axis_max("imaginary", 5)
 
 
 def test_simple_save():
@@ -131,6 +171,15 @@ def test_simple_save_log_type_y():
 def test_simple_save_internal_header_fraction():
     with mATLASplotlib.canvases.Simple() as canvas:
         canvas.internal_header_fraction = 0.4
+        canvas.save("blank_test_output")
+        assert os.path.isfile("blank_test_output.pdf")
+        os.remove("blank_test_output.pdf")
+
+def test_simple_save_internal_header_fraction_log():
+    with mATLASplotlib.canvases.Simple(x_ticks_extra=[20, 60]) as canvas:
+        canvas.plot_dataset([10, 50, 100], [5, 5, 5], [5, 10, 12], None, style="line", marker="o", markersize=10)
+        canvas.internal_header_fraction = 0.4
+        canvas.set_axis_log("xy")
         canvas.save("blank_test_output")
         assert os.path.isfile("blank_test_output.pdf")
         os.remove("blank_test_output.pdf")

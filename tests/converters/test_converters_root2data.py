@@ -117,12 +117,24 @@ def test_root2data_constructor_TH2D():
 
 
 def test_root2data_constructor_TObject():
-    with pytest.raises(ValueError) as e_info:
+    with pytest.raises(ValueError):
         root_object = ROOT.TObject()
-        ds = mATLASplotlib.converters.Dataset(root_object)
+        mATLASplotlib.converters.Dataset(root_object)
 
 
 def test_root2data_canvas_plot_TF1():
     root_object = ROOT.TF1("TF1", "sin(x)/x", 0.0, 10.0)
     with mATLASplotlib.canvases.Simple() as canvas:
         canvas.plot_dataset(root_object, style="line", colour="red")
+
+
+def test_root2data_zero_removal():
+    x, y = [0, 1, 2], [0, 1, 4]
+    root_object = ROOT.TGraph(3, array.array("d", x), array.array("d", y))
+    ds = mATLASplotlib.converters.Dataset(root_object, remove_zeros=True)
+    assert ds.get_dimensions() == ["x", "y"]
+    assert np.array_equal(ds.x_points, np.array([1.0, 2.0]))
+    assert np.array_equal(ds.y_points, np.array([1.0, 4.0]))
+    assert np.array_equal(ds.x_error_pairs, np.array([(0.0, 0.0), (0.0, 0.0)]))
+    assert np.array_equal(ds.y_error_pairs, np.array([(0.0, 0.0), (0.0, 0.0)]))
+    assert ds.nPoints == 2

@@ -33,56 +33,38 @@ class Dataset(object):
         self._data = {}
         self.nPoints = 0
 
-        # Check how the data has been provided
+        # Assume that an existing dataset or a ROOT object has been passed
         if len(args) == 1:
-            # Check for ROOT input
             if root2data.valid_input(args[0]):
-                data = root2data(args[0], remove_zeros=kwargs.get("remove_zeros", False))
-                if data.x_values is not None:
-                    self.__add_dimension("x", data.x_values, data.x_error_pairs)
-                if data.y_values is not None:
-                    self.__add_dimension("y", data.y_values, data.y_error_pairs)
-                if data.z_values is not None:
-                    self.__add_dimension("z", data.z_values, data.z_error_pairs)
-                self.nPoints = data.nPoints
+                self.__from_ROOT(args[0], **kwargs)
+            else:
+                self.__from_dataset(args[0], **kwargs)
+
         # Assume that x, y values have been passed
         elif len(args) == 2:
-            if len(args[0]) != len(args[1]):
-                raise AssertionError("Failed to interpret arguments as 'x' and 'y' points since they differ in size")
-            self.__add_dimension("x", args[0], None)
-            self.__add_dimension("y", args[1], None)
-            self.nPoints = len(self._data["x"])
+            self.__from_xy_values(args[0], args[1])
+
         # Assume that x, y, z values have been passed
         elif len(args) == 3:
-            if len(args[0]) * len(args[1]) != len(args[2]):
-                raise AssertionError("Failed to interpret arguments as 'x' and 'y' bins with 'z' values since they differ in size")
-            self.__add_dimension("x", args[0], None)
-            self.__add_dimension("y", args[1], None)
-            self.__add_dimension("z", args[2], None)
-            self.nPoints = len(self._data["z"])
+            self.__from_xyz_values(args[0], args[1], args[2])
+
         # Assume that x, y values with errors have been passed
         elif len(args) == 4:
-            if len(args[0]) != len(args[1]) != len(args[2]) != len(args[3]):
-                raise AssertionError("Failed to interpret arguments as 'x' and 'y' points with errors since they differ in size")
-            self.__add_dimension("x", args[0], args[1])
-            self.__add_dimension("y", args[2], args[3])
-            self.nPoints = len(self._data["x"])
+            self.__from_xy_values_errors(args[0], args[1], args[2], args[3])
+
+        # Assume that x, y values with errors and z values
+        elif len(args) == 5:
+            self.__from_xyz_values_errors(args[0], args[1], args[2], args[3], args[4], None)
+
         # Assume that x, y, z values with errors have been passed
         elif len(args) == 6:
-            if len(args[0]) != len(args[1]) != len(args[2]) != len(args[3]):
-                raise AssertionError("Failed to interpret arguments as 'x' and 'y' points with errors since they differ in size")
-            self.__add_dimension("x", args[0], args[1])
-            self.__add_dimension("y", args[2], args[3])
-            self.__add_dimension("z", args[4], args[5])
-            self.nPoints = len(self._data["z"])
-        # Construct an array of points in 3D space, with an error pair in each direction
+            self.__from_xyz_values_errors(args[0], args[1], args[2], args[3], args[4], args[5])
+
+        # Assume that keyworded lists have been passed in
         else:
-            if "x_values" in kwargs:
-                self.__add_dimension("x", kwargs["x_values"], kwargs.get("x_error_pairs", None), **kwargs)
-            if "y_values" in kwargs:
-                self.__add_dimension("y", kwargs["y_values"], kwargs.get("y_error_pairs", None), **kwargs)
-            if "z_values" in kwargs:
-                self.__add_dimension("z", kwargs["z_values"], kwargs.get("z_error_pairs", None), **kwargs)
+            self.__from_keywords(**kwargs)
+
+        # Add metainformation and validate
         if "x" in self.get_dimensions() and "y" in self.get_dimensions():
             self.__add_xy_dimensions()
         if not self.get_dimensions():
@@ -109,30 +91,163 @@ class Dataset(object):
         """
         return sorted(self._data.keys())
 
-    def number_of_points(self):
-        """Get the number of points in the dataset.
+    def __from_dataset(self, input_dataset, **kwargs):
+        """Construct from an existing dataset or a ROOT object.
 
-        :return: number of data points
-        :rtype: int
+        :param input_dataset: dataset
+        :type input_dataset: Dataset
+
+        :raises AssertionError: arguments are not correctly sized
         """
-        return self.nPoints
+        if not isinstance(input_dataset, Dataset):
+            raise AssertionError("Failed to interpret argument as an existing dataset")
+        if hasattr(input_dataset, "x_points"):
+            self.__add_dimension("x", input_dataset.x_points, input_dataset.x_error_pairs)
+        if hasattr(input_dataset, "y_points"):
+            self.__add_dimension("y", input_dataset.y_points, input_dataset.y_error_pairs)
+        if hasattr(input_dataset, "z_points"):
+            self.__add_dimension("z", input_dataset.z_points, input_dataset.z_error_pairs)
+        self.nPoints = input_dataset.nPoints
+
+    def __from_ROOT(self, input_object, **kwargs):
+        """Construct from an existing ROOT object.
+
+        :param input_object: ROOT object
+        :type input_object: ROOT.TObject
+        """
+        data = root2data(input_object, remove_zeros=kwargs.pop("remove_zeros", False))
+        for dimension in ["x", "y", "z"]:
+            if hasattr(data, "{0}_values".format(dimension)) and getattr(data, "{0}_values".format(dimension)) is not None:
+                self.__add_dimension(dimension, getattr(data, "{0}_values".format(dimension)), getattr(data, "{0}_error_pairs".format(dimension)))
+        self.nPoints = data.nPoints
+
+    def __from_xy_values(self, x, y):
+        """Construct from x, y values.
+
+        :param x: x values
+        :type x: list
+        :param y: y values
+        :type y: list
+
+        :raises AssertionError: arguments are not correctly sized
+        """
+        if len(x) != len(y):
+            raise AssertionError("Failed to interpret arguments as 'x' and 'y' points since they differ in size")
+        self.__add_dimension("x", x, None)
+        self.__add_dimension("y", y, None)
+        self.nPoints = len(self._data["x"])
+
+    def __from_xyz_values(self, x, y, z):
+        """Construct from x, y, z values.
+
+        :param x: x values
+        :type x: list
+        :param y: y values
+        :type y: list
+        :param z: z values
+        :type z: list
+
+        :raises AssertionError: arguments are not correctly sized
+        """
+        if len(x) * len(y) != len(z):
+            raise AssertionError("Failed to interpret arguments as 'x' and 'y' bins with 'z' values since they differ in size")
+        self.__add_dimension("x", x, None)
+        self.__add_dimension("y", y, None)
+        self.__add_dimension("z", z, None)
+        self.nPoints = len(self._data["z"])
+
+    def __from_xy_values_errors(self, x, x_err, y, y_err):
+        """Construct from x, y values with errors.
+
+        :param x: x values
+        :type x: list
+        :param x_err: x errors
+        :type x_err: list
+        :param y: y values
+        :type y: list
+        :param y_err: y errors
+        :type y_err: list
+
+        :raises AssertionError: arguments are not correctly sized
+        """
+        if len(x) != len(y):
+            raise AssertionError("Failed to interpret arguments as 'x' and 'y' points with errors since they differ in size")
+        self.__add_dimension("x", x, x_err)
+        self.__add_dimension("y", y, y_err)
+        self.nPoints = len(self._data["x"])
+
+    def __from_xyz_values_errors(self, x, x_err, y, y_err, z, z_err):
+        """Construct from x, y, z values with errors.
+
+        :param x: x values
+        :type x: list
+        :param x_err: x errors
+        :type x_err: list
+        :param y: y values
+        :type y: list
+        :param y_err: y errors
+        :type y_err: list
+        :param z: z values
+        :type z: list
+        :param z_err: z errors
+        :type z_err: list
+
+        :raises AssertionError: arguments are not correctly sized
+        """
+        if len(x) * len(y) != len(z):
+            raise AssertionError("Failed to interpret arguments as 'x' and 'y' bins with 'z' values since they differ in size")
+        self.__add_dimension("x", x, x_err)
+        self.__add_dimension("y", y, y_err)
+        self.__add_dimension("z", z, z_err)
+        self.nPoints = len(self._data["z"])
+
+    def __from_keywords(self, **kwargs):
+        """Construct an array of points with an error pair in each direction.
+
+        :Keyword Arguments:
+            * **x_values** (*list*) -- x values
+            * **x_error_pairs** (*list*) -- x error pairs
+            * **y_values** (*list*) -- y values
+            * **y_error_pairs** (*list*) -- y error pairs
+            * **z_values** (*list*) -- z values
+            * **z_error_pairs** (*list*) -- z error pairs
+        """
+        if "x_values" in kwargs:
+            self.__add_dimension("x", kwargs.pop("x_values"), kwargs.get("x_error_pairs", None))
+            self.nPoints = len(self._data["x"])
+        if "y_values" in kwargs:
+            self.__add_dimension("y", kwargs.pop("y_values"), kwargs.get("y_error_pairs", None))
+        if "z_values" in kwargs:
+            self.__add_dimension("z", kwargs.pop("z_values"), kwargs.get("z_error_pairs", None))
+            self.nPoints = len(self._data["z"])
 
     def __add_dimension(self, dimension, values, error_pairs):
-        """Add a new dimension with appropriate methods."""
+        """Add a new dimension with appropriate methods.
+
+        :param dimension: which axis dimension to add
+        :type dimension: str
+        :param values: values along this dimension
+        :type values: list
+        :param error_pairs: pairs of errors for each point
+        :type error_pairs: list[tuple]
+        """
         # Use zeros if no errors provided
         if error_pairs is None:
             error_pairs = [(0, 0)] * len(values)
-        # Pair-up errors if only single errors are provided
         try:
+            # If errors are paired, check that each pair has two elements
             for error_pair in error_pairs:
-                assert len(error_pair) == 2
+                if len(error_pair) != 2:
+                    raise ValueError("Error pairs must be of size 2!")
         except TypeError:
+            # Otherwise construct symmetric error pairs
             error_pairs = [(e, e) for e in error_pairs]
-        assert len(values) == len(error_pairs)
-        try:
-            self._data[dimension] = np.array([[value, error_pair[0], error_pair[1]] for value, error_pair in zip(values, error_pairs)])
-        except IndexError:
-            self._data[dimension] = np.array([[value, error, error] for value, error in zip(values, error_pairs)])
+        # Check that the dimensions match
+        if len(values) != len(error_pairs):
+            raise ValueError("Number of error pairs must equal number of values!")
+        # Register this dimension
+        self._data[dimension] = np.array([[value, error_pair[0], error_pair[1]] for value, error_pair in zip(values, error_pairs)])
+        # Add appropriate attributes
         setattr(self, "{0}_points".format(dimension), self.__get_points(dimension))
         setattr(self, "{0}_error_pairs".format(dimension), self.__get_error_pairs(dimension))
         setattr(self, "{0}_points_error_symmetrised".format(dimension), self.__get_points_error_symmetrised(dimension))

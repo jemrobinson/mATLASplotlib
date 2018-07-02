@@ -1,5 +1,4 @@
 """ This module provides the ``root2data`` class."""
-import uuid
 import numpy as np
 import ROOT
 
@@ -15,7 +14,6 @@ class root2data(object):
         :param remove_zeros: whether to remove points with a value of 0
         :type remove_zeros: bool
         """
-
         self.x_values, self.x_error_pairs = None, None
         self.y_values, self.y_error_pairs = None, None
         self.z_values, self.z_error_pairs = None, None
@@ -53,26 +51,6 @@ class root2data(object):
         :rtype: bool
         """
         return isinstance(test_object, ROOT.TObject)
-
-    @staticmethod
-    def from_file(root_file, root_object_name, rebin=None):
-        """Construct data from a ROOT file and the name of the desired object.
-
-        :param root_file: input ROOT file
-        :type root_file: ROOT.TFile
-        :param root_object_name: name of desired ROOT object
-        :type root_object_name: str
-        :return: interpreted object
-        :rtype: root2data
-        :raises ReferenceError: no object with this name could be found in the input file
-        """
-        try:
-            output = root_file.Get(root_object_name).Clone(str(uuid.uuid4()))
-        except ReferenceError:
-            raise ReferenceError("{0} not found in file {1}".format(root_object_name, root_file.GetName()))
-        if rebin is not None:
-            output.Rebin(rebin)
-        return root2data(output)
 
     def construct_from_TF1(self, input_TF1):
         """Read TF1 into x, y dimensions.

@@ -1,7 +1,7 @@
 """ This module provides the ``Ratio`` canvas."""
 from matplotlib.lines import Line2D
 from matplotlib.ticker import FixedLocator
-from numpy import arange, allclose
+import numpy as np
 from base_canvas import BaseCanvas
 
 
@@ -39,7 +39,7 @@ class Ratio(BaseCanvas):
             if "y" not in self.axis_ranges:
                 self.set_axis_range("y", self.subplots[axes].get_ylim())
         elif axes == "bottom":
-            if "y_ratio" not in self.axis_ranges:
+            if np.array_equal(self.axis_ranges["y_ratio"], [0.5, 1.5]):
                 self.set_axis_range("y_ratio", self.subplots[axes].get_ylim())
 
     # Axis labels
@@ -158,7 +158,7 @@ class Ratio(BaseCanvas):
         # Underestimate the interval size since we might be removing the highest tick
         interval = 0.99 * abs(self.axis_ranges["y_ratio"][1] - self.axis_ranges["y_ratio"][0])
         tick_size = min(self.auto_ratio_tick_intervals, key=lambda x: abs((interval / x) - n_approximate))
-        tick_list = arange(1.0 - 10 * tick_size, 1.0 + 10 * tick_size, tick_size)
+        tick_list = np.arange(1.0 - 10 * tick_size, 1.0 + 10 * tick_size, tick_size)
         # Remove topmost tick if it would be at the top of the axis
-        tick_list = [t for t in tick_list if not allclose(t, self.axis_ranges["y_ratio"][1])]
+        tick_list = [t for t in tick_list if not np.allclose(t, self.axis_ranges["y_ratio"][1])]
         return tick_list

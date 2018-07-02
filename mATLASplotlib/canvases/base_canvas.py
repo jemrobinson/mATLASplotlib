@@ -28,7 +28,7 @@ class BaseCanvas(object):
 
         :Keyword Arguments:
             * **log_type** (*str*) -- set 'x', 'y' or both ('xy') axes to log-scale
-            * **log_x_force_label_pos** (*list*) -- list of minor ticks to label when the x-axis is on a log scale
+            * **x_ticks_extra** (*list*) -- list of additional minor ticks to label (only used when the x-axis is on a log scale)
             * **x_tick_labels** (*iterable*) -- list of tick labels for the x-axis
             * **x_tick_label_size** (*float*) -- fontsize for x-axis tick labels
             * **y_tick_labels** (*iterable*) -- list of tick labels for the y-axis
@@ -46,7 +46,7 @@ class BaseCanvas(object):
         self.x_tick_label_size = kwargs.get("x_tick_label_size", None)
         self.y_tick_labels = kwargs.get("y_tick_labels", None)
         self.y_tick_label_size = kwargs.get("y_tick_label_size", None)
-        self.log_x_force_label_pos = kwargs.get("log_x_force_label_pos", [])
+        self.x_ticks_extra = kwargs.get("x_ticks_extra", [])
         # Set up value holders
         self.legend = Legend()
         self.axis_ranges = {}
@@ -81,14 +81,10 @@ class BaseCanvas(object):
             * **label**: (*str*) -- label to use in automatic legend generation
             * **sort_as**: (*str*) -- override
         """
-        remove_zeros = kwargs.pop("remove_zeros", False)
-        if not isinstance(args, Dataset):
-            if hasattr(args, "__iter__"):
-                dataset = Dataset(*args, remove_zeros=remove_zeros, **kwargs)
-            else:
-                dataset = Dataset(args, remove_zeros=remove_zeros, **kwargs)
         axes = kwargs.pop("axes", self.main_subplot)
         plot_style = kwargs.pop("style", None)
+        remove_zeros = kwargs.pop("remove_zeros", False)
+        dataset = Dataset(*args, remove_zeros=remove_zeros, **kwargs)
         plotter = get_plotter(plot_style)
         if "label" in kwargs:
             self.legend.add_dataset(label=kwargs["label"], is_stack=("stack" in plot_style), sort_as=kwargs.pop("sort_as", None))
@@ -288,7 +284,8 @@ class BaseCanvas(object):
                 axes.set_xscale("log", subsx=[2, 3, 4, 5, 6, 7, 8, 9])
                 axes.yaxis.set_major_locator(xlocator)
                 axes.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
-                axes.xaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(self.__minor_tick_format_function))  # only show certain minor labels
+                print "287"
+                axes.xaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(self.__force_extra_x_ticks))  # only show certain minor labels
             else:
                 axes.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
             # Set y-axis locators
@@ -320,7 +317,7 @@ class BaseCanvas(object):
         """Apply any necessary final formatting."""
         pass
 
-    def __minor_tick_format_function(self, x, pos):
+    def __force_extra_x_ticks(self, x, pos):
         """Implement user-defined tick positions.
 
         :param x: tick value.
@@ -330,7 +327,8 @@ class BaseCanvas(object):
         :return: formatted tick position string
         :rtype: str
         """
-        if any(int(x) == elem for elem in self.log_x_force_label_pos):
+        if any(int(x) == elem for elem in self.x_ticks_extra):
+            print "{0:.0f}".format(x)
             return "{0:.0f}".format(x)
         return ""
 

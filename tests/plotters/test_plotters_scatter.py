@@ -31,6 +31,14 @@ def test_scatter_join_centres_linestyle():
         canvas.plot_dataset([0, 1, 2], [0.5, 0.5, 0.5], [4, 9, 16], [2, 3, 4], style="scatter join centres", linestyle="dashed")
         centre_line = [c for c in canvas.subplots["main"].get_children() if isinstance(c, matplotlib.lines.Line2D) and c.get_linestyle() != "None"][0]
         assert centre_line.get_linestyle() == "--"
+    with mATLASplotlib.canvases.Simple() as canvas:
+        canvas.plot_dataset([0, 1, 2], [0.5, 0.5, 0.5], [4, 9, 16], [2, 3, 4], style="scatter join centres", linestyle="dotted")
+        centre_line = [c for c in canvas.subplots["main"].get_children() if isinstance(c, matplotlib.lines.Line2D) and c.get_linestyle() != "None"][0]
+        assert centre_line.get_linestyle() == ":"
+    with mATLASplotlib.canvases.Simple() as canvas:
+        canvas.plot_dataset([0, 1, 2], [0.5, 0.5, 0.5], [4, 9, 16], [2, 3, 4], style="scatter join centres", linestyle="dashdot")
+        centre_line = [c for c in canvas.subplots["main"].get_children() if isinstance(c, matplotlib.lines.Line2D) and c.get_linestyle() != "None"][0]
+        assert centre_line.get_linestyle() == "-."
 
 
 def test_scatter_linewidth():

@@ -41,7 +41,11 @@ def draw_ATLAS_text(x, y, axes, ha, va, plot_type=None, fontsize=17):
 
 
 def __get_renderer(axes):
-    """Retrieve appropriate renderer."""
+    """Retrieve appropriate renderer.
+
+    :param axes: matplotlib axes for which we want the renderer
+    :type axes: matplotlib.axes.Axes
+    """
     if hasattr(axes.get_figure().canvas, "get_renderer"):
         # Some backends, such as TkAgg, have the get_renderer method, which makes this easy.
         renderer = axes.get_figure().canvas.get_renderer()

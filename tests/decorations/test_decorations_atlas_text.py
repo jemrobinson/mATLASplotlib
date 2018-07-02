@@ -1,4 +1,5 @@
 import matplotlib
+import pytest
 import mATLASplotlib
 
 def test_atlas_text():
@@ -68,6 +69,18 @@ def test_atlas_text_upper_right():
         # Upper right should position the " Internal" at 0.5, 0.5 -- note the spacing
         assert [t for t in text_elements if t.get_text() == " Internal"][0].get_position() == (0.5, 0.5)
 
+def test_atlas_text_incorrect_alignment():
+    with mATLASplotlib.canvases.Simple() as canvas:
+        canvas.plot_dataset([0, 1], [5, 10], style="scatter")
+        with pytest.raises(NotImplementedError):
+            mATLASplotlib.decorations.atlas_text.draw_ATLAS_text(0.5, 0.5, canvas.subplots["main"], "center", "top", plot_type="Internal")
 
 
+def test_atlas_text_renderer():
+    if hasattr(matplotlib.backends, "backend_agg"):
+        matplotlib.pyplot.switch_backend("agg")
+        with mATLASplotlib.canvases.Simple() as canvas:
+            canvas.plot_dataset([0, 1], [5, 10], style="scatter")
+            canvas.add_ATLAS_label(0.5, 0.5, plot_type="Internal", anchor_to="upper right")
+        matplotlib.pyplot.switch_backend("pdf")
 
