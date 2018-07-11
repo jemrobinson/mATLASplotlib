@@ -18,6 +18,10 @@ install:
   - pip install autopep8 pycodestyle pyflakes pytest-cov pytest-sugar python-coveralls
 
 script:
+  # Run tests using coveralls output
+  - py.test --cov=mATLASplotlib --cov-report term-missing
+  # Static analysis
+  - pyflakes mATLASplotlib
   # Run autopep8
   - autopep8 mATLASplotlib --recursive --ignore=E501 --in-place
   # Check git diff and update branch if needed
@@ -32,12 +36,8 @@ script:
       git commit -m "Applying pep8 style changes."
       git push --quiet https://${GITHUB_TOKEN}@github.com/jemrobinson/mATLASplotlib.git
     fi
-  # Static analysis
-  - pyflakes mATLASplotlib
   # Check PEP8 compliance
   - pycodestyle --statistics --ignore=E501 --count mATLASplotlib
-  # Run tests using coveralls output
-  - py.test --cov=mATLASplotlib --cov-report term-missing
 
 after_success:
   # Upload results to coveralls.io
