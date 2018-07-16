@@ -12,6 +12,10 @@ mATLASplotlib
    :target: https://coveralls.io/github/jemrobinson/mATLASplotlib?branch=master
    :alt: Coverage
 
+.. image:: https://badge.fury.io/py/mATLASplotlib.svg
+   :target: https://badge.fury.io/py/mATLASplotlib
+   :alt: pypi
+
 This package provides wrappers around matplotlib functionality produce plots compatible with the style guidelines for the ATLAS experiment at the LHC.
 It is particularly aimed at users who are not familiar with matplotlib syntax.
 Basic usage involves creating a canvas, plotting a dataset and saving the output to a file.
