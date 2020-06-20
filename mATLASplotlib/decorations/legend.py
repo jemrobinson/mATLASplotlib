@@ -86,7 +86,7 @@ class Legend(object):
             self.legend_order[idx] = label
         # Sort list of labels
         sorted_labels, sorted_handles = [], []
-        for label in [l for l in self.legend_order if l in labels]:
+        for label in [label for label in self.legend_order if label in labels]:
             idx = labels.index(label)
             sorted_handles.append(handles.pop(idx))
             sorted_labels.append(labels.pop(idx))
