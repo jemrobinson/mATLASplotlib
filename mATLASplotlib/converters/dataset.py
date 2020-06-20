@@ -303,7 +303,7 @@ class Dataset(object):
         attr_name = "_{0}_all_bin_edges".format(dimension)
         if not hasattr(self, attr_name):
             low_edges, high_edges = self.__get_bin_low_edges(dimension), self.__get_bin_high_edges(dimension)
-            value = np.array(sum([[l, h] for l, h in zip(low_edges, high_edges)], []))
+            value = np.array(sum([[low, high] for low, high in zip(low_edges, high_edges)], []))
             setattr(self, attr_name, value)
         return getattr(self, attr_name)
 
