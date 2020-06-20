@@ -15,7 +15,7 @@ install:
   - time python -c 'from ROOT import kTRUE'
   # Install requirements
   - pip install -r requirements.txt
-  - pip install autopep8 pycodestyle pyflakes pytest-cov pytest-sugar python-coveralls
+  - pip install autopep8 coverage==4.5.4 pycodestyle pyflakes pytest-cov pytest-sugar python-coveralls
 
 script:
   # Run tests using coveralls output
